@@ -13,11 +13,10 @@ services:
       - --certificatesresolvers.le.acme.tlschallenge=true
       - --certificatesresolvers.le.acme.email=memko021@gmail.com
       - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
-      # Pas de redirections automatiques pour permettre HTTP temporaire
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"  # Dashboard pour monitoring
+      - "8080:8080"
     volumes:
       - ./letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -37,22 +36,20 @@ services:
       - SPRING_DATASOURCE_USERNAME=user_mgh
       - SPRING_DATASOURCE_PASSWORD=mgh@2022
       - JWT_SECRET=${JWT_SECRET:-default-jwt-secret}
-      # CORS mis à jour pour HTTP + HTTPS
-      - cors.allowed-origins=http://mgh-university.com,http://www.mgh-university.com,http://api.mgh-university.com,https://mgh-university.com,https://www.mgh-university.com,https://api.mgh-university.com
+      - cors.allowed-origins=http://magestionhotel.com,http://www.magestionhotel.com,http://api.magestionhotel.com,https://magestionhotel.com,https://www.magestionhotel.com,https://api.magestionhotel.com
     networks:
       - mgh-network
     labels:
       - "traefik.enable=true"
-      # Route HTTP (fonctionne immédiatement)
-      - "traefik.http.routers.backend-http.rule=Host(`api.mgh-university.com`) && PathPrefix(`/api`)"
+      # HTTP
+      - "traefik.http.routers.backend-http.rule=Host(`api.magestionhotel.com`) && PathPrefix(`/api`)"
       - "traefik.http.routers.backend-http.entrypoints=web"
       - "traefik.http.routers.backend-http.priority=1"
-      # Route HTTPS (fonctionne une fois certificats générés)
-      - "traefik.http.routers.backend-https.rule=Host(`api.mgh-university.com`) && PathPrefix(`/api`)"
+      # HTTPS
+      - "traefik.http.routers.backend-https.rule=Host(`api.magestionhotel.com`) && PathPrefix(`/api`)"
       - "traefik.http.routers.backend-https.entrypoints=websecure"
       - "traefik.http.routers.backend-https.tls.certresolver=le"
       - "traefik.http.routers.backend-https.priority=2"
-      # Service partagé
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
 
   frontend:
@@ -64,16 +61,15 @@ services:
       - mgh-network
     labels:
       - "traefik.enable=true"
-      # Route HTTP (fonctionne immédiatement)
-      - "traefik.http.routers.frontend-http.rule=Host(`mgh-university.com`, `www.mgh-university.com`)"
+      # HTTP
+      - "traefik.http.routers.frontend-http.rule=Host(`magestionhotel.com`, `www.magestionhotel.com`)"
       - "traefik.http.routers.frontend-http.entrypoints=web"
       - "traefik.http.routers.frontend-http.priority=1"
-      # Route HTTPS (fonctionne une fois certificats générés)
-      - "traefik.http.routers.frontend-https.rule=Host(`mgh-university.com`, `www.mgh-university.com`)"
+      # HTTPS
+      - "traefik.http.routers.frontend-https.rule=Host(`magestionhotel.com`, `www.magestionhotel.com`)"
       - "traefik.http.routers.frontend-https.entrypoints=websecure"
       - "traefik.http.routers.frontend-https.tls.certresolver=le"
       - "traefik.http.routers.frontend-https.priority=2"
-      # Service partagé
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
   phpmyadmin:
@@ -84,16 +80,15 @@ services:
       MYSQL_ROOT_PASSWORD: Memko@2022
     labels:
       - "traefik.enable=true"
-      # Route HTTP (fonctionne immédiatement)
-      - "traefik.http.routers.phpmyadmin-http.rule=Host(`phpmyadmin.mgh-university.com`)"
+      # HTTP
+      - "traefik.http.routers.phpmyadmin-http.rule=Host(`db.magestionhotel.com`)"
       - "traefik.http.routers.phpmyadmin-http.entrypoints=web"
       - "traefik.http.routers.phpmyadmin-http.priority=1"
-      # Route HTTPS (fonctionne une fois certificats générés)
-      - "traefik.http.routers.phpmyadmin-https.rule=Host(`phpmyadmin.mgh-university.com`)"
+      # HTTPS
+      - "traefik.http.routers.phpmyadmin-https.rule=Host(`db.magestionhotel.com`)"
       - "traefik.http.routers.phpmyadmin-https.entrypoints=websecure"
       - "traefik.http.routers.phpmyadmin-https.tls.certresolver=le"
       - "traefik.http.routers.phpmyadmin-https.priority=2"
-      # Service partagé
       - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
     networks:
       - mgh-network
