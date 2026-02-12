@@ -1,0 +1,358 @@
+<div class="reservation-detail-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Toolbar avec actions -->
+  <p-toolbar>
+    <ng-template pTemplate="left">
+      <p-button 
+        icon="pi pi-arrow-left" 
+        (onClick)="goBack()"
+        [text]="true"
+        label="Retour">
+      </p-button>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <div class="flex gap-2">
+        <p-button 
+          *ngIf="canCheckin()"
+          label="Check-in" 
+          icon="pi pi-sign-in" 
+          (onClick)="doCheckin()"
+          severity="success">
+        </p-button>
+        <p-button 
+          *ngIf="canCheckout()"
+          label="Check-out" 
+          icon="pi pi-sign-out" 
+          (onClick)="doCheckout()"
+          severity="warn">
+        </p-button>
+        <p-button 
+          *ngIf="canAddPaiement()"
+          label="Ajouter un paiement" 
+          icon="pi pi-money-bill" 
+          (onClick)="openPaiementDialog()"
+          severity="info">
+        </p-button>
+        <p-button 
+          *ngIf="canCancel()"
+          label="Annuler" 
+          icon="pi pi-times" 
+          (onClick)="cancelReservation()"
+          severity="danger"
+          [outlined]="true">
+        </p-button>
+      </div>
+    </ng-template>
+  </p-toolbar>
+
+  <div *ngIf="loading" class="flex justify-content-center align-items-center" style="min-height: 400px;">
+    <i class="pi pi-spin pi-spinner text-6xl text-primary"></i>
+  </div>
+
+  <div *ngIf="!loading && reservation">
+    <!-- En-tête avec statuts -->
+    <p-card class="mt-3">
+      <div class="card-header-content">
+        <div>
+          <h3><i class="pi pi-calendar mr-2"></i>Réservation {{ reservation.numeroReservation }}</h3>
+          <p class="text-500 mt-2">
+            Créée le {{ formatDateTime(reservation.createdAt) }}
+            <span *ngIf="reservation.createdByName"> par {{ reservation.createdByName }}</span>
+          </p>
+        </div>
+        <div class="flex gap-2 align-items-center">
+          <p-tag 
+            [value]="getStatutLabel(reservation.statut)" 
+            [severity]="getStatutSeverity(reservation.statut)"
+            styleClass="text-lg px-3 py-2">
+          </p-tag>
+          <p-tag 
+            [value]="getStatutPaiementLabel(reservation.statutPaiement)" 
+            [severity]="getStatutPaiementSeverity(reservation.statutPaiement)"
+            styleClass="text-lg px-3 py-2">
+          </p-tag>
+        </div>
+      </div>
+    </p-card>
+
+    <div class="grid mt-3">
+      <!-- Informations du client -->
+      <div class="col-12 lg:col-6">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="section">
+              <h4 class="section-title">
+                <i class="pi pi-user mr-2"></i>
+                Informations Client
+              </h4>
+            </div>
+          </ng-template>
+
+          <div class="info-item">
+            <span class="label">Nom complet</span>
+            <span class="value font-semibold text-lg">
+              {{ reservation.clientPrenom }} {{ reservation.clientNom }}
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Téléphone</span>
+            <span class="value">
+              <i class="pi pi-phone mr-2"></i>{{ reservation.clientTelephone }}
+            </span>
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Informations de la chambre -->
+      <div class="col-12 lg:col-6">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="section">
+              <h4 class="section-title">
+                <i class="pi pi-home mr-2"></i>
+                Informations Chambre
+              </h4>
+            </div>
+          </ng-template>
+
+          <div class="info-item">
+            <span class="label">Numéro de chambre</span>
+            <span class="value font-semibold text-lg">{{ reservation.chambreNumero }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Personnes</span>
+            <span class="value">
+              <i class="pi pi-users mr-2"></i>
+              {{ reservation.nombreAdultes }} adulte(s)
+              <span *ngIf="reservation.nombreEnfants && reservation.nombreEnfants > 0">
+                + {{ reservation.nombreEnfants }} enfant(s)
+              </span>
+            </span>
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Détails du séjour -->
+      <div class="col-12 lg:col-6">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="section">
+              <h4 class="section-title">
+                <i class="pi pi-calendar-clock mr-2"></i>
+                Détails du Séjour
+              </h4>
+            </div>
+          </ng-template>
+
+          <div class="info-item">
+            <span class="label">Date d'arrivée</span>
+            <span class="value font-semibold">{{ formatDate(reservation.dateArrivee) }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Date de départ</span>
+            <span class="value font-semibold">{{ formatDate(reservation.dateDepart) }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Nombre de nuits</span>
+            <span class="value">
+              <p-tag [value]="reservation.nombreNuits?.toString() || '0'" severity="info"></p-tag>
+            </span>
+          </div>
+
+          <p-divider></p-divider>
+
+          <div class="info-item" *ngIf="reservation.dateCheckin">
+            <span class="label">Check-in effectué</span>
+            <span class="value">
+              {{ formatDateTime(reservation.dateCheckin) }}
+              <small *ngIf="reservation.checkinByName" class="text-500">
+                <br>par {{ reservation.checkinByName }}
+              </small>
+            </span>
+          </div>
+
+          <div class="info-item" *ngIf="reservation.dateCheckout">
+            <span class="label">Check-out effectué</span>
+            <span class="value">
+              {{ formatDateTime(reservation.dateCheckout) }}
+              <small *ngIf="reservation.checkoutByName" class="text-500">
+                <br>par {{ reservation.checkoutByName }}
+              </small>
+            </span>
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Détails financiers -->
+      <div class="col-12 lg:col-6">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="section">
+              <h4 class="section-title">
+                <i class="pi pi-money-bill mr-2"></i>
+                Détails Financiers
+              </h4>
+            </div>
+          </ng-template>
+
+          <div class="financial-summary">
+            <div class="summary-item">
+              <span class="label">Prix par nuit</span>
+              <span class="value">{{ formatCurrency(reservation.prixParNuit) }}</span>
+            </div>
+
+            <div class="summary-item">
+              <span class="label">Nombre de nuits</span>
+              <span class="value">{{ reservation.nombreNuits }}</span>
+            </div>
+
+            <p-divider></p-divider>
+
+            <div class="summary-item">
+              <span class="label">Montant total</span>
+              <span class="value text-primary">{{ formatCurrency(reservation.montantTotal) }}</span>
+            </div>
+
+            <div class="summary-item">
+              <span class="label">Montant payé</span>
+              <span class="value text-green-600">{{ formatCurrency(reservation.montantPaye) }}</span>
+            </div>
+
+            <div class="summary-item total">
+              <span class="label">Montant restant</span>
+              <span class="value" [class.text-red-600]="reservation.montantRestant && reservation.montantRestant > 0">
+                {{ formatCurrency(reservation.montantRestant) }}
+              </span>
+            </div>
+
+            <div class="info-item mt-3" *ngIf="reservation.modePaiement">
+              <span class="label">Mode de paiement</span>
+              <span class="value">
+                <i class="pi pi-credit-card mr-2"></i>{{ reservation.modePaiement }}
+              </span>
+            </div>
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Notes et demandes spéciales -->
+      <div class="col-12" *ngIf="reservation.notes || reservation.demandesSpeciales">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="section">
+              <h4 class="section-title">
+                <i class="pi pi-comment mr-2"></i>
+                Notes et Demandes Spéciales
+              </h4>
+            </div>
+          </ng-template>
+
+          <div class="info-item" *ngIf="reservation.notes">
+            <span class="label">Notes internes</span>
+            <p class="value mt-2">{{ reservation.notes }}</p>
+          </div>
+
+          <p-divider *ngIf="reservation.notes && reservation.demandesSpeciales"></p-divider>
+
+          <div class="info-item" *ngIf="reservation.demandesSpeciales">
+            <span class="label">Demandes spéciales</span>
+            <p class="value mt-2">{{ reservation.demandesSpeciales }}</p>
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Informations système -->
+      <div class="col-12">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="section">
+              <h4 class="section-title">
+                <i class="pi pi-info-circle mr-2"></i>
+                Informations Système
+              </h4>
+            </div>
+          </ng-template>
+
+          <div class="system-info">
+            <div class="info-item">
+              <span class="label">Date de création</span>
+              <span class="value">{{ formatDateTime(reservation.createdAt) }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Dernière modification</span>
+              <span class="value">{{ formatDateTime(reservation.updatedAt) }}</span>
+            </div>
+
+            <div class="info-item" *ngIf="reservation.referenceExterne">
+              <span class="label">Référence externe</span>
+              <span class="value">{{ reservation.referenceExterne }}</span>
+            </div>
+          </div>
+        </p-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dialog pour ajouter un paiement -->
+  <p-dialog 
+    header="Ajouter un paiement" 
+    [(visible)]="showPaiementDialog"
+    [modal]="true"
+    [style]="{width: '450px'}"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <div class="grid">
+      <div class="col-12">
+        <label for="montant">Montant <span class="text-red-500">*</span></label>
+        <p-inputNumber
+          id="montant"
+          [(ngModel)]="montantPaiement"
+          mode="decimal"
+          [minFractionDigits]="0"
+          [maxFractionDigits]="0"
+          suffix=" FCFA"
+          placeholder="Entrez le montant"
+          class="w-full mt-2">
+        </p-inputNumber>
+        <small class="text-500">Montant restant: {{ formatCurrency(reservation?.montantRestant) }}</small>
+      </div>
+
+      <div class="col-12 mt-3">
+        <label for="modePaiement">Mode de paiement <span class="text-red-500">*</span></label>
+        <p-select
+          id="modePaiement"
+          [(ngModel)]="modePaiementSelected"
+          [options]="modesPaiementOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Sélectionner un mode de paiement"
+          class="w-full mt-2">
+        </p-select>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button 
+        label="Annuler" 
+        icon="pi pi-times" 
+        (onClick)="showPaiementDialog = false"
+        severity="secondary"
+        [text]="true">
+      </p-button>
+      <p-button 
+        label="Enregistrer" 
+        icon="pi pi-check" 
+        (onClick)="savePaiement()"
+        severity="success">
+      </p-button>
+    </ng-template>
+  </p-dialog>
+</div>

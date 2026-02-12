@@ -1,0 +1,285 @@
+<div class="detail-container">
+  <p-toast />
+  <p-confirmDialog />
+
+  <!-- Header -->
+  <div class="detail-header">
+    <div class="header-left">
+      <p-button
+        icon="pi pi-arrow-left"
+        (onClick)="goBack()"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        pTooltip="Retour"
+        tooltipPosition="bottom" />
+      <h2>Détails de la transaction</h2>
+    </div>
+  </div>
+
+  <div class="detail-content" *ngIf="transaction">
+    <!-- Contenu principal -->
+    <div class="main-content">
+      <!-- Informations générales -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <h3>Informations générales</h3>
+            <div class="header-tags">
+              <p-tag 
+                [value]="getTypeLabel(transaction.type)"
+                [severity]="getSeverity(transaction.type)"
+                [icon]="transaction.type === TypeTransaction.REVENU ? 'pi pi-arrow-down' : 'pi pi-arrow-up'" />
+              <p-tag 
+                [value]="getStatutLabel(transaction.statut)"
+                [severity]="getStatutSeverity(transaction.statut)" />
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Référence</span>
+            <span class="info-value">{{ transaction.reference || '-' }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Date de transaction</span>
+            <span class="info-value">{{ formatDateTime(transaction.dateTransaction) }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Catégorie</span>
+            <span class="info-value">{{ transaction.categorie }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Mode de paiement</span>
+            <span class="info-value">
+              {{ transaction.modePaiement ? getModePaiementLabel(transaction.modePaiement) : '-' }}
+            </span>
+          </div>
+
+          <div class="info-item full-width" *ngIf="transaction.description">
+            <span class="info-label">Description</span>
+            <span class="info-value">{{ transaction.description }}</span>
+          </div>
+
+          <div class="info-item full-width" *ngIf="transaction.notes">
+            <span class="info-label">Notes</span>
+            <span class="info-value notes">{{ transaction.notes }}</span>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Relations -->
+      <p-card *ngIf="transaction.reservationId || transaction.commandeRestaurantId || transaction.fournisseurId">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <h3>Relations</h3>
+          </div>
+        </ng-template>
+
+        <div class="info-grid">
+          <div class="info-item" *ngIf="transaction.reservationId">
+            <span class="info-label">
+              <i class="pi pi-home"></i> Réservation
+            </span>
+            <span class="info-value">{{ transaction.reservationNumero }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="transaction.commandeRestaurantId">
+            <span class="info-label">
+              <i class="pi pi-shopping-cart"></i> Commande restaurant
+            </span>
+            <span class="info-value">{{ transaction.commandeNumero }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="transaction.fournisseurId">
+            <span class="info-label">
+              <i class="pi pi-building"></i> Fournisseur
+            </span>
+            <span class="info-value">{{ transaction.fournisseurNom }}</span>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Pièce justificative -->
+      <p-card *ngIf="transaction.pieceJustificative || transaction.numeroPiece">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <h3>Pièce justificative</h3>
+          </div>
+        </ng-template>
+
+        <div class="info-grid">
+          <div class="info-item" *ngIf="transaction.numeroPiece">
+            <span class="info-label">Numéro de pièce</span>
+            <span class="info-value">{{ transaction.numeroPiece }}</span>
+          </div>
+
+          <div class="info-item full-width" *ngIf="transaction.pieceJustificative">
+            <span class="info-label">Document</span>
+            <div class="document-link">
+              <i class="pi pi-file"></i>
+              <a [href]="transaction.pieceJustificative" target="_blank">
+                Voir le document
+              </a>
+            </div>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Informations de validation -->
+      <p-card *ngIf="transaction.validePar || transaction.dateValidation">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <h3>Validation</h3>
+          </div>
+        </ng-template>
+
+        <div class="info-grid">
+          <div class="info-item" *ngIf="transaction.validePar">
+            <span class="info-label">Validé par</span>
+            <span class="info-value">{{ transaction.validePar }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="transaction.dateValidation">
+            <span class="info-label">Date de validation</span>
+            <span class="info-value">{{ formatDateTime(transaction.dateValidation) }}</span>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Informations système -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <h3>Informations système</h3>
+          </div>
+        </ng-template>
+
+        <div class="info-grid">
+          <div class="info-item" *ngIf="transaction.createdByName">
+            <span class="info-label">Créé par</span>
+            <span class="info-value">{{ transaction.createdByName }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="transaction.createdAt">
+            <span class="info-label">Date de création</span>
+            <span class="info-value">{{ formatDateTime(transaction.createdAt) }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="transaction.updatedAt">
+            <span class="info-label">Dernière modification</span>
+            <span class="info-value">{{ formatDateTime(transaction.updatedAt) }}</span>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Résumé montant -->
+      <p-card styleClass="summary-card">
+        <ng-template pTemplate="header">
+          <h3>Résumé</h3>
+        </ng-template>
+
+        <div class="summary-item">
+          <span class="summary-label">Type</span>
+          <span class="summary-value">
+            <p-tag 
+              [value]="getTypeLabel(transaction.type)"
+              [severity]="getSeverity(transaction.type)" />
+          </span>
+        </div>
+
+        <p-divider />
+
+        <div class="summary-item amount">
+          <span class="summary-label">Montant</span>
+          <span class="summary-value large" 
+                [class.success-text]="transaction.type === TypeTransaction.REVENU"
+                [class.danger-text]="transaction.type === TypeTransaction.DEPENSE">
+            {{ formatCurrency(transaction.montant) }}
+          </span>
+        </div>
+
+        <p-divider />
+
+        <div class="summary-item">
+          <span class="summary-label">Statut</span>
+          <span class="summary-value">
+            <p-tag 
+              [value]="getStatutLabel(transaction.statut)"
+              [severity]="getStatutSeverity(transaction.statut)" />
+          </span>
+        </div>
+
+        <p-divider />
+
+        <div class="summary-item">
+          <span class="summary-label">Catégorie</span>
+          <span class="summary-value">{{ transaction.categorie }}</span>
+        </div>
+
+        <p-divider *ngIf="transaction.dateTransaction" />
+
+        <div class="summary-item" *ngIf="transaction.dateTransaction">
+          <span class="summary-label">Date</span>
+          <span class="summary-value small">{{ formatDate(transaction.dateTransaction) }}</span>
+        </div>
+      </p-card>
+
+      <!-- Actions rapides -->
+      <p-card styleClass="actions-card">
+        <ng-template pTemplate="header">
+          <h3>Actions rapides</h3>
+        </ng-template>
+
+        <div class="action-buttons">
+          <p-button
+            label="Valider"
+            icon="pi pi-check"
+            (onClick)="validerTransaction()"
+            severity="success"
+            *ngIf="transaction.statut === StatutTransaction.EN_ATTENTE"
+            styleClass="w-full" />
+
+          <p-button
+            label="Modifier"
+            icon="pi pi-pencil"
+            (onClick)="editTransaction()"
+            severity="warn"
+            *ngIf="transaction.statut === StatutTransaction.EN_ATTENTE"
+            styleClass="w-full" />
+
+          <p-button
+            label="Annuler transaction"
+            icon="pi pi-times"
+            (onClick)="annulerTransaction()"
+            severity="danger"
+            [outlined]="true"
+            *ngIf="transaction.statut === StatutTransaction.VALIDEE"
+            styleClass="w-full" />
+
+          <p-button
+            label="Supprimer"
+            icon="pi pi-trash"
+            (onClick)="deleteTransaction()"
+            severity="danger"
+            [outlined]="true"
+            *ngIf="transaction.statut === StatutTransaction.EN_ATTENTE"
+            styleClass="w-full" />
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    <p>Chargement...</p>
+  </div>
+</div>

@@ -1,0 +1,232 @@
+<div class="detail-commande-container" *ngIf="commande">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- En-tête -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-left">
+        <button 
+          pButton 
+          icon="pi pi-arrow-left" 
+          class="p-button-text p-button-sm"
+          (click)="retourListe()">
+        </button>
+        <div>
+          <h2>Commande {{ commande.numeroCommande }}</h2>
+          <p class="subtitle">Créée le {{ commande.dateCommande | date: 'dd/MM/yyyy à HH:mm' }}</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <p-tag 
+          [value]="getStatutLabel(commande.statut)" 
+          [severity]="getStatutSeverity(commande.statut)"
+          styleClass="status-tag">
+        </p-tag>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="quick-actions" *ngIf="commande.statut !== 'PAYEE' && commande.statut !== 'ANNULEE'">
+    <button 
+      pButton 
+      label="En Préparation" 
+      icon="pi pi-cog" 
+      class="p-button-info"
+      *ngIf="canPasserEnPreparation()"
+      (click)="passerEnPreparation()">
+    </button>
+
+    <button 
+      pButton 
+      label="Prête" 
+      icon="pi pi-check-circle" 
+      class="p-button-success"
+      *ngIf="canMarquerPrete()"
+      (click)="marquerPrete()">
+    </button>
+
+    <button 
+      pButton 
+      label="Servie" 
+      icon="pi pi-send" 
+      class="p-button-primary"
+      *ngIf="canMarquerServie()"
+      (click)="marquerServie()">
+    </button>
+
+    <button 
+      pButton 
+      label="Enregistrer Paiement" 
+      icon="pi pi-money-bill" 
+      class="p-button-help"
+      *ngIf="canAjouterPaiement()"
+      (click)="ajouterPaiement()">
+    </button>
+
+    <button 
+      pButton 
+      label="Marquer Payée" 
+      icon="pi pi-check" 
+      class="p-button-success"
+      *ngIf="canMarquerPayee()"
+      (click)="marquerPayee()">
+    </button>
+
+    <button 
+      pButton 
+      label="Imprimer" 
+      icon="pi pi-print" 
+      class="p-button-secondary"
+      (click)="imprimer()">
+    </button>
+  </div>
+
+  <div class="content-grid">
+    <!-- Informations Commande -->
+    <p-card header="Informations de la Commande" class="info-card">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">
+            <i class="pi pi-hashtag"></i>
+            Numéro de Commande
+          </span>
+          <span class="info-value">{{ commande.numeroCommande }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">
+            <i class="pi pi-user"></i>
+            Client
+          </span>
+          <span class="info-value">{{ getClientDisplay() }}</span>
+          <span *ngIf="commande.telephoneClientExterne" class="info-subvalue">
+            {{ commande.telephoneClientExterne }}
+          </span>
+        </div>
+
+        <div class="info-item" *ngIf="commande.numeroTable">
+          <span class="info-label">
+            <i class="pi pi-table"></i>
+            Table
+          </span>
+          <span class="info-value">{{ commande.numeroTable }}</span>
+        </div>
+
+        <div class="info-item" *ngIf="commande.serveurNom">
+          <span class="info-label">
+            <i class="pi pi-user-edit"></i>
+            Serveur
+          </span>
+          <span class="info-value">{{ commande.serveurNom }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">
+            <i class="pi pi-clock"></i>
+            Date de Commande
+          </span>
+          <span class="info-value">{{ commande.dateCommande | date: 'dd/MM/yyyy à HH:mm' }}</span>
+        </div>
+
+        <div class="info-item" *ngIf="commande.dateService">
+          <span class="info-label">
+            <i class="pi pi-send"></i>
+            Date de Service
+          </span>
+          <span class="info-value">{{ commande.dateService | date: 'dd/MM/yyyy à HH:mm' }}</span>
+        </div>
+      </div>
+
+      <div *ngIf="commande.notes" class="notes-section">
+        <h4>Notes</h4>
+        <p>{{ commande.notes }}</p>
+      </div>
+    </p-card>
+
+    <!-- Détails des Produits -->
+    <p-card header="Détails des Produits" class="products-card">
+      <p-table 
+        [value]="commande.lignes"
+        styleClass="p-datatable-sm">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Produit</th>
+            <th style="width: 100px">Quantité</th>
+            <th style="width: 150px">Prix Unitaire</th>
+            <th style="width: 150px">Sous-total</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-ligne>
+          <tr>
+            <td>
+              <div class="produit-cell">
+                <strong>{{ ligne.produitMenuNom }}</strong>
+                <small *ngIf="ligne.notes" class="text-muted d-block">
+                  Note: {{ ligne.notes }}
+                </small>
+              </div>
+            </td>
+            <td class="text-center">
+              <span class="quantity-badge">{{ ligne.quantite }}</span>
+            </td>
+            <td class="text-right">
+              {{ ligne.prixUnitaire.toLocaleString('fr-FR') }} FCFA
+            </td>
+            <td class="text-right">
+              <strong>{{ ligne.sousTotal.toLocaleString('fr-FR') }} FCFA</strong>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+          <tr class="total-row">
+            <td colspan="3" class="text-right"><strong>MONTANT TOTAL:</strong></td>
+            <td class="text-right">
+              <strong class="total-amount">{{ commande.montantTotal.toLocaleString('fr-FR') }} FCFA</strong>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+
+    <!-- Paiement -->
+    <p-card header="Informations de Paiement" class="payment-card">
+      <div class="payment-summary">
+        <div class="payment-line">
+          <span>Montant Total:</span>
+          <strong>{{ commande.montantTotal.toLocaleString('fr-FR') }} FCFA</strong>
+        </div>
+        <div class="payment-line">
+          <span>Montant Payé:</span>
+          <strong class="text-success">{{ (commande.montantPaye || 0).toLocaleString('fr-FR') }} FCFA</strong>
+        </div>
+        <div class="payment-line total-line">
+          <span>Montant Restant:</span>
+          <strong [class.text-danger]="getMontantRestant() > 0">
+            {{ getMontantRestant().toLocaleString('fr-FR') }} FCFA
+          </strong>
+        </div>
+      </div>
+
+      <div *ngIf="getMontantRestant() === 0" class="payment-complete">
+        <i class="pi pi-check-circle"></i>
+        <span>Paiement complet</span>
+      </div>
+
+      <div *ngIf="getMontantRestant() > 0" class="payment-pending">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>Paiement incomplet</span>
+      </div>
+    </p-card>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-container">
+  <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+  <p>Chargement...</p>
+</div>

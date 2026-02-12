@@ -1,0 +1,29 @@
+/* Styles personnalisés pour la liste des employés */
+
+.p-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.p-toolbar {
+  border-radius: 6px;
+}
+
+::ng-deep .p-datatable {
+  .p-datatable-header {
+    background: #f8f9fa;
+    border-top: none;
+  }
+
+  .p-datatable-tbody > tr > td {
+    vertical-align: middle;
+  }
+}
+
+/* Styles pour les statistiques */
+.stats-card {
+  transition: transform 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+}

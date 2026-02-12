@@ -1,0 +1,854 @@
+<div class="reservation-create-container">
+  <!-- 
+    Toast : Système de notifications qui apparaît en haut à droite
+    pour informer l'utilisateur des succès, erreurs ou avertissements
+  -->
+  <p-toast></p-toast>
+  
+  <!-- 
+    Barre d'outils supérieure : Affiche le titre et le bouton d'annulation
+    Elle reste fixe en haut de la page pour une navigation facile
+  -->
+  <p-toolbar>
+    <ng-template pTemplate="start">
+      <h2>
+        <i class="pi pi-calendar-plus mr-2"></i>
+        {{ isEditMode ? 'Modifier la réservation' : 'Nouvelle réservation' }}
+      </h2>
+    </ng-template>
+    <ng-template pTemplate="end">
+      <p-button 
+        label="Annuler" 
+        icon="pi pi-times" 
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="annuler()"
+        [disabled]="loading">
+      </p-button>
+    </ng-template>
+  </p-toolbar>
+
+  <!-- 
+    Indicateur de progression (Steps)
+    Montre visuellement à l'utilisateur où il se trouve dans le processus
+    activeIndex est lié à la propriété du composant et se met à jour automatiquement
+  -->
+  <div class="steps-container mt-4">
+    <p-steps 
+      [model]="items" 
+      [(activeIndex)]="activeIndex"
+      [readonly]="true">
+    </p-steps>
+  </div>
+
+  <!-- 
+    Spinner de chargement
+    Affiché pendant les opérations asynchrones comme le chargement des chambres
+    ou la création de la réservation
+  -->
+  <div *ngIf="loading" class="flex justify-center items-center my-8">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+
+  <!-- 
+    Contenu principal - Affiché uniquement quand on ne charge pas de données
+    Chaque étape est conditionnellement affichée selon activeIndex
+  -->
+  <div *ngIf="!loading" class="step-content">
+    
+    <!-- ========================================================================
+         ÉTAPE 1: SÉLECTION DES DATES ET DE LA CHAMBRE
+         Cette étape permet de choisir les dates du séjour et la chambre souhaitée
+         Le système vérifie automatiquement la disponibilité des chambres
+         ======================================================================== -->
+    <div *ngIf="activeIndex === 0">
+      <h3 class="step-title">
+        <i class="pi pi-calendar mr-2"></i>
+        Sélection des dates et de la chambre
+      </h3>
+
+      <!-- Formulaire réactif lié à datesForm -->
+      <form [formGroup]="datesForm">
+        <p-card>
+          <div class="grid">
+            <!-- 
+              Date d'arrivée
+              DatePicker avec minDate pour empêcher les dates dans le passé
+              Les erreurs sont affichées conditionnellement avec *ngIf
+            -->
+            <div class="col-12 md:col-6">
+              <label for="dateArrivee" class="block mb-2 required">Date d'arrivée</label>
+              <p-datepicker 
+                inputId="dateArrivee"
+                formControlName="dateArrivee"
+                [showIcon]="true"
+                [minDate]="minDate"
+                dateFormat="dd/mm/yy"
+                placeholder="Sélectionnez une date"
+                styleClass="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': datesForm.get('dateArrivee')?.invalid && datesForm.get('dateArrivee')?.touched}">
+              </p-datepicker>
+              <small 
+                *ngIf="datesForm.get('dateArrivee')?.invalid && datesForm.get('dateArrivee')?.touched"
+                class="p-error">
+                La date d'arrivée est obligatoire
+              </small>
+            </div>
+
+            <!-- 
+              Date de départ
+              La validation vérifie que cette date est postérieure à la date d'arrivée
+            -->
+            <div class="col-12 md:col-6">
+              <label for="dateDepart" class="block mb-2 required">Date de départ</label>
+              <p-datepicker 
+                inputId="dateDepart"
+                formControlName="dateDepart"
+                [showIcon]="true"
+                [minDate]="minDate"
+                dateFormat="dd/mm/yy"
+                placeholder="Sélectionnez une date"
+                styleClass="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': datesForm.get('dateDepart')?.invalid && datesForm.get('dateDepart')?.touched}">
+              </p-datepicker>
+              <!-- Messages d'erreur différents selon le type d'erreur -->
+              <small 
+                *ngIf="datesForm.get('dateDepart')?.hasError('required') && datesForm.get('dateDepart')?.touched"
+                class="p-error">
+                La date de départ est obligatoire
+              </small>
+              <small 
+                *ngIf="datesForm.get('dateDepart')?.hasError('invalidDate')"
+                class="p-error">
+                La date de départ doit être après la date d'arrivée
+              </small>
+            </div>
+
+            <!-- 
+              Nombre d'adultes
+              InputNumber avec boutons +/- pour faciliter la saisie
+              Min: 1, Max: 10 pour respecter les capacités des chambres
+            -->
+            <div class="col-12 md:col-6">
+              <label for="nombreAdultes" class="block mb-2 required">Nombre d'adultes</label>
+              <p-inputnumber 
+                inputId="nombreAdultes"
+                formControlName="nombreAdultes"
+                [showButtons]="true"
+                [min]="1"
+                [max]="10"
+                styleClass="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': datesForm.get('nombreAdultes')?.invalid && datesForm.get('nombreAdultes')?.touched}">
+              </p-inputnumber>
+              <small 
+                *ngIf="datesForm.get('nombreAdultes')?.invalid && datesForm.get('nombreAdultes')?.touched"
+                class="p-error">
+                Le nombre d'adultes doit être entre 1 et 10
+              </small>
+            </div>
+
+            <!-- Nombre d'enfants - Optionnel, donc pas de classe "required" -->
+            <div class="col-12 md:col-6">
+              <label for="nombreEnfants" class="block mb-2">Nombre d'enfants</label>
+              <p-inputnumber 
+                inputId="nombreEnfants"
+                formControlName="nombreEnfants"
+                [showButtons]="true"
+                [min]="0"
+                [max]="10"
+                styleClass="w-full">
+              </p-inputnumber>
+            </div>
+
+            <!-- 
+              Sélection de la chambre
+              Affiché uniquement si des chambres sont disponibles
+              Le Select utilise des templates personnalisés pour afficher les détails
+            -->
+            <div class="col-12" *ngIf="chambresDisponibles.length > 0">
+              <p-divider></p-divider>
+              <label for="chambreId" class="block mb-2 required">Chambre</label>
+              <p-select 
+                inputId="chambreId"
+                formControlName="chambreId"
+                [options]="chambresDisponibles"
+                optionLabel="numero"
+                optionValue="id"
+                placeholder="Sélectionnez une chambre"
+                (onChange)="onChambreSelect($event)"
+                styleClass="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': datesForm.get('chambreId')?.invalid && datesForm.get('chambreId')?.touched}">
+                
+                <!-- Template pour l'item sélectionné affiché dans le champ -->
+                <ng-template pTemplate="selectedItem" let-chambre>
+                  <div *ngIf="chambre">
+                    {{ getChambreLabel(chambre) }}
+                  </div>
+                </ng-template>
+                
+                <!-- 
+                  Template pour chaque item dans la liste déroulante
+                  Affiche des informations détaillées pour aider au choix
+                -->
+                <ng-template pTemplate="item" let-chambre>
+                  <div class="flex align-items-center gap-2">
+                    <div>
+                      <div class="font-semibold">Chambre {{ chambre.numero }}</div>
+                      <div class="text-sm text-color-secondary">
+                        {{ getTypeLabel(chambre.type) }} - 
+                        Capacité: {{ chambre.capacite }} pers. - 
+                        {{ chambre.prixParNuit.toLocaleString('fr-FR') }} FCFA/nuit
+                      </div>
+                    </div>
+                  </div>
+                </ng-template>
+              </p-select>
+              <small 
+                *ngIf="datesForm.get('chambreId')?.invalid && datesForm.get('chambreId')?.touched"
+                class="p-error">
+                Veuillez sélectionner une chambre
+              </small>
+            </div>
+
+            <!-- 
+              Message informatif si aucune chambre n'est disponible
+              Affiché uniquement si les dates sont renseignées et qu'il n'y a pas de chambres
+            -->
+            <div class="col-12" *ngIf="datesForm.get('dateArrivee')?.value && datesForm.get('dateDepart')?.value && chambresDisponibles.length === 0 && !loading">
+              <div class="p-3 bg-yellow-50 border-yellow-200 border-1 border-round">
+                <i class="pi pi-exclamation-triangle text-yellow-600 mr-2"></i>
+                <span class="text-yellow-800">Aucune chambre n'est disponible pour ces dates. Veuillez choisir d'autres dates.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 
+            Résumé de la réservation
+            Calculé automatiquement et affiché dès qu'une chambre est sélectionnée
+            Permet à l'utilisateur de vérifier le montant avant de continuer
+          -->
+          <div *ngIf="selectedChambre && nombreNuits > 0" class="summary-box mt-4">
+            <h4>Résumé de la réservation</h4>
+            <div class="summary-item">
+              <span>Chambre sélectionnée</span>
+              <span>{{ selectedChambre.numero }} ({{ getTypeLabel(selectedChambre.type) }})</span>
+            </div>
+            <div class="summary-item">
+              <span>Nombre de nuits</span>
+              <span>{{ nombreNuits }} nuit{{ nombreNuits > 1 ? 's' : '' }}</span>
+            </div>
+            <div class="summary-item">
+              <span>Prix par nuit</span>
+              <span>{{ selectedChambre.prixParNuit.toLocaleString('fr-FR') }} FCFA</span>
+            </div>
+            <p-divider></p-divider>
+            <div class="summary-item total">
+              <span>Montant total</span>
+              <span>{{ formattedMontantTotal }}</span>
+            </div>
+          </div>
+        </p-card>
+      </form>
+    </div>
+
+    <!-- ========================================================================
+         ÉTAPE 2: INFORMATIONS CLIENT
+         Permet de créer un nouveau client ou de sélectionner un client existant
+         Le formulaire s'adapte selon le choix avec validation conditionnelle
+         ======================================================================== -->
+    <div *ngIf="activeIndex === 1">
+      <h3 class="step-title">
+        <i class="pi pi-user mr-2"></i>
+        Informations du client
+      </h3>
+
+      <!-- 
+        Sélecteur de type de client
+        Utilise RadioButton avec ngModel (nécessite FormsModule)
+        Le changement de type déclenche onClientTypeChange qui ajuste le formulaire
+      -->
+      <div class="client-type-selector mb-4">
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <div class="flex align-items-center">
+              <p-radiobutton 
+                inputId="clientNouveau"
+                name="clientType"
+                value="nouveau"
+                [(ngModel)]="clientType"
+                (onClick)="onClientTypeChange('nouveau')">
+              </p-radiobutton>
+              <label for="clientNouveau" class="ml-2">Nouveau client</label>
+            </div>
+          </div>
+          <div class="col-12 md:col-6">
+            <div class="flex align-items-center">
+              <p-radiobutton 
+                inputId="clientExistant"
+                name="clientType"
+                value="existant"
+                [(ngModel)]="clientType"
+                (onClick)="onClientTypeChange('existant')">
+              </p-radiobutton>
+              <label for="clientExistant" class="ml-2">Client existant</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form [formGroup]="clientForm">
+        <p-card>
+          <!-- 
+            Section pour client existant
+            Dans une version future, cela permettra de rechercher dans la base de données
+            Pour l'instant, c'est un placeholder avec un message informatif
+          -->
+          <div *ngIf="clientType === 'existant'" class="grid">
+            <div class="col-12">
+              <label for="clientId" class="block mb-2 required">Rechercher un client</label>
+              <p-select 
+                inputId="clientId"
+                formControlName="clientId"
+                [options]="[]"
+                placeholder="Recherchez par nom, téléphone ou email"
+                [filter]="true"
+                filterBy="label"
+                styleClass="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': clientForm.get('clientId')?.invalid && clientForm.get('clientId')?.touched}">
+              </p-select>
+              <small class="p-error" *ngIf="clientForm.get('clientId')?.invalid && clientForm.get('clientId')?.touched">
+                Veuillez sélectionner un client
+              </small>
+              <small class="block mt-2 text-color-secondary">
+                <i class="pi pi-info-circle mr-1"></i>
+                Note: La recherche de clients existants sera implémentée dans une prochaine version
+              </small>
+            </div>
+          </div>
+
+          <!-- 
+            Section pour nouveau client
+            Formulaire complet avec tous les champs d'identification
+            Certains champs sont obligatoires, d'autres optionnels
+          -->
+          <div *ngIf="clientType === 'nouveau'" class="grid">
+            <!-- Informations de base - Obligatoires -->
+            <div class="col-12 md:col-6">
+              <label for="prenom" class="block mb-2 required">Prénom</label>
+              <input 
+                pInputText 
+                id="prenom" 
+                formControlName="prenom"
+                placeholder="Entrez le prénom"
+                class="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': clientForm.get('prenom')?.invalid && clientForm.get('prenom')?.touched}" />
+              <small class="p-error" *ngIf="clientForm.get('prenom')?.invalid && clientForm.get('prenom')?.touched">
+                Le prénom est obligatoire (min. 2 caractères)
+              </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+              <label for="nom" class="block mb-2 required">Nom</label>
+              <input 
+                pInputText 
+                id="nom" 
+                formControlName="nom"
+                placeholder="Entrez le nom"
+                class="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': clientForm.get('nom')?.invalid && clientForm.get('nom')?.touched}" />
+              <small class="p-error" *ngIf="clientForm.get('nom')?.invalid && clientForm.get('nom')?.touched">
+                Le nom est obligatoire (min. 2 caractères)
+              </small>
+            </div>
+
+            <!-- Contact - Téléphone obligatoire, email optionnel -->
+            <div class="col-12 md:col-6">
+              <label for="telephone" class="block mb-2 required">Téléphone</label>
+              <input 
+                pInputText 
+                id="telephone" 
+                formControlName="telephone"
+                placeholder="+225 XX XX XX XX XX"
+                class="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': clientForm.get('telephone')?.invalid && clientForm.get('telephone')?.touched}" />
+              <small class="p-error" *ngIf="clientForm.get('telephone')?.invalid && clientForm.get('telephone')?.touched">
+                Le téléphone est obligatoire
+              </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+              <label for="email" class="block mb-2">Email</label>
+              <input 
+                pInputText 
+                id="email" 
+                type="email"
+                formControlName="email"
+                placeholder="email@exemple.com"
+                class="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': clientForm.get('email')?.invalid && clientForm.get('email')?.touched}" />
+              <small class="p-error" *ngIf="clientForm.get('email')?.hasError('email') && clientForm.get('email')?.touched">
+                L'email n'est pas valide
+              </small>
+            </div>
+
+            <!-- Séparateur visuel pour organiser les sections -->
+            <div class="col-12">
+              <p-divider></p-divider>
+              <h4>Pièce d'identité (optionnel)</h4>
+            </div>
+
+            <!-- Informations d'identité - Toutes optionnelles mais utiles pour la sécurité -->
+            <div class="col-12 md:col-6">
+              <label for="typePiece" class="block mb-2">Type de pièce</label>
+              <p-select 
+                inputId="typePiece"
+                formControlName="typePiece"
+                [options]="typePieceOptions"
+                placeholder="Sélectionnez un type"
+                styleClass="w-full">
+              </p-select>
+            </div>
+
+            <div class="col-12 md:col-6">
+              <label for="pieceIdentite" class="block mb-2">Numéro de pièce</label>
+              <input 
+                pInputText 
+                id="pieceIdentite" 
+                formControlName="pieceIdentite"
+                placeholder="Numéro de la pièce"
+                class="w-full" />
+            </div>
+
+            <!-- 
+              Informations complémentaires
+              DatePicker avec maxDate pour éviter les dates de naissance futures
+            -->
+            <div class="col-12 md:col-4">
+              <label for="dateNaissance" class="block mb-2">Date de naissance</label>
+              <p-datepicker 
+                inputId="dateNaissance"
+                formControlName="dateNaissance"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                placeholder="JJ/MM/AAAA"
+                styleClass="w-full"
+                [maxDate]="minDate">
+              </p-datepicker>
+            </div>
+
+            <div class="col-12 md:col-4">
+              <label for="nationalite" class="block mb-2">Nationalité</label>
+              <input 
+                pInputText 
+                id="nationalite" 
+                formControlName="nationalite"
+                placeholder="Nationalité"
+                class="w-full" />
+            </div>
+
+            <div class="col-12 md:col-4">
+              <label for="pays" class="block mb-2">Pays</label>
+              <input 
+                pInputText 
+                id="pays" 
+                formControlName="pays"
+                placeholder="Pays de résidence"
+                class="w-full" />
+            </div>
+
+            <!-- Adresse complète -->
+            <div class="col-12 md:col-8">
+              <label for="adresse" class="block mb-2">Adresse</label>
+              <input 
+                pInputText 
+                id="adresse" 
+                formControlName="adresse"
+                placeholder="Adresse complète"
+                class="w-full" />
+            </div>
+
+            <div class="col-12 md:col-4">
+              <label for="ville" class="block mb-2">Ville</label>
+              <input 
+                pInputText 
+                id="ville" 
+                formControlName="ville"
+                placeholder="Ville"
+                class="w-full" />
+            </div>
+
+            <!-- Zone de texte pour notes libres sur le client -->
+            <div class="col-12">
+              <label for="notes" class="block mb-2">Notes</label>
+              <textarea 
+                pTextarea
+                id="notes" 
+                formControlName="notes"
+                rows="3"
+                placeholder="Notes ou remarques sur le client..."
+                class="w-full">
+              </textarea>
+            </div>
+          </div>
+        </p-card>
+      </form>
+    </div>
+
+    <!-- ========================================================================
+         ÉTAPE 3: PAIEMENT ET DEMANDES SPÉCIALES
+         Gestion du paiement initial et des demandes particulières du client
+         Le paiement est optionnel - la réservation peut être créée sans paiement
+         ======================================================================== -->
+    <div *ngIf="activeIndex === 2">
+      <h3 class="step-title">
+        <i class="pi pi-money-bill mr-2"></i>
+        Paiement et demandes spéciales
+      </h3>
+
+      <form [formGroup]="paiementForm">
+        <div class="grid">
+          <!-- Formulaire de paiement -->
+          <div class="col-12 lg:col-8">
+            <p-card header="Informations de paiement">
+              <div class="grid">
+                <!-- Affichage du montant total (en lecture seule) -->
+                <div class="col-12">
+                  <div class="p-3 bg-blue-50 border-blue-200 border-1 border-round">
+                    <div class="flex justify-between items-center">
+                      <span class="font-semibold">Montant total de la réservation</span>
+                      <span class="text-2xl font-bold text-blue-600">{{ formattedMontantTotal }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <p-divider></p-divider>
+                </div>
+
+                <!-- 
+                  Montant payé - Optionnel
+                  InputNumber avec format monétaire XOF (Franc CFA)
+                  Max limité au montant total pour éviter les erreurs
+                -->
+                <div class="col-12 md:col-6">
+                  <label for="montantPaye" class="block mb-2">Montant payé maintenant</label>
+                  <p-inputnumber 
+                    inputId="montantPaye"
+                    formControlName="montantPaye"
+                    mode="currency"
+                    currency="XOF"
+                    locale="fr-FR"
+                    [min]="0"
+                    [max]="montantTotal"
+                    placeholder="0"
+                    styleClass="w-full">
+                  </p-inputnumber>
+                  <small class="block mt-1 text-color-secondary">
+                    Laissez à 0 pour paiement ultérieur
+                  </small>
+                </div>
+
+                <!-- 
+                  Mode de paiement
+                  Devient obligatoire automatiquement si montantPaye > 0
+                  La validation conditionnelle est gérée dans le composant
+                -->
+                <div class="col-12 md:col-6">
+                  <label for="modePaiement" class="block mb-2" 
+                         [ngClass]="{'required': paiementForm.get('montantPaye')?.value > 0}">
+                    Mode de paiement
+                  </label>
+                  <p-select 
+                    inputId="modePaiement"
+                    formControlName="modePaiement"
+                    [options]="modePaiementOptions"
+                    placeholder="Sélectionnez un mode"
+                    styleClass="w-full"
+                    [ngClass]="{'ng-invalid ng-dirty': paiementForm.get('modePaiement')?.invalid && paiementForm.get('modePaiement')?.touched}">
+                  </p-select>
+                  <small class="p-error" *ngIf="paiementForm.get('modePaiement')?.invalid && paiementForm.get('modePaiement')?.touched">
+                    Le mode de paiement est obligatoire si un montant est saisi
+                  </small>
+                </div>
+
+                <!-- 
+                  Référence externe
+                  Utile pour les réservations faites via des plateformes tierces
+                  (Booking.com, Airbnb, etc.)
+                -->
+                <div class="col-12">
+                  <label for="referenceExterne" class="block mb-2">Référence externe</label>
+                  <input 
+                    pInputText 
+                    id="referenceExterne" 
+                    formControlName="referenceExterne"
+                    placeholder="Ex: réservation Booking.com, Airbnb, etc."
+                    class="w-full" />
+                  <small class="block mt-1 text-color-secondary">
+                    Utilisé pour les réservations via des plateformes tierces
+                  </small>
+                </div>
+
+                <!-- 
+                  Demandes spéciales
+                  Zone de texte libre pour toutes les demandes particulières
+                  (accessibilité, allergies, préférences, etc.)
+                -->
+                <div class="col-12">
+                  <label for="demandesSpeciales" class="block mb-2">Demandes spéciales</label>
+                  <textarea 
+                    pTextarea
+                    id="demandesSpeciales" 
+                    formControlName="demandesSpeciales"
+                    rows="4"
+                    placeholder="Indiquez les demandes spéciales du client (lit bébé, vue mer, étage élevé, allergies alimentaires, etc.)"
+                    class="w-full">
+                  </textarea>
+                </div>
+              </div>
+            </p-card>
+          </div>
+
+          <!-- 
+            Résumé financier
+            Affichage en temps réel du calcul paiement/reste à payer
+            Met à jour automatiquement quand montantPaye change
+          -->
+          <div class="col-12 lg:col-4">
+            <p-card header="Résumé financier">
+              <div class="financial-summary">
+                <div class="summary-item">
+                  <span>Montant total</span>
+                  <span>{{ formattedMontantTotal }}</span>
+                </div>
+                <div class="summary-item">
+                  <span>Montant payé</span>
+                  <span class="text-green-600">{{ formattedMontantPaye }}</span>
+                </div>
+                <p-divider></p-divider>
+                <div class="summary-item total">
+                  <span>Reste à payer</span>
+                  <span [ngClass]="montantRestant > 0 ? 'text-orange-600' : 'text-green-600'">
+                    {{ formattedMontantRestant }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- 
+                Tag de statut du paiement
+                Utilise des méthodes helper pour obtenir la bonne sévérité et le bon label
+                'warn' au lieu de 'warning' pour PrimeNG 20
+              -->
+              <div class="mt-4">
+                <p-tag 
+                  [value]="getPaymentLabel()"
+                  [severity]="getPaymentSeverity()">
+                </p-tag>
+              </div>
+            </p-card>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- ========================================================================
+         ÉTAPE 4: CONFIRMATION
+         Récapitulatif complet de toutes les informations avant création
+         Permet une dernière vérification avant l'envoi au serveur
+         ======================================================================== -->
+    <div *ngIf="activeIndex === 3">
+      <h3 class="step-title">
+        <i class="pi pi-check-circle mr-2"></i>
+        Confirmation de la réservation
+      </h3>
+
+      <div class="confirmation-content">
+        <!-- Message d'avertissement pour inciter à la vérification -->
+        <div class="alert alert-info mb-4">
+          <i class="pi pi-info-circle mr-2"></i>
+          <span>Vérifiez attentivement les informations ci-dessous avant de confirmer la réservation.</span>
+        </div>
+
+        <div class="grid">
+          <!-- Carte récapitulative des dates et de la chambre -->
+          <div class="col-12 md:col-6">
+            <p-card header="📅 Dates et Chambre">
+              <div class="info-grid">
+                <div class="info-row">
+                  <span class="label">Date d'arrivée</span>
+                  <span class="value">{{ datesForm.get('dateArrivee')?.value | date:'fullDate':'':'fr' }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Date de départ</span>
+                  <span class="value">{{ datesForm.get('dateDepart')?.value | date:'fullDate':'':'fr' }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Nombre de nuits</span>
+                  <span class="value">{{ nombreNuits }} nuit{{ nombreNuits > 1 ? 's' : '' }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Chambre</span>
+                  <span class="value" *ngIf="selectedChambre">
+                    N° {{ selectedChambre.numero }} - {{ getTypeLabel(selectedChambre.type) }}
+                  </span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Voyageurs</span>
+                  <span class="value">
+                    {{ datesForm.get('nombreAdultes')?.value }} adulte{{ datesForm.get('nombreAdultes')?.value > 1 ? 's' : '' }}
+                    <span *ngIf="datesForm.get('nombreEnfants')?.value > 0">
+                      , {{ datesForm.get('nombreEnfants')?.value }} enfant{{ datesForm.get('nombreEnfants')?.value > 1 ? 's' : '' }}
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </p-card>
+          </div>
+
+          <!-- Carte récapitulative des informations client -->
+          <div class="col-12 md:col-6">
+            <p-card header="👤 Informations Client">
+              <!-- Affichage différent selon le type de client -->
+              <div class="info-grid" *ngIf="clientType === 'nouveau'">
+                <div class="info-row">
+                  <span class="label">Nom complet</span>
+                  <span class="value">{{ clientForm.get('prenom')?.value }} {{ clientForm.get('nom')?.value }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Téléphone</span>
+                  <span class="value">{{ clientForm.get('telephone')?.value }}</span>
+                </div>
+                <div class="info-row" *ngIf="clientForm.get('email')?.value">
+                  <span class="label">Email</span>
+                  <span class="value">{{ clientForm.get('email')?.value }}</span>
+                </div>
+                <div class="info-row" *ngIf="clientForm.get('pieceIdentite')?.value">
+                  <span class="label">Pièce d'identité</span>
+                  <span class="value">
+                    {{ clientForm.get('typePiece')?.value || 'Non spécifié' }} - {{ clientForm.get('pieceIdentite')?.value }}
+                  </span>
+                </div>
+              </div>
+              <div class="info-grid" *ngIf="clientType === 'existant'">
+                <div class="info-row">
+                  <span class="label">Client ID</span>
+                  <span class="value">{{ clientForm.get('clientId')?.value }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="value">Les informations du client seront chargées depuis la base de données</span>
+                </div>
+              </div>
+            </p-card>
+          </div>
+
+          <!-- Carte récapitulative financière détaillée -->
+          <div class="col-12">
+            <p-card header="💰 Résumé Financier">
+              <div class="financial-summary">
+                <div class="summary-item">
+                  <span>Prix par nuit</span>
+                  <span>{{ getChambrePrixFormate() }}</span>
+                </div>
+                <div class="summary-item">
+                  <span>Nombre de nuits</span>
+                  <span>{{ nombreNuits }}</span>
+                </div>
+                <div class="summary-item">
+                  <span>Sous-total</span>
+                  <span>{{ formattedMontantTotal }}</span>
+                </div>
+                <p-divider></p-divider>
+                <div class="summary-item total">
+                  <span>Montant total</span>
+                  <span>{{ formattedMontantTotal }}</span>
+                </div>
+                <div class="summary-item">
+                  <span>Montant payé</span>
+                  <span class="text-green-600">{{ formattedMontantPaye }}</span>
+                </div>
+                <div class="summary-item">
+                  <span>Reste à payer</span>
+                  <span [ngClass]="montantRestant > 0 ? 'text-orange-600' : 'text-green-600'">
+                    {{ formattedMontantRestant }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Tag affichant le mode de paiement si renseigné -->
+              <div class="mt-3" *ngIf="paiementForm.get('montantPaye')?.value > 0">
+                <p-tag 
+                  icon="pi pi-money-bill"
+                  [value]="'Paiement: ' + (paiementForm.get('modePaiement')?.value || 'Non spécifié')"
+                  severity="info">
+                </p-tag>
+              </div>
+            </p-card>
+          </div>
+
+          <!-- Affichage conditionnel des demandes spéciales si renseignées -->
+          <div class="col-12" *ngIf="paiementForm.get('demandesSpeciales')?.value">
+            <p-card header="📝 Demandes Spéciales">
+              <p class="m-0">{{ paiementForm.get('demandesSpeciales')?.value }}</p>
+            </p-card>
+          </div>
+
+          <!-- Affichage conditionnel de la référence externe si renseignée -->
+          <div class="col-12" *ngIf="paiementForm.get('referenceExterne')?.value">
+            <p-card header="🔗 Référence Externe">
+              <p class="m-0">{{ paiementForm.get('referenceExterne')?.value }}</p>
+            </p-card>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 
+    Boutons de navigation
+    Adaptés dynamiquement selon l'étape active
+    Validation avant passage à l'étape suivante
+  -->
+  <div class="step-actions" *ngIf="!loading">
+    <div>
+      <!-- Bouton Précédent - Affiché sauf aux étapes 0 et 3 -->
+      <p-button 
+        *ngIf="activeIndex > 0 && activeIndex < 3"
+        label="Précédent" 
+        icon="pi pi-arrow-left" 
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="prevStep()">
+      </p-button>
+    </div>
+    
+    <div>
+      <!-- Bouton Suivant - Étapes 0 et 1 -->
+      <p-button 
+        *ngIf="activeIndex < 2"
+        label="Suivant" 
+        icon="pi pi-arrow-right" 
+        iconPos="right"
+        (onClick)="nextStep()">
+      </p-button>
+
+      <!-- Bouton Valider - Étape 2 (paiement) -->
+      <p-button 
+        *ngIf="activeIndex === 2"
+        label="Valider et Confirmer" 
+        icon="pi pi-check" 
+        iconPos="right"
+        (onClick)="nextStep()">
+      </p-button>
+
+      <!-- Bouton Confirmer final - Étape 3 (récapitulatif) -->
+      <p-button 
+        *ngIf="activeIndex === 3"
+        label="Confirmer la réservation" 
+        icon="pi pi-save" 
+        severity="success"
+        (onClick)="confirmerReservation()"
+        [loading]="loading">
+      </p-button>
+    </div>
+  </div>
+</div>

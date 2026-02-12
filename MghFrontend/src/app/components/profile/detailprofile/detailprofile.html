@@ -1,0 +1,191 @@
+<div class="profile-container">
+  <p-toast></p-toast>
+
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">
+          <i class="pi pi-user"></i>
+          Mon Profil
+        </h1>
+        <p class="page-subtitle">Informations de votre établissement</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          pButton 
+          label="Modifier" 
+          icon="pi pi-pencil"
+          class="p-button-primary"
+          (click)="navigateToEdit()"
+          [disabled]="loading">
+        </button>
+        <button 
+          pButton 
+          label="Changer le mot de passe" 
+          icon="pi pi-key"
+          class="p-button-secondary"
+          (click)="navigateToChangePassword()"
+          [disabled]="loading">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="profile-content">
+    <p-card>
+      <p-skeleton height="2rem" class="mb-3"></p-skeleton>
+      <p-skeleton height="1.5rem" class="mb-2"></p-skeleton>
+      <p-skeleton height="1.5rem" class="mb-2"></p-skeleton>
+      <p-skeleton height="1.5rem" class="mb-2"></p-skeleton>
+    </p-card>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!loading && profile" class="profile-content">
+    <!-- Informations principales -->
+    <p-card header="Informations générales" class="info-card">
+      <div class="info-grid">
+        <div class="info-item">
+          <label class="info-label">
+            <i class="pi pi-building"></i>
+            Nom de l'établissement
+          </label>
+          <div class="info-value">{{ profile.name }}</div>
+        </div>
+
+        <div class="info-item">
+          <label class="info-label">
+            <i class="pi pi-at"></i>
+            Email
+          </label>
+          <div class="info-value">{{ profile.email }}</div>
+        </div>
+
+        <div class="info-item">
+          <label class="info-label">
+            <i class="pi pi-phone"></i>
+            Téléphone
+          </label>
+          <div class="info-value">{{ profile.phone || 'Non renseigné' }}</div>
+        </div>
+
+        <div class="info-item">
+          <label class="info-label">
+            <i class="pi pi-map-marker"></i>
+            Adresse
+          </label>
+          <div class="info-value">{{ profile.address || 'Non renseignée' }}</div>
+        </div>
+
+        <div class="info-item">
+          <label class="info-label">
+            <i class="pi pi-hashtag"></i>
+            Numéro fiscal
+          </label>
+          <div class="info-value">{{ profile.taxNumber || 'Non renseigné' }}</div>
+        </div>
+
+        <div class="info-item">
+          <label class="info-label">
+            <i class="pi pi-info-circle"></i>
+            Statut du compte
+          </label>
+          <div class="info-value">
+            <p-tag 
+              [value]="getStatusLabel()" 
+              [severity]="getStatusSeverity()">
+            </p-tag>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Informations d'abonnement -->
+    <p-card header="Abonnement" class="subscription-card">
+      <div class="subscription-info">
+        <div class="subscription-item">
+          <label class="info-label">
+            <i class="pi pi-calendar"></i>
+            Date de fin d'abonnement
+          </label>
+          <div class="info-value">
+            {{ formatDate(profile.subscriptionEnd) }}
+          </div>
+        </div>
+
+        <!-- Alerte si abonnement expire bientôt -->
+        <div *ngIf="isSubscriptionExpiringSoon()" class="subscription-warning">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>
+            Votre abonnement expire dans {{ getDaysUntilExpiry() }} jour(s). 
+            Veuillez contacter notre support pour le renouveler.
+          </span>
+        </div>
+
+        <!-- Alerte si abonnement expiré -->
+        <div *ngIf="isSubscriptionExpired()" class="subscription-expired">
+          <i class="pi pi-times-circle"></i>
+          <span>
+            Votre abonnement a expiré. Contactez notre support pour renouveler.
+          </span>
+        </div>
+
+        <!-- Abonnement actif -->
+        <div *ngIf="!isSubscriptionExpiringSoon() && !isSubscriptionExpired()" class="subscription-active">
+          <i class="pi pi-check-circle"></i>
+          <span>
+            Votre abonnement est actif jusqu'au {{ formatDate(profile.subscriptionEnd) }}
+          </span>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Informations système -->
+    <p-card header="Informations système" class="system-card">
+      <div class="info-grid">
+        <div class="info-item">
+          <label class="info-label">
+            <i class="pi pi-calendar-plus"></i>
+            Compte créé le
+          </label>
+          <div class="info-value">{{ formatDate(profile.createdAt) }}</div>
+        </div>
+
+        <div class="info-item">
+          <label class="info-label">
+            <i class="pi pi-calendar"></i>
+            Dernière modification
+          </label>
+          <div class="info-value">{{ formatDate(profile.updatedAt) }}</div>
+        </div>
+
+        <div class="info-item">
+          <label class="info-label">
+            <i class="pi pi-id-card"></i>
+            ID du compte
+          </label>
+          <div class="info-value">#{{ profile.id }}</div>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !profile" class="empty-state">
+    <p-card>
+      <div class="empty-content">
+        <i class="pi pi-user-minus"></i>
+        <h3>Aucune information de profil disponible</h3>
+        <p>Impossible de charger les informations du profil</p>
+        <button 
+          pButton 
+          label="Réessayer" 
+          icon="pi pi-refresh"
+          (click)="loadProfile()">
+        </button>
+      </div>
+    </p-card>
+  </div>
+</div>

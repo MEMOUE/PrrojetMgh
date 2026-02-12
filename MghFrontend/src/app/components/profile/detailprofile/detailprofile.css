@@ -1,0 +1,271 @@
+.profile-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.profile-header {
+  margin-bottom: 2rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-info {
+  flex: 1;
+  min-width: 250px;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.page-title i {
+  color: #3b82f6;
+}
+
+.page-subtitle {
+  color: #64748b;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Profile Content */
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Cards */
+.info-card,
+.subscription-card,
+.system-card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+::ng-deep .p-card-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 1.25rem 1.5rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #1e293b;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+::ng-deep .p-card-body {
+  padding: 1.5rem;
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-label i {
+  color: #3b82f6;
+  font-size: 1rem;
+}
+
+.info-value {
+  font-size: 1rem;
+  color: #1e293b;
+  font-weight: 500;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+/* Subscription Info */
+.subscription-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.subscription-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.subscription-warning,
+.subscription-expired,
+.subscription-active {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.subscription-warning {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.subscription-warning i {
+  color: #f59e0b;
+  font-size: 1.25rem;
+}
+
+.subscription-expired {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.subscription-expired i {
+  color: #ef4444;
+  font-size: 1.25rem;
+}
+
+.subscription-active {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.subscription-active i {
+  color: #10b981;
+  font-size: 1.25rem;
+}
+
+/* Empty State */
+.empty-state {
+  margin-top: 2rem;
+}
+
+.empty-content {
+  text-align: center;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty-content i {
+  font-size: 4rem;
+  color: #cbd5e1;
+}
+
+.empty-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #475569;
+  margin: 0;
+}
+
+.empty-content p {
+  color: #64748b;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 1rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions button {
+    flex: 1;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dark mode support */
+:host-context(.dark) .page-title {
+  color: #f1f5f9;
+}
+
+:host-context(.dark) .page-subtitle {
+  color: #94a3b8;
+}
+
+:host-context(.dark) ::ng-deep .p-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+:host-context(.dark) ::ng-deep .p-card-header {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: #f1f5f9;
+  border-bottom-color: #475569;
+}
+
+:host-context(.dark) .info-label {
+  color: #94a3b8;
+}
+
+:host-context(.dark) .info-value {
+  color: #f1f5f9;
+  background: #0f172a;
+  border-color: #334155;
+}
+
+:host-context(.dark) .empty-content h3 {
+  color: #cbd5e1;
+}
+
+:host-context(.dark) .empty-content p {
+  color: #94a3b8;
+}

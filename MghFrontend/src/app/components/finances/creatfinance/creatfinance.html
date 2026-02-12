@@ -1,0 +1,273 @@
+<div class="create-container">
+  <p-toast />
+
+  <!-- Header -->
+  <div class="create-header">
+    <div class="header-left">
+      <p-button
+        icon="pi pi-arrow-left"
+        (onClick)="cancel()"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        pTooltip="Retour"
+        tooltipPosition="bottom" />
+      <h2>{{ isEditMode ? 'Modifier la transaction' : 'Nouvelle transaction' }}</h2>
+    </div>
+  </div>
+
+  <!-- Formulaire -->
+  <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <!-- Informations principales -->
+      <p-card styleClass="main-card">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <h3>Informations principales</h3>
+            <span class="required-note">* Champs obligatoires</span>
+          </div>
+        </ng-template>
+
+        <div class="form-row">
+          <!-- Type de transaction -->
+          <div class="form-field">
+            <label for="type">Type de transaction *</label>
+            <p-select
+              id="type"
+              formControlName="type"
+              [options]="typesTransaction"
+              placeholder="Sélectionner un type"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full"
+              [class.ng-invalid]="type?.invalid && type?.touched" />
+            <small class="error-message" *ngIf="type?.invalid && type?.touched">
+              Le type est obligatoire
+            </small>
+          </div>
+
+          <!-- Catégorie -->
+          <div class="form-field">
+            <label for="categorie">Catégorie *</label>
+            <p-select
+              id="categorie"
+              formControlName="categorie"
+              [options]="categoriesOptions"
+              placeholder="Sélectionner une catégorie"
+              optionLabel="label"
+              optionValue="value"
+              [filter]="true"
+              styleClass="w-full"
+              [class.ng-invalid]="categorie?.invalid && categorie?.touched" />
+            <small class="error-message" *ngIf="categorie?.invalid && categorie?.touched">
+              La catégorie est obligatoire
+            </small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- Montant -->
+          <div class="form-field">
+            <label for="montant">Montant (FCFA) *</label>
+            <p-inputNumber
+              id="montant"
+              formControlName="montant"
+              mode="decimal"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="0"
+              [min]="0"
+              placeholder="0"
+              suffix=" FCFA"
+              styleClass="w-full"
+              [class.ng-invalid]="montant?.invalid && montant?.touched" />
+            <small class="error-message" *ngIf="montant?.invalid && montant?.touched">
+              Le montant est obligatoire et doit être positif
+            </small>
+          </div>
+
+          <!-- Date de transaction -->
+          <div class="form-field">
+            <label for="dateTransaction">Date de transaction *</label>
+            <p-datePicker
+              id="dateTransaction"
+              formControlName="dateTransaction"
+              [showTime]="true"
+              dateFormat="dd/mm/yy"
+              hourFormat="24"
+              placeholder="JJ/MM/AAAA HH:mm"
+              styleClass="w-full"
+              [class.ng-invalid]="dateTransaction?.invalid && dateTransaction?.touched" />
+            <small class="error-message" *ngIf="dateTransaction?.invalid && dateTransaction?.touched">
+              La date est obligatoire
+            </small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- Mode de paiement -->
+          <div class="form-field full-width">
+            <label for="modePaiement">Mode de paiement</label>
+            <p-select
+              id="modePaiement"
+              formControlName="modePaiement"
+              [options]="modesPaiement"
+              placeholder="Sélectionner un mode de paiement"
+              optionLabel="label"
+              optionValue="value"
+              [showClear]="true"
+              styleClass="w-full" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- Description -->
+          <div class="form-field full-width">
+            <label for="description">Description</label>
+            <textarea
+              id="description"
+              pInputTextarea
+              formControlName="description"
+              rows="3"
+              placeholder="Description de la transaction..."
+              class="w-full"></textarea>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Relations (optionnel) -->
+      <p-card styleClass="relations-card">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <h3>Relations (optionnel)</h3>
+          </div>
+        </ng-template>
+
+        <div class="form-row">
+          <!-- Réservation -->
+          <div class="form-field full-width">
+            <label for="reservationId">Réservation associée</label>
+            <p-autoComplete
+              id="reservationId"
+              formControlName="reservationId"
+              [suggestions]="reservationsSuggestions"
+              (completeMethod)="searchReservations($event)"
+              placeholder="Rechercher une réservation..."
+              field="label"
+              optionValue="value"
+              [forceSelection]="true"
+              [showClear]="true"
+              styleClass="w-full" />
+            <small class="help-text">
+              <i class="pi pi-info-circle"></i>
+              Tapez un numéro de réservation ou un nom de client
+            </small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- Commande restaurant -->
+          <div class="form-field full-width">
+            <label for="commandeRestaurantId">Commande restaurant associée</label>
+            <p-autoComplete
+              id="commandeRestaurantId"
+              formControlName="commandeRestaurantId"
+              [suggestions]="commandesSuggestions"
+              (completeMethod)="searchCommandes($event)"
+              placeholder="Rechercher une commande..."
+              field="label"
+              optionValue="value"
+              [forceSelection]="true"
+              [showClear]="true"
+              styleClass="w-full" />
+            <small class="help-text">
+              <i class="pi pi-info-circle"></i>
+              Tapez un numéro de commande
+            </small>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Pièce justificative -->
+      <p-card styleClass="document-card">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <h3>Pièce justificative</h3>
+          </div>
+        </ng-template>
+
+        <div class="form-row">
+          <!-- Numéro de pièce -->
+          <div class="form-field full-width">
+            <label for="numeroPiece">Numéro de pièce</label>
+            <input
+              id="numeroPiece"
+              type="text"
+              pInputText
+              formControlName="numeroPiece"
+              placeholder="Ex: FAC-2024-001"
+              class="w-full" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- Upload de fichier -->
+          <div class="form-field full-width">
+            <label>Document justificatif</label>
+            <p-fileUpload
+              mode="basic"
+              chooseLabel="Choisir un fichier"
+              [auto]="true"
+              accept="image/*,application/pdf"
+              maxFileSize="5000000"
+              (onSelect)="onFileSelect($event)"
+              [customUpload]="true" />
+            <small class="help-text">
+              <i class="pi pi-info-circle"></i>
+              Formats acceptés: PDF, images (max 5 Mo)
+            </small>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Notes -->
+      <p-card styleClass="notes-card">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <h3>Notes additionnelles</h3>
+          </div>
+        </ng-template>
+
+        <div class="form-row">
+          <div class="form-field full-width">
+            <label for="notes">Notes</label>
+            <textarea
+              id="notes"
+              pInputTextarea
+              formControlName="notes"
+              rows="4"
+              placeholder="Notes ou commentaires supplémentaires..."
+              class="w-full"></textarea>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <p-button
+        label="Annuler"
+        icon="pi pi-times"
+        (onClick)="cancel()"
+        severity="secondary"
+        [outlined]="true"
+        type="button" />
+      
+      <p-button
+        [label]="isEditMode ? 'Mettre à jour' : 'Créer la transaction'"
+        icon="pi pi-check"
+        type="submit"
+        [loading]="loading"
+        [disabled]="loading || transactionForm.invalid" />
+    </div>
+  </form>
+</div>

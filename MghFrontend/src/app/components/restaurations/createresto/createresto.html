@@ -1,0 +1,237 @@
+<div class="create-commande-container">
+  <p-toast></p-toast>
+
+  <div class="header-section">
+    <h2>
+      <i class="pi pi-shopping-cart"></i>
+      {{ isEditMode ? 'Modifier la Commande' : 'Nouvelle Commande Restaurant' }}
+    </h2>
+  </div>
+
+  <form [formGroup]="commandeForm" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <!-- Section Client -->
+      <p-card header="Informations Client" class="section-card">
+        <div class="form-group">
+          <label for="typeClient">Type de Client *</label>
+          <p-select
+            id="typeClient"
+            formControlName="typeClient"
+            [options]="typeClientOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Sélectionner le type de client"
+            class="w-full">
+          </p-select>
+        </div>
+
+        <!-- Client Externe -->
+        <div *ngIf="commandeForm.get('typeClient')?.value === 'externe'" class="client-externe-section">
+          <div class="form-group">
+            <label for="nomClientExterne">Nom du Client *</label>
+            <input 
+              pInputText 
+              id="nomClientExterne"
+              formControlName="nomClientExterne"
+              placeholder="Nom complet du client"
+              class="w-full"
+              [class.ng-invalid]="isFieldInvalid('nomClientExterne')">
+            <small class="p-error" *ngIf="isFieldInvalid('nomClientExterne')">
+              Le nom du client est obligatoire
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="telephoneClientExterne">Téléphone *</label>
+            <input 
+              pInputText 
+              id="telephoneClientExterne"
+              formControlName="telephoneClientExterne"
+              placeholder="+225 XX XX XX XX XX"
+              class="w-full"
+              [class.ng-invalid]="isFieldInvalid('telephoneClientExterne')">
+            <small class="p-error" *ngIf="isFieldInvalid('telephoneClientExterne')">
+              Le téléphone est obligatoire
+            </small>
+          </div>
+        </div>
+
+        <!-- Réservation -->
+        <div *ngIf="commandeForm.get('typeClient')?.value === 'reservation'" class="reservation-section">
+          <div class="form-group">
+            <label for="reservationId">Réservation *</label>
+            <p-select
+              id="reservationId"
+              formControlName="reservationId"
+              [options]="reservations"
+              optionLabel="numeroReservation"
+              optionValue="id"
+              placeholder="Sélectionner une réservation"
+              [class.ng-invalid]="isFieldInvalid('reservationId')"
+              class="w-full">
+              <ng-template let-reservation pTemplate="item">
+                <div class="reservation-option">
+                  <strong>{{ reservation.numeroReservation }}</strong>
+                  <span class="text-muted"> - {{ reservation.clientNom }} {{ reservation.clientPrenom }}</span>
+                  <span class="text-muted"> - Chambre {{ reservation.chambreNumero }}</span>
+                </div>
+              </ng-template>
+            </p-select>
+            <small class="p-error" *ngIf="isFieldInvalid('reservationId')">
+              Veuillez sélectionner une réservation
+            </small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="numeroTable">Numéro de Table</label>
+          <input 
+            pInputText 
+            id="numeroTable"
+            formControlName="numeroTable"
+            placeholder="Ex: T5, Table 5, etc."
+            class="w-full">
+        </div>
+      </p-card>
+
+      <!-- Section Produits -->
+      <p-card header="Sélection des Produits" class="section-card full-width">
+        <div class="produits-grid">
+          <div *ngFor="let cat of categories" class="categorie-section">
+            <h4 class="categorie-title">{{ cat.label }}</h4>
+            <div class="produits-list">
+              <div 
+                *ngFor="let produit of getProduitsCategorie(cat.value)" 
+                class="produit-card"
+                (click)="ajouterProduit(produit)">
+                <div class="produit-info">
+                  <h5>{{ produit.nom }}</h5>
+                  <p *ngIf="produit.description" class="produit-description">{{ produit.description }}</p>
+                  <div class="produit-prix">{{ produit.prix.toLocaleString('fr-FR') }} FCFA</div>
+                </div>
+                <button 
+                  type="button"
+                  pButton 
+                  icon="pi pi-plus" 
+                  class="p-button-rounded p-button-success p-button-sm">
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Section Panier -->
+      <p-card header="Panier de Commande" class="section-card full-width">
+        <div *ngIf="lignes.length === 0" class="empty-cart">
+          <i class="pi pi-shopping-cart" style="font-size: 3rem; color: #ccc;"></i>
+          <p>Aucun produit ajouté</p>
+          <small>Cliquez sur les produits ci-dessus pour les ajouter</small>
+        </div>
+
+        <p-table 
+          *ngIf="lignes.length > 0"
+          [value]="lignes.controls"
+          styleClass="p-datatable-sm">
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Produit</th>
+              <th style="width: 150px">Quantité</th>
+              <th style="width: 150px">Prix Unitaire</th>
+              <th style="width: 150px">Sous-total</th>
+              <th style="width: 200px">Notes</th>
+              <th style="width: 80px">Action</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-ligne let-i="rowIndex">
+            <tr [formGroup]="ligne">
+              <td>
+                <strong>{{ getNomProduit(ligne.get('produitMenuId')?.value) }}</strong>
+              </td>
+              <td>
+                <p-inputNumber
+                  formControlName="quantite"
+                  [showButtons]="true"
+                  [min]="1"
+                  [max]="99"
+                  buttonLayout="horizontal"
+                  inputId="minmax-buttons"
+                  class="w-full">
+                </p-inputNumber>
+              </td>
+              <td>
+                {{ ligne.get('prixUnitaire')?.value?.toLocaleString('fr-FR') }} FCFA
+              </td>
+              <td>
+                <strong>{{ ligne.get('sousTotal')?.value?.toLocaleString('fr-FR') }} FCFA</strong>
+              </td>
+              <td>
+                <input 
+                  pInputText 
+                  formControlName="notes"
+                  placeholder="Notes spéciales..."
+                  class="w-full">
+              </td>
+              <td>
+                <button 
+                  type="button"
+                  pButton 
+                  icon="pi pi-trash" 
+                  class="p-button-danger p-button-text p-button-sm"
+                  (click)="supprimerLigne(i)">
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="footer">
+            <tr>
+              <td colspan="3" class="text-right"><strong>MONTANT TOTAL:</strong></td>
+              <td colspan="3">
+                <strong class="total-amount">{{ calculerMontantTotal().toLocaleString('fr-FR') }} FCFA</strong>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+      <!-- Section Notes -->
+      <p-card header="Notes Supplémentaires" class="section-card full-width">
+        <div class="form-group">
+          <label for="notes">Remarques</label>
+          <textarea 
+            pInputTextarea 
+            id="notes"
+            formControlName="notes"
+            rows="4"
+            placeholder="Notes ou remarques particulières sur cette commande..."
+            class="w-full">
+          </textarea>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="action-buttons">
+      <button 
+        type="button"
+        pButton 
+        label="Annuler" 
+        icon="pi pi-times" 
+        class="p-button-secondary"
+        (click)="annuler()">
+      </button>
+      <button 
+        type="submit"
+        pButton 
+        [label]="isEditMode ? 'Modifier' : 'Créer la Commande'" 
+        icon="pi pi-check" 
+        class="p-button-success"
+        [loading]="loading"
+        [disabled]="loading || lignes.length === 0">
+      </button>
+    </div>
+  </form>
+</div>

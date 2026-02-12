@@ -1,0 +1,196 @@
+<div class="container-fluid p-4">
+  <!-- Toast pour les notifications -->
+  <p-toast></p-toast>
+  
+  <!-- Dialogue de confirmation -->
+  <p-confirmDialog></p-confirmDialog>
+
+  <div class="max-w-5xl mx-auto" *ngIf="employe; else loadingTemplate">
+    <!-- En-tête -->
+    <div class="mb-4">
+      <button 
+        pButton 
+        icon="pi pi-arrow-left" 
+        label="Retour" 
+        class="p-button-text"
+        (click)="goBack()">
+      </button>
+    </div>
+
+    <!-- Carte principale -->
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="p-4">
+          <div class="flex justify-content-between align-items-start">
+            <div class="flex align-items-center gap-3">
+              <div class="bg-primary-100 text-primary-600 border-circle p-3">
+                <i class="pi pi-user text-3xl"></i>
+              </div>
+              <div>
+                <h2 class="m-0 mb-2">{{ getFullName() }}</h2>
+                <div class="flex align-items-center gap-2">
+                  <p-tag 
+                    [value]="employe.active ? 'Actif' : 'Inactif'"
+                    [severity]="employe.active ? 'success' : 'danger'">
+                  </p-tag>
+                  <span class="text-500">@{{ employe.username }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button 
+                pButton 
+                icon="pi pi-pencil" 
+                label="Modifier" 
+                class="p-button-warning"
+                (click)="navigateToEdit()">
+              </button>
+              <button 
+                pButton 
+                [icon]="employe.active ? 'pi pi-ban' : 'pi pi-check'"
+                [label]="employe.active ? 'Désactiver' : 'Activer'"
+                [class]="employe.active ? 'p-button-danger' : 'p-button-success'"
+                (click)="toggleStatus()">
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Informations personnelles -->
+      <div class="mb-4">
+        <h3 class="text-primary mb-3">
+          <i class="pi pi-user mr-2"></i>
+          Informations Personnelles
+        </h3>
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <div class="mb-3">
+              <label class="text-500 font-medium block mb-2">Prénom</label>
+              <p class="text-900 m-0">{{ employe.firstName }}</p>
+            </div>
+          </div>
+          <div class="col-12 md:col-6">
+            <div class="mb-3">
+              <label class="text-500 font-medium block mb-2">Nom</label>
+              <p class="text-900 m-0">{{ employe.lastName }}</p>
+            </div>
+          </div>
+          <div class="col-12 md:col-6">
+            <div class="mb-3">
+              <label class="text-500 font-medium block mb-2">Email</label>
+              <p class="text-900 m-0">
+                <i class="pi pi-envelope mr-2"></i>
+                {{ employe.email }}
+              </p>
+            </div>
+          </div>
+          <div class="col-12 md:col-6">
+            <div class="mb-3">
+              <label class="text-500 font-medium block mb-2">Téléphone</label>
+              <p class="text-900 m-0">
+                <i class="pi pi-phone mr-2" *ngIf="employe.phone"></i>
+                {{ employe.phone || '-' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Informations du compte -->
+      <div class="mb-4">
+        <h3 class="text-primary mb-3">
+          <i class="pi pi-id-card mr-2"></i>
+          Informations du Compte
+        </h3>
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <div class="mb-3">
+              <label class="text-500 font-medium block mb-2">Nom d'utilisateur</label>
+              <p class="text-900 m-0">@{{ employe.username }}</p>
+            </div>
+          </div>
+          <div class="col-12 md:col-6">
+            <div class="mb-3">
+              <label class="text-500 font-medium block mb-2">Statut du compte</label>
+              <p class="text-900 m-0">
+                <p-tag 
+                  [value]="employe.active ? 'Actif' : 'Inactif'"
+                  [severity]="employe.active ? 'success' : 'danger'">
+                </p-tag>
+              </p>
+            </div>
+          </div>
+          <div class="col-12 md:col-6">
+            <div class="mb-3">
+              <label class="text-500 font-medium block mb-2">Hôtel</label>
+              <p class="text-900 m-0">{{ employe.hotelName || '-' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Rôles et Permissions -->
+      <div class="mb-4">
+        <h3 class="text-primary mb-3">
+          <i class="pi pi-shield mr-2"></i>
+          Rôles et Permissions
+        </h3>
+        <div class="mb-3">
+          <label class="text-500 font-medium block mb-2">Rôles assignés</label>
+          <div class="flex flex-wrap gap-2">
+            <p-tag 
+              *ngFor="let role of employe.roleNames" 
+              [value]="getRoleLabel(role)"
+              [severity]="getRoleColor(role)"
+              styleClass="text-lg">
+            </p-tag>
+            <span *ngIf="!employe.roleNames || employe.roleNames.length === 0" class="text-500">
+              Aucun rôle assigné
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Informations système -->
+      <div>
+        <h3 class="text-primary mb-3">
+          <i class="pi pi-info-circle mr-2"></i>
+          Informations Système
+        </h3>
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <div class="mb-3">
+              <label class="text-500 font-medium block mb-2">Date de création</label>
+              <p class="text-900 m-0">
+                <i class="pi pi-calendar mr-2"></i>
+                {{ formatDate(employe.createdAt) }}
+              </p>
+            </div>
+          </div>
+          <div class="col-12 md:col-6">
+            <div class="mb-3">
+              <label class="text-500 font-medium block mb-2">Dernière modification</label>
+              <p class="text-900 m-0">
+                <i class="pi pi-calendar mr-2"></i>
+                {{ formatDate(employe.updatedAt) }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="flex justify-content-center align-items-center" style="min-height: 400px;">
+      <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+    </div>
+  </ng-template>
+</div>

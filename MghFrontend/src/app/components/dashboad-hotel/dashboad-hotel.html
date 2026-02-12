@@ -1,0 +1,62 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-6 text-center">
+
+  <!-- Header -->
+  <div class="mb-10 text-center">
+    <h1 class="text-4xl font-extrabold text-slate-800">
+      MaGestionHotel
+    </h1>
+    <p class="text-slate-500 mt-2 text-lg">
+      Dashboard de gestion du complexe hôtelier
+    </p>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+    <div *ngFor="let module of modules"
+         class="group relative rounded-3xl bg-white/70 backdrop-blur-xl
+                border border-white/50 shadow-lg
+                hover:shadow-2xl transition-all duration-300
+                hover:-translate-y-2">
+
+      <!-- Icon -->
+      <div class="absolute -top-6 left-6">
+        <div
+          class="w-14 h-14 rounded-2xl bg-gradient-to-br text-white
+                 flex items-center justify-center text-2xl shadow-lg"
+          [ngClass]="module.gradient">
+          <i class="pi" [ngClass]="module.icon"></i>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="pt-10 px-6 pb-6">
+        <h2 class="text-xl font-semibold text-slate-800 mb-2">
+          {{ module.title }}
+        </h2>
+
+        <p class="text-slate-600 text-sm mb-6">
+          {{ module.description }}
+        </p>
+
+        <button
+          pButton
+          type="button"
+          label="Ouvrir le module"
+          icon="pi pi-arrow-right"
+          class="w-full !rounded-xl"
+          [routerLink]="module.route">
+        </button>
+      </div>
+
+      <!-- Hover glow -->
+      <div
+        class="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100
+               transition duration-300 pointer-events-none
+               bg-gradient-to-br from-white/20 to-transparent">
+      </div>
+
+    </div>
+
+  </div>
+</div>

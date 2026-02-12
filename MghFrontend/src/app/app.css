@@ -1,0 +1,47 @@
+/* Global App Styles */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+:host-context(.dark) .app-container {
+  background: #0f172a;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: 5rem; /* Hauteur du header fixe */
+}
+
+/* Supprimer l'ancien contenu welcome-content qui n'est plus nécessaire */
+
+/* Scrollbar personnalisé */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+:host-context(.dark) ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}

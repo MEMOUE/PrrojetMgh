@@ -1,0 +1,231 @@
+<header class="header" [class.scrolled]="isScrolled()">
+  <div class="header-container">
+    <div class="header-content">
+
+      <!-- Logo Section -->
+      <div class="header-logo" [routerLink]="isAuthenticated ? ['/dashboard'] : ['/accueil']">
+        <div class="logo-wrapper">
+          <div class="logo-icon">
+            <i class="pi pi-building"></i>
+          </div>
+          <div class="logo-status"></div>
+        </div>
+        <div class="logo-text">
+          <span class="logo-brand">MaGestionHotel</span>
+          <span class="logo-tagline">Gestion Complète</span>
+        </div>
+      </div>
+
+      <!-- Navigation Desktop - Non connecté -->
+      <nav class="header-nav" *ngIf="!isAuthenticated">
+        <a [routerLink]="['/accueil']" class="nav-link" fragment="accueil">Accueil</a>
+        <a [routerLink]="['/accueil']" class="nav-link" fragment="fonctionnalites">Fonctionnalités</a>
+        <a [routerLink]="['/accueil']" class="nav-link" fragment="tarifs">Tarifs</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </nav>
+
+      <!-- Navigation Desktop - Connecté -->
+      <nav class="header-nav" *ngIf="isAuthenticated">
+        <a [routerLink]="['/dashboard']" routerLinkActive="active" class="nav-link">
+          <i class="pi pi-home"></i>
+          <span>Dashboard</span>
+        </a>
+        <a [routerLink]="['/chambres']" routerLinkActive="active" class="nav-link">
+          <i class="pi pi-building"></i>
+          <span>Chambres</span>
+        </a>
+        <a [routerLink]="['/reservation']" routerLinkActive="active" class="nav-link">
+          <i class="pi pi-calendar"></i>
+          <span>Réservations</span>
+        </a>
+        <a [routerLink]="['/restauration']" routerLinkActive="active" class="nav-link">
+          <i class="pi pi-shopping-cart"></i>
+          <span>Restauration</span>
+        </a>
+        <a [routerLink]="['/finances']" routerLinkActive="active" class="nav-link">
+          <i class="pi pi-wallet"></i>
+          <span>Finances</span>
+        </a>
+        <a [routerLink]="['/stocks']" routerLinkActive="active" class="nav-link">
+          <i class="pi pi-box"></i>
+          <span>Stocks</span>
+        </a>
+      </nav>
+
+      <!-- Actions Section -->
+      <div class="header-actions">
+        <!-- Theme Toggle -->
+        <button
+          (click)="toggleTheme()"
+          class="theme-toggle"
+          [attr.aria-label]="isDarkMode() ? 'Activer le mode clair' : 'Activer le mode sombre'"
+        >
+          <i class="pi" [ngClass]="isDarkMode() ? 'pi-sun' : 'pi-moon'"></i>
+        </button>
+
+        <!-- Auth Buttons - Non connecté -->
+        <div class="auth-buttons" *ngIf="!isAuthenticated">
+          <button [routerLink]="['/login']" class="btn-login">Connexion</button>
+          <button [routerLink]="['/register']" class="btn-demo">
+            Inscription
+          </button>
+        </div>
+
+        <!-- Profile Menu - Connecté -->
+        <div class="profile-section" *ngIf="isAuthenticated">
+          <button class="profile-button" (click)="toggleProfileMenu()">
+            <div class="profile-avatar">
+              {{ getUserInitials() }}
+            </div>
+            <span class="profile-name">{{ getUserDisplayName() }}</span>
+            <i class="pi pi-angle-down"></i>
+          </button>
+
+          <!-- Dropdown Profile Menu -->
+          <div class="profile-dropdown" *ngIf="showProfileMenu" (clickOutside)="closeProfileMenu()">
+            <div class="dropdown-header">
+              <div class="dropdown-avatar">
+                {{ getUserInitials() }}
+              </div>
+              <div class="dropdown-info">
+                <div class="dropdown-name">{{ getUserDisplayName() }}</div>
+                <div class="dropdown-email">{{ currentUser?.email }}</div>
+                <div class="dropdown-hotel" *ngIf="currentUser?.hotelName">
+                  <i class="pi pi-building"></i>
+                  {{ currentUser?.hotelName }}
+                </div>
+              </div>
+            </div>
+
+            <div class="dropdown-divider"></div>
+
+            <a [routerLink]="['/dashboard']" class="dropdown-item" (click)="closeProfileMenu()">
+              <i class="pi pi-home"></i>
+              <span>Dashboard</span>
+            </a>
+
+            <!-- <a [routerLink]="['/employes']" class="dropdown-item" (click)="closeProfileMenu()">
+              <i class="pi pi-users"></i>
+              <span>Employés</span>
+            </a> -->
+
+            <a [routerLink]="['/profile']" class="dropdown-item" (click)="closeProfileMenu()">
+              <i class="pi pi-user"></i>
+              <span>Profile</span>
+            </a>
+
+            <div class="dropdown-divider"></div>
+
+            <button class="dropdown-item logout" (click)="logout()">
+              <i class="pi pi-sign-out"></i>
+              <span>Déconnexion</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button
+          class="mobile-menu-btn"
+          (click)="toggleMobileMenu()"
+          [attr.aria-label]="showMobileMenu ? 'Fermer le menu' : 'Ouvrir le menu'"
+        >
+          <i class="pi" [ngClass]="showMobileMenu ? 'pi-times' : 'pi-bars'"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Navigation - Non connecté -->
+  <div class="mobile-nav" [class.show]="showMobileMenu" *ngIf="!isAuthenticated">
+    <nav class="mobile-nav-content">
+      <a [routerLink]="['/accueil']" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <i class="pi pi-home"></i>
+        <span>Accueil</span>
+      </a>
+      <a [routerLink]="['/accueil']" fragment="fonctionnalites" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <i class="pi pi-sparkles"></i>
+        <span>Fonctionnalités</span>
+      </a>
+      <a [routerLink]="['/accueil']" fragment="tarifs" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <i class="pi pi-tag"></i>
+        <span>Tarifs</span>
+      </a>
+      <a href="#contact" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <i class="pi pi-envelope"></i>
+        <span>Contact</span>
+      </a>
+      <div class="mobile-nav-divider"></div>
+      <button [routerLink]="['/login']" class="mobile-nav-button btn-login-mobile" (click)="closeMobileMenu()">
+        Connexion
+      </button>
+      <button [routerLink]="['/register']" class="mobile-nav-button btn-demo-mobile" (click)="closeMobileMenu()">
+        Inscription
+      </button>
+    </nav>
+  </div>
+
+  <!-- Mobile Navigation - Connecté -->
+  <div class="mobile-nav" [class.show]="showMobileMenu" *ngIf="isAuthenticated">
+    <nav class="mobile-nav-content">
+      <!-- Profil utilisateur -->
+      <div class="mobile-profile">
+        <div class="mobile-profile-avatar">
+          {{ getUserInitials() }}
+        </div>
+        <div class="mobile-profile-info">
+          <div class="mobile-profile-name">{{ getUserDisplayName() }}</div>
+          <div class="mobile-profile-email">{{ currentUser?.email }}</div>
+        </div>
+      </div>
+
+      <div class="mobile-nav-divider"></div>
+
+      <a [routerLink]="['/dashboard']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <i class="pi pi-home"></i>
+        <span>Dashboard</span>
+      </a>
+      <a [routerLink]="['/chambres']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <i class="pi pi-building"></i>
+        <span>Chambres</span>
+      </a>
+      <a [routerLink]="['/reservation']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <i class="pi pi-calendar"></i>
+        <span>Réservations</span>
+      </a>
+      <a [routerLink]="['/restauration']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <i class="pi pi-shopping-cart"></i>
+        <span>Restauration</span>
+      </a>
+      <a [routerLink]="['/finances']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <i class="pi pi-wallet"></i>
+        <span>Finances</span>
+      </a>
+      <a [routerLink]="['/stocks']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <i class="pi pi-box"></i>
+        <span>Stocks</span>
+      </a>
+
+      <div class="mobile-nav-divider"></div>
+
+      <a [routerLink]="['/employes']" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <i class="pi pi-users"></i>
+        <span>Employés</span>
+      </a>
+      <a [routerLink]="['/clients']" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <i class="pi pi-user"></i>
+        <span>Clients</span>
+      </a>
+
+      <div class="mobile-nav-divider"></div>
+
+      <button class="mobile-nav-button btn-logout-mobile" (click)="logout()">
+        <i class="pi pi-sign-out"></i>
+        Déconnexion
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- Backdrop for mobile menu and profile dropdown -->
+<div class="mobile-backdrop" [class.show]="showMobileMenu || showProfileMenu" 
+     (click)="closeMobileMenu(); closeProfileMenu()"></div>

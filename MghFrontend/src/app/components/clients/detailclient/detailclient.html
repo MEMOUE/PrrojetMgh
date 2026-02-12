@@ -1,0 +1,218 @@
+<div class="detail-client-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Bouton retour -->
+  <button 
+    pButton 
+    icon="pi pi-arrow-left" 
+    label="Retour à la liste"
+    class="p-button-text mb-3"
+    (click)="goBack()">
+  </button>
+
+  <div *ngIf="loading" class="loading-container">
+    <i class="pi pi-spin pi-spinner" style="font-size: 3rem;"></i>
+    <p>Chargement...</p>
+  </div>
+
+  <div *ngIf="!loading && client">
+    <!-- En-tête avec informations principales -->
+    <p-card styleClass="header-card mb-4">
+      <div class="client-header">
+        <div class="client-info">
+          <div class="avatar">
+            <i class="pi pi-user"></i>
+          </div>
+          <div class="info-text">
+            <h1 class="client-name">{{ getFullName() }}</h1>
+            <div class="contact-info">
+              <span *ngIf="client.telephone">
+                <i class="pi pi-phone mr-2"></i>{{ client.telephone }}
+              </span>
+              <span *ngIf="client.email">
+                <i class="pi pi-envelope mr-2"></i>{{ client.email }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button 
+            pButton 
+            icon="pi pi-pencil" 
+            label="Modifier"
+            class="p-button-warning mr-2"
+            (click)="editClient()">
+          </button>
+          <button 
+            pButton 
+            icon="pi pi-trash" 
+            label="Supprimer"
+            class="p-button-danger"
+            (click)="deleteClient()">
+          </button>
+        </div>
+      </div>
+    </p-card>
+
+    <div class="detail-grid">
+      <!-- Informations personnelles -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="card-title">
+            <i class="pi pi-user"></i>
+            <h3>Informations Personnelles</h3>
+          </div>
+        </ng-template>
+
+        <div class="detail-row">
+          <span class="label">Prénom:</span>
+          <span class="value">{{ client.prenom }}</span>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="detail-row">
+          <span class="label">Nom:</span>
+          <span class="value">{{ client.nom }}</span>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="detail-row">
+          <span class="label">Date de naissance:</span>
+          <span class="value">{{ formatDate(client.dateNaissance) }}</span>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="detail-row">
+          <span class="label">Nationalité:</span>
+          <span class="value">{{ client.nationalite || '-' }}</span>
+        </div>
+      </p-card>
+
+      <!-- Coordonnées -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="card-title">
+            <i class="pi pi-map-marker"></i>
+            <h3>Coordonnées</h3>
+          </div>
+        </ng-template>
+
+        <div class="detail-row">
+          <span class="label">Téléphone:</span>
+          <span class="value">
+            <i class="pi pi-phone mr-2"></i>{{ client.telephone }}
+          </span>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="detail-row">
+          <span class="label">Email:</span>
+          <span class="value">
+            <span *ngIf="client.email">
+              <i class="pi pi-envelope mr-2"></i>{{ client.email }}
+            </span>
+            <span *ngIf="!client.email">-</span>
+          </span>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="detail-row">
+          <span class="label">Adresse:</span>
+          <span class="value">{{ client.adresse || '-' }}</span>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="detail-row">
+          <span class="label">Ville:</span>
+          <span class="value">{{ client.ville || '-' }}</span>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="detail-row">
+          <span class="label">Pays:</span>
+          <span class="value">{{ client.pays || '-' }}</span>
+        </div>
+      </p-card>
+
+      <!-- Pièce d'identité -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="card-title">
+            <i class="pi pi-id-card"></i>
+            <h3>Pièce d'Identité</h3>
+          </div>
+        </ng-template>
+
+        <div class="detail-row">
+          <span class="label">Type de pièce:</span>
+          <span class="value">
+            <p-tag 
+              *ngIf="client.typePiece"
+              [value]="client.typePiece"
+              severity="info">
+            </p-tag>
+            <span *ngIf="!client.typePiece">-</span>
+          </span>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="detail-row">
+          <span class="label">Numéro:</span>
+          <span class="value">{{ client.pieceIdentite || '-' }}</span>
+        </div>
+      </p-card>
+
+      <!-- Notes -->
+      <p-card *ngIf="client.notes">
+        <ng-template pTemplate="header">
+          <div class="card-title">
+            <i class="pi pi-file-edit"></i>
+            <h3>Notes</h3>
+          </div>
+        </ng-template>
+
+        <div class="notes-content">
+          {{ client.notes }}
+        </div>
+      </p-card>
+
+      <!-- Informations système -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="card-title">
+            <i class="pi pi-info-circle"></i>
+            <h3>Informations Système</h3>
+          </div>
+        </ng-template>
+
+        <div class="detail-row">
+          <span class="label">Date de création:</span>
+          <span class="value">{{ formatDateTime(client.createdAt) }}</span>
+        </div>
+
+        <p-divider></p-divider>
+
+        <div class="detail-row">
+          <span class="label">Dernière modification:</span>
+          <span class="value">{{ formatDateTime(client.updatedAt) }}</span>
+        </div>
+
+        <p-divider *ngIf="client.hotelName"></p-divider>
+
+        <div class="detail-row" *ngIf="client.hotelName">
+          <span class="label">Hôtel:</span>
+          <span class="value">{{ client.hotelName }}</span>
+        </div>
+      </p-card>
+    </div>
+  </div>
+</div>

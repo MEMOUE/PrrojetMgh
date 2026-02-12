@@ -1,0 +1,219 @@
+<div class="container-fluid p-4">
+  <!-- Toast pour les notifications -->
+  <p-toast></p-toast>
+
+  <div class="max-w-4xl mx-auto">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="p-4">
+          <h2 class="m-0">
+            <i class="pi pi-user-plus mr-2"></i>
+            {{ isEditMode ? 'Modifier un Employé' : 'Nouvel Employé' }}
+          </h2>
+        </div>
+      </ng-template>
+
+      <form [formGroup]="employeForm" (ngSubmit)="onSubmit()">
+        <!-- Informations de connexion -->
+        <div class="mb-4">
+          <h3 class="text-primary mb-3">Informations de Connexion</h3>
+          
+          <div class="grid">
+            <div class="col-12 md:col-6">
+              <label for="username" class="block mb-2">
+                Nom d'utilisateur <span class="text-red-500">*</span>
+              </label>
+              <input 
+                id="username"
+                type="text" 
+                pInputText 
+                formControlName="username"
+                placeholder="Ex: jdupont"
+                class="w-full"
+                [class.ng-invalid]="isFieldInvalid('username')"
+                [class.ng-dirty]="isFieldInvalid('username')">
+              <small class="text-red-500" *ngIf="isFieldInvalid('username')">
+                {{ getErrorMessage('username') }}
+              </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+              <label for="email" class="block mb-2">
+                Email <span class="text-red-500">*</span>
+              </label>
+              <input 
+                id="email"
+                type="email" 
+                pInputText 
+                formControlName="email"
+                placeholder="Ex: jean.dupont@hotel.com"
+                class="w-full"
+                [class.ng-invalid]="isFieldInvalid('email')"
+                [class.ng-dirty]="isFieldInvalid('email')">
+              <small class="text-red-500" *ngIf="isFieldInvalid('email')">
+                {{ getErrorMessage('email') }}
+              </small>
+            </div>
+          </div>
+
+          <div class="grid mt-3" *ngIf="!isEditMode">
+            <div class="col-12 md:col-6">
+              <label for="password" class="block mb-2">
+                Mot de passe <span class="text-red-500">*</span>
+              </label>
+              <p-password 
+                id="password"
+                formControlName="password"
+                placeholder="Minimum 6 caractères"
+                [toggleMask]="true"
+                [feedback]="true"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                [class.ng-invalid]="isFieldInvalid('password')"
+                [class.ng-dirty]="isFieldInvalid('password')">
+              </p-password>
+              <small class="text-red-500" *ngIf="isFieldInvalid('password')">
+                {{ getErrorMessage('password') }}
+              </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+              <label for="confirmPassword" class="block mb-2">
+                Confirmer le mot de passe <span class="text-red-500">*</span>
+              </label>
+              <p-password 
+                id="confirmPassword"
+                formControlName="confirmPassword"
+                placeholder="Confirmer le mot de passe"
+                [toggleMask]="true"
+                [feedback]="false"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                [class.ng-invalid]="isFieldInvalid('confirmPassword') || employeForm.errors?.['passwordMismatch']"
+                [class.ng-dirty]="isFieldInvalid('confirmPassword') || employeForm.errors?.['passwordMismatch']">
+              </p-password>
+              <small class="text-red-500" *ngIf="employeForm.errors?.['passwordMismatch'] && employeForm.get('confirmPassword')?.touched">
+                Les mots de passe ne correspondent pas
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <!-- Informations personnelles -->
+        <div class="mb-4">
+          <h3 class="text-primary mb-3">Informations Personnelles</h3>
+          
+          <div class="grid">
+            <div class="col-12 md:col-6">
+              <label for="firstName" class="block mb-2">
+                Prénom <span class="text-red-500">*</span>
+              </label>
+              <input 
+                id="firstName"
+                type="text" 
+                pInputText 
+                formControlName="firstName"
+                placeholder="Ex: Jean"
+                class="w-full"
+                [class.ng-invalid]="isFieldInvalid('firstName')"
+                [class.ng-dirty]="isFieldInvalid('firstName')">
+              <small class="text-red-500" *ngIf="isFieldInvalid('firstName')">
+                {{ getErrorMessage('firstName') }}
+              </small>
+            </div>
+
+            <div class="col-12 md:col-6">
+              <label for="lastName" class="block mb-2">
+                Nom <span class="text-red-500">*</span>
+              </label>
+              <input 
+                id="lastName"
+                type="text" 
+                pInputText 
+                formControlName="lastName"
+                placeholder="Ex: Dupont"
+                class="w-full"
+                [class.ng-invalid]="isFieldInvalid('lastName')"
+                [class.ng-dirty]="isFieldInvalid('lastName')">
+              <small class="text-red-500" *ngIf="isFieldInvalid('lastName')">
+                {{ getErrorMessage('lastName') }}
+              </small>
+            </div>
+          </div>
+
+          <div class="grid mt-3">
+            <div class="col-12 md:col-6">
+              <label for="phone" class="block mb-2">
+                Téléphone
+              </label>
+              <input 
+                id="phone"
+                type="tel" 
+                pInputText 
+                formControlName="phone"
+                placeholder="Ex: +225 0123456789"
+                class="w-full">
+            </div>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <!-- Rôles et Permissions -->
+        <div class="mb-4">
+          <h3 class="text-primary mb-3">Rôles et Permissions</h3>
+          
+          <div class="col-12">
+            <label for="roleNames" class="block mb-2">
+              Rôles <span class="text-red-500">*</span>
+            </label>
+            <p-multiSelect
+              id="roleNames"
+              formControlName="roleNames"
+              [options]="availableRoles"
+              optionLabel="label"
+              optionValue="name"
+              placeholder="Sélectionner les rôles"
+              [showToggleAll]="false"
+              styleClass="w-full"
+              [class.ng-invalid]="isFieldInvalid('roleNames')"
+              [class.ng-dirty]="isFieldInvalid('roleNames')">
+            </p-multiSelect>
+            <small class="text-red-500" *ngIf="isFieldInvalid('roleNames')">
+              Au moins un rôle doit être assigné
+            </small>
+            <small class="block text-500 mt-2">
+              Les rôles déterminent les permissions de l'employé dans le système
+            </small>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <!-- Boutons d'action -->
+        <div class="flex justify-content-end gap-2 mt-4">
+          <button 
+            type="button"
+            pButton 
+            label="Annuler" 
+            icon="pi pi-times" 
+            class="p-button-outlined p-button-secondary"
+            (click)="onCancel()"
+            [disabled]="loading">
+          </button>
+          <button 
+            type="submit"
+            pButton 
+            [label]="isEditMode ? 'Mettre à jour' : 'Créer l\'employé'" 
+            icon="pi pi-check" 
+            class="p-button-success"
+            [loading]="loading"
+            [disabled]="employeForm.invalid || loading">
+          </button>
+        </div>
+      </form>
+    </p-card>
+  </div>
+</div>

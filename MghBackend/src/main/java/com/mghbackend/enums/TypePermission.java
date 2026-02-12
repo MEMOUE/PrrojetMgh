@@ -1,0 +1,24 @@
+package com.mghbackend.enums;
+
+public enum TypePermission {
+    // Réservations
+    VOIR_RESERVATIONS, CREER_RESERVATION, MODIFIER_RESERVATION, ANNULER_RESERVATION,
+
+    // Restaurant
+    VOIR_COMMANDES, CREER_COMMANDE, MODIFIER_COMMANDE, GERER_MENU,
+
+    // Stock/Économat
+    VOIR_STOCK, MODIFIER_STOCK, GERER_FOURNISSEURS, PASSER_COMMANDES,
+
+    // Comptabilité
+    VOIR_COMPTABILITE, MODIFIER_COMPTABILITE, GENERER_RAPPORTS,
+
+    // Configuration
+    VOIR_CONFIGURATION, MODIFIER_CONFIGURATION,
+
+    // Gestion des employés
+    GERER_EMPLOYES, VOIR_EMPLOYES,
+
+    // Accès admin
+    ACCES_COMPLET
+}

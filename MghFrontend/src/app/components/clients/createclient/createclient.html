@@ -1,0 +1,247 @@
+<div class="create-client-container">
+  <p-toast></p-toast>
+
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <h2>{{ isEditMode ? 'Modifier le Client' : 'Nouveau Client' }}</h2>
+      </div>
+    </ng-template>
+
+    <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+      <!-- Informations personnelles -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="pi pi-user"></i> Informations Personnelles
+        </h3>
+        
+        <div class="p-grid">
+          <div class="p-col-12 p-md-6">
+            <div class="field">
+              <label for="prenom">Prénom <span class="required">*</span></label>
+              <input 
+                id="prenom"
+                type="text" 
+                pInputText 
+                formControlName="prenom"
+                placeholder="Entrez le prénom"
+                [class.p-invalid]="isFieldInvalid('prenom')"
+                class="w-full">
+              <small class="p-error" *ngIf="isFieldInvalid('prenom')">
+                {{ getErrorMessage('prenom') }}
+              </small>
+            </div>
+          </div>
+
+          <div class="p-col-12 p-md-6">
+            <div class="field">
+              <label for="nom">Nom <span class="required">*</span></label>
+              <input 
+                id="nom"
+                type="text" 
+                pInputText 
+                formControlName="nom"
+                placeholder="Entrez le nom"
+                [class.p-invalid]="isFieldInvalid('nom')"
+                class="w-full">
+              <small class="p-error" *ngIf="isFieldInvalid('nom')">
+                {{ getErrorMessage('nom') }}
+              </small>
+            </div>
+          </div>
+
+          <div class="p-col-12 p-md-6">
+            <div class="field">
+              <label for="dateNaissance">Date de Naissance</label>
+              <p-datePicker 
+                id="dateNaissance"
+                formControlName="dateNaissance"
+                dateFormat="dd/mm/yy"
+                [showIcon]="true"
+                placeholder="Sélectionnez une date"
+                styleClass="w-full">
+              </p-datePicker>
+            </div>
+          </div>
+
+          <div class="p-col-12 p-md-6">
+            <div class="field">
+              <label for="nationalite">Nationalité</label>
+              <input 
+                id="nationalite"
+                type="text" 
+                pInputText 
+                formControlName="nationalite"
+                placeholder="Entrez la nationalité"
+                class="w-full">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coordonnées -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="pi pi-phone"></i> Coordonnées
+        </h3>
+        
+        <div class="p-grid">
+          <div class="p-col-12 p-md-6">
+            <div class="field">
+              <label for="telephone">Téléphone <span class="required">*</span></label>
+              <input 
+                id="telephone"
+                type="tel" 
+                pInputText 
+                formControlName="telephone"
+                placeholder="+225 XX XX XX XX XX"
+                [class.p-invalid]="isFieldInvalid('telephone')"
+                class="w-full">
+              <small class="p-error" *ngIf="isFieldInvalid('telephone')">
+                {{ getErrorMessage('telephone') }}
+              </small>
+            </div>
+          </div>
+
+          <div class="p-col-12 p-md-6">
+            <div class="field">
+              <label for="email">Email</label>
+              <input 
+                id="email"
+                type="email" 
+                pInputText 
+                formControlName="email"
+                placeholder="exemple@email.com"
+                [class.p-invalid]="isFieldInvalid('email')"
+                class="w-full">
+              <small class="p-error" *ngIf="isFieldInvalid('email')">
+                {{ getErrorMessage('email') }}
+              </small>
+            </div>
+          </div>
+
+          <div class="p-col-12 p-md-6">
+            <div class="field">
+              <label for="ville">Ville</label>
+              <input 
+                id="ville"
+                type="text" 
+                pInputText 
+                formControlName="ville"
+                placeholder="Entrez la ville"
+                class="w-full">
+            </div>
+          </div>
+
+          <div class="p-col-12 p-md-6">
+            <div class="field">
+              <label for="pays">Pays</label>
+              <p-select
+                id="pays"
+                formControlName="pays"
+                [options]="paysCourants"
+                placeholder="Sélectionnez un pays"
+                [filter]="true"
+                filterPlaceholder="Rechercher un pays"
+                [showClear]="true"
+                styleClass="w-full">
+              </p-select>
+            </div>
+          </div>
+
+          <div class="p-col-12">
+            <div class="field">
+              <label for="adresse">Adresse</label>
+              <textarea 
+                id="adresse"
+                pInputTextarea 
+                formControlName="adresse"
+                rows="2"
+                placeholder="Entrez l'adresse complète"
+                class="w-full">
+              </textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pièce d'identité -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="pi pi-id-card"></i> Pièce d'Identité
+        </h3>
+        
+        <div class="p-grid">
+          <div class="p-col-12 p-md-6">
+            <div class="field">
+              <label for="typePiece">Type de Pièce</label>
+              <p-select
+                id="typePiece"
+                formControlName="typePiece"
+                [options]="typesPiece"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Sélectionnez un type"
+                [showClear]="true"
+                styleClass="w-full">
+              </p-select>
+            </div>
+          </div>
+
+          <div class="p-col-12 p-md-6">
+            <div class="field">
+              <label for="pieceIdentite">Numéro de Pièce</label>
+              <input 
+                id="pieceIdentite"
+                type="text" 
+                pInputText 
+                formControlName="pieceIdentite"
+                placeholder="Entrez le numéro"
+                class="w-full">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="pi pi-file-edit"></i> Notes
+        </h3>
+        
+        <div class="field">
+          <label for="notes">Remarques / Notes</label>
+          <textarea 
+            id="notes"
+            pInputTextarea 
+            formControlName="notes"
+            rows="3"
+            placeholder="Ajoutez des notes ou remarques sur ce client..."
+            class="w-full">
+          </textarea>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="form-actions">
+        <button 
+          pButton 
+          type="button"
+          label="Annuler" 
+          icon="pi pi-times"
+          class="p-button-secondary"
+          (click)="cancel()"
+          [disabled]="loading">
+        </button>
+        <button 
+          pButton 
+          type="submit"
+          [label]="isEditMode ? 'Mettre à Jour' : 'Créer le Client'" 
+          icon="pi pi-check"
+          class="p-button-success"
+          [loading]="loading">
+        </button>
+      </div>
+    </form>
+  </p-card>
+</div>

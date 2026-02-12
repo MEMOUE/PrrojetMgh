@@ -1,0 +1,172 @@
+<div class="edit-profile-container">
+  <p-toast></p-toast>
+
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">
+          <i class="pi pi-pencil"></i>
+          Modifier mon profil
+        </h1>
+        <p class="page-subtitle">Mettez à jour les informations de votre établissement</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <div class="form-content">
+    <p-card>
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        
+        <div class="form-grid">
+          
+          <!-- Nom de l'établissement -->
+          <div class="form-field">
+            <label for="name" class="field-label">
+              <i class="pi pi-building"></i>
+              Nom de l'établissement
+              <span class="required">*</span>
+            </label>
+            <input
+              id="name"
+              type="text"
+              pInputText
+              formControlName="name"
+              placeholder="Ex: Hôtel Ivoire"
+              [class.invalid]="isFieldInvalid('name')"
+              class="form-input">
+            <small *ngIf="isFieldInvalid('name')" class="error-message">
+              {{ getFieldError('name') }}
+            </small>
+          </div>
+
+          <!-- Email -->
+          <div class="form-field">
+            <label for="email" class="field-label">
+              <i class="pi pi-at"></i>
+              Email
+              <span class="required">*</span>
+            </label>
+            <input
+              id="email"
+              type="email"
+              pInputText
+              formControlName="email"
+              placeholder="contact@hotel.com"
+              [class.invalid]="isFieldInvalid('email')"
+              class="form-input">
+            <small *ngIf="isFieldInvalid('email')" class="error-message">
+              {{ getFieldError('email') }}
+            </small>
+          </div>
+
+          <!-- Téléphone -->
+          <div class="form-field">
+            <label for="phone" class="field-label">
+              <i class="pi pi-phone"></i>
+              Téléphone
+            </label>
+            <input
+              id="phone"
+              type="tel"
+              pInputText
+              formControlName="phone"
+              placeholder="+225 XX XX XX XX XX"
+              class="form-input">
+          </div>
+
+          <!-- Numéro fiscal -->
+          <div class="form-field">
+            <label for="taxNumber" class="field-label">
+              <i class="pi pi-hashtag"></i>
+              Numéro fiscal
+            </label>
+            <input
+              id="taxNumber"
+              type="text"
+              pInputText
+              formControlName="taxNumber"
+              placeholder="Ex: CI123456789"
+              class="form-input">
+          </div>
+
+          <!-- Adresse -->
+          <div class="form-field full-width">
+            <label for="address" class="field-label">
+              <i class="pi pi-map-marker"></i>
+              Adresse complète
+            </label>
+            <input
+              id="address"
+              type="text"
+              pInputText
+              formControlName="address"
+              placeholder="Ex: Cocody, Riviera Golf"
+              class="form-input">
+          </div>
+
+          <!-- URL du logo (optionnel) -->
+          <div class="form-field full-width">
+            <label for="logoUrl" class="field-label">
+              <i class="pi pi-image"></i>
+              URL du logo (optionnel)
+            </label>
+            <input
+              id="logoUrl"
+              type="url"
+              pInputText
+              formControlName="logoUrl"
+              placeholder="https://exemple.com/logo.png"
+              class="form-input">
+            <small class="field-hint">
+              <i class="pi pi-info-circle"></i>
+              Vous pouvez fournir l'URL d'un logo hébergé en ligne
+            </small>
+          </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button
+            pButton
+            type="button"
+            label="Annuler"
+            icon="pi pi-times"
+            class="p-button-secondary p-button-outlined"
+            (click)="onCancel()"
+            [disabled]="submitting">
+          </button>
+          
+          <button
+            pButton
+            type="submit"
+            label="Enregistrer les modifications"
+            icon="pi pi-check"
+            class="p-button-primary"
+            [loading]="submitting"
+            [disabled]="submitting || profileForm.invalid">
+          </button>
+        </div>
+
+      </form>
+    </p-card>
+
+    <!-- Informations supplémentaires -->
+    <div class="info-card">
+      <div class="info-content">
+        <i class="pi pi-info-circle"></i>
+        <div>
+          <h4>Informations importantes</h4>
+          <ul>
+            <li>Les champs marqués d'un astérisque (*) sont obligatoires</li>
+            <li>La modification de l'email nécessitera une nouvelle connexion</li>
+            <li>Assurez-vous que les informations sont correctes avant de les enregistrer</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

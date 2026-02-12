@@ -1,0 +1,237 @@
+<div class="liste-commandes-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- En-tête avec statistiques -->
+  <div class="statistics-grid">
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="pi pi-shopping-cart"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ totalCommandes }}</div>
+        <div class="stat-label">Total Commandes</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon warning">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ commandesEnAttente }}</div>
+        <div class="stat-label">En Attente</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon info">
+        <i class="pi pi-cog"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ commandesEnCours }}</div>
+        <div class="stat-label">En Préparation</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon success">
+        <i class="pi pi-money-bill"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ montantTotal.toLocaleString('fr-FR') }} FCFA</div>
+        <div class="stat-label">Chiffre d'Affaires</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre d'outils -->
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <button 
+        pButton 
+        label="Nouvelle Commande" 
+        icon="pi pi-plus" 
+        class="p-button-success mr-2"
+        (click)="nouvelleCommande()">
+      </button>
+      <button 
+        pButton 
+        label="Actualiser" 
+        icon="pi pi-refresh" 
+        class="p-button-secondary"
+        (click)="loadCommandes()">
+      </button>
+    </ng-template>
+
+    <ng-template pTemplate="right">
+      <button 
+        pButton 
+        label="Effacer filtres" 
+        icon="pi pi-filter-slash" 
+        class="p-button-outlined"
+        (click)="clearFilters()"
+        [disabled]="!searchValue && !selectedStatut">
+      </button>
+    </ng-template>
+  </p-toolbar>
+
+  <!-- Filtres -->
+  <p-card class="mb-4">
+    <div class="filters-grid">
+      <div class="filter-field">
+        <label for="search">Rechercher</label>
+        <input 
+          pInputText 
+          id="search"
+          type="text" 
+          [(ngModel)]="searchValue"
+          (input)="onSearchChange()"
+          placeholder="N° commande, client, table, serveur..." 
+          class="w-full">
+      </div>
+
+      <div class="filter-field">
+        <label for="statut">Statut</label>
+        <p-select
+          id="statut"
+          [(ngModel)]="selectedStatut"
+          [options]="statutOptions"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onStatutChange()"
+          placeholder="Tous les statuts"
+          class="w-full">
+        </p-select>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Table des commandes -->
+  <p-card>
+    <p-table 
+      [value]="commandesFiltrees" 
+      [loading]="loading"
+      [paginator]="true" 
+      [rows]="10" 
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} commandes"
+      [globalFilterFields]="['numeroCommande', 'clientNom', 'nomClientExterne', 'numeroTable']"
+      styleClass="p-datatable-striped">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="numeroCommande">
+            N° Commande <p-sortIcon field="numeroCommande"></p-sortIcon>
+          </th>
+          <th>Client</th>
+          <th pSortableColumn="numeroTable">
+            Table <p-sortIcon field="numeroTable"></p-sortIcon>
+          </th>
+          <th>Serveur</th>
+          <th pSortableColumn="montantTotal">
+            Montant <p-sortIcon field="montantTotal"></p-sortIcon>
+          </th>
+          <th>Paiement</th>
+          <th pSortableColumn="statut">
+            Statut <p-sortIcon field="statut"></p-sortIcon>
+          </th>
+          <th pSortableColumn="dateCommande">
+            Date <p-sortIcon field="dateCommande"></p-sortIcon>
+          </th>
+          <th style="width: 200px">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-commande>
+        <tr>
+          <td>
+            <strong>{{ commande.numeroCommande }}</strong>
+          </td>
+          <td>
+            {{ getClientDisplay(commande) }}
+            <div *ngIf="commande.telephoneClientExterne" class="text-sm text-muted">
+              {{ commande.telephoneClientExterne }}
+            </div>
+          </td>
+          <td>
+            <span *ngIf="commande.numeroTable">Table {{ commande.numeroTable }}</span>
+            <span *ngIf="!commande.numeroTable" class="text-muted">-</span>
+          </td>
+          <td>
+            <span *ngIf="commande.serveurNom">{{ commande.serveurNom }}</span>
+            <span *ngIf="!commande.serveurNom" class="text-muted">-</span>
+          </td>
+          <td>
+            <strong>{{ commande.montantTotal.toLocaleString('fr-FR') }} FCFA</strong>
+          </td>
+          <td>
+            <div>{{ (commande.montantPaye || 0).toLocaleString('fr-FR') }} FCFA</div>
+            <div class="text-sm" [class.text-danger]="getMontantRestant(commande) > 0">
+              Reste: {{ getMontantRestant(commande).toLocaleString('fr-FR') }} FCFA
+            </div>
+          </td>
+          <td>
+            <p-tag 
+              [value]="getStatutLabel(commande.statut)" 
+              [severity]="getStatutSeverity(commande.statut)">
+            </p-tag>
+          </td>
+          <td>
+            {{ commande.dateCommande | date: 'dd/MM/yyyy HH:mm' }}
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button 
+                pButton 
+                icon="pi pi-eye" 
+                class="p-button-text p-button-sm"
+                pTooltip="Voir détails"
+                (click)="viewCommande(commande)">
+              </button>
+              
+              <button 
+                pButton 
+                icon="pi pi-check" 
+                class="p-button-text p-button-success p-button-sm"
+                pTooltip="Marquer comme servie"
+                *ngIf="canMarquerServie(commande)"
+                (click)="marquerCommeServie(commande)">
+              </button>
+              
+              <button 
+                pButton 
+                icon="pi pi-money-bill" 
+                class="p-button-text p-button-help p-button-sm"
+                pTooltip="Ajouter paiement"
+                *ngIf="canAjouterPaiement(commande)"
+                (click)="ajouterPaiement(commande)">
+              </button>
+              
+              <button 
+                pButton 
+                icon="pi pi-check-circle" 
+                class="p-button-text p-button-success p-button-sm"
+                pTooltip="Marquer comme payée"
+                *ngIf="canMarquerPayee(commande)"
+                (click)="marquerCommePayee(commande)">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9" class="text-center">
+            <div class="empty-message">
+              <i class="pi pi-inbox" style="font-size: 3rem"></i>
+              <p>Aucune commande trouvée</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

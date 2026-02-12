@@ -1,0 +1,263 @@
+<div class="container-fluid p-4">
+  <p-toast></p-toast>
+
+  <!-- En-tête -->
+  <div class="mb-4">
+    <h2 class="text-2xl font-bold text-gray-800">
+      {{ isEditMode ? 'Modifier le produit' : 'Nouveau produit' }}
+    </h2>
+    <p class="text-gray-600">
+      {{ isEditMode ? 'Modifiez les informations du produit' : 'Ajoutez un nouveau produit à votre stock' }}
+    </p>
+  </div>
+
+  <!-- Formulaire -->
+  <div class="grid">
+    <div class="col-12 lg:col-8 xl:col-6">
+      <p-card>
+        <form [formGroup]="produitForm" (ngSubmit)="onSubmit()">
+          
+          <!-- Informations générales -->
+          <div class="formgrid grid">
+            <div class="field col-12 md:col-6">
+              <label for="nom" class="block mb-2">
+                Nom du produit <span class="text-red-500">*</span>
+              </label>
+              <input 
+                id="nom"
+                type="text"
+                pInputText
+                formControlName="nom"
+                placeholder="Ex: Farine de blé"
+                class="w-full"
+                [class.ng-invalid]="hasError('nom', 'required') || hasError('nom', 'minlength')"
+                [class.ng-dirty]="produitForm.get('nom')?.dirty" />
+              @if (hasError('nom', 'required') || hasError('nom', 'minlength')) {
+                <small class="p-error">{{ getErrorMessage('nom') }}</small>
+              }
+            </div>
+
+            <div class="field col-12 md:col-6">
+              <label for="code" class="block mb-2">
+                Code produit <span class="text-red-500">*</span>
+              </label>
+              <input 
+                id="code"
+                type="text"
+                pInputText
+                formControlName="code"
+                placeholder="Ex: FAR-001"
+                class="w-full"
+                [class.ng-invalid]="hasError('code', 'required')"
+                [class.ng-dirty]="produitForm.get('code')?.dirty" />
+              @if (hasError('code', 'required')) {
+                <small class="p-error">{{ getErrorMessage('code') }}</small>
+              }
+              @if (isEditMode) {
+                <small class="text-gray-500">Le code ne peut pas être modifié</small>
+              }
+            </div>
+
+            <div class="field col-12">
+              <label for="description" class="block mb-2">Description</label>
+              <textarea 
+                id="description"
+                pInputTextarea
+                formControlName="description"
+                rows="3"
+                placeholder="Description du produit..."
+                class="w-full">
+              </textarea>
+            </div>
+          </div>
+
+          <!-- Gestion du stock -->
+          <h3 class="text-lg font-semibold mb-3 mt-4 border-top-1 border-gray-300 pt-3">
+            Gestion du stock
+          </h3>
+
+          <div class="formgrid grid">
+            <div class="field col-12 md:col-6">
+              <label for="quantiteStock" class="block mb-2">
+                Quantité en stock <span class="text-red-500">*</span>
+              </label>
+              <p-inputNumber
+                id="quantiteStock"
+                formControlName="quantiteStock"
+                [min]="0"
+                [step]="1"
+                placeholder="0"
+                class="w-full"
+                [inputStyleClass]="'w-full'">
+              </p-inputNumber>
+              @if (hasError('quantiteStock', 'required') || hasError('quantiteStock', 'min')) {
+                <small class="p-error">{{ getErrorMessage('quantiteStock') }}</small>
+              }
+            </div>
+
+            <div class="field col-12 md:col-6">
+              <label for="unite" class="block mb-2">
+                Unité <span class="text-red-500">*</span>
+              </label>
+              <p-select
+                id="unite"
+                formControlName="unite"
+                [options]="unites"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Sélectionnez une unité"
+                [style]="{'width': '100%'}">
+              </p-select>
+              @if (hasError('unite', 'required')) {
+                <small class="p-error">{{ getErrorMessage('unite') }}</small>
+              }
+            </div>
+
+            <div class="field col-12 md:col-6">
+              <label for="seuilAlerte" class="block mb-2">
+                Seuil d'alerte
+                <i class="pi pi-info-circle text-gray-500 ml-1" 
+                   pTooltip="Quantité minimale avant déclenchement d'une alerte"></i>
+              </label>
+              <p-inputNumber
+                id="seuilAlerte"
+                formControlName="seuilAlerte"
+                [min]="0"
+                [step]="1"
+                placeholder="Ex: 10"
+                class="w-full"
+                [inputStyleClass]="'w-full'">
+              </p-inputNumber>
+            </div>
+
+            <div class="field col-12 md:col-6">
+              <label for="prixUnitaire" class="block mb-2">
+                Prix unitaire (FCFA) <span class="text-red-500">*</span>
+              </label>
+              <p-inputNumber
+                id="prixUnitaire"
+                formControlName="prixUnitaire"
+                [min]="0"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="0"
+                placeholder="0"
+                class="w-full"
+                suffix=" FCFA"
+                [inputStyleClass]="'w-full'">
+              </p-inputNumber>
+              @if (hasError('prixUnitaire', 'required') || hasError('prixUnitaire', 'min')) {
+                <small class="p-error">{{ getErrorMessage('prixUnitaire') }}</small>
+              }
+            </div>
+          </div>
+
+          <!-- Fournisseur -->
+          <h3 class="text-lg font-semibold mb-3 mt-4 border-top-1 border-gray-300 pt-3">
+            Fournisseur
+          </h3>
+
+          <div class="formgrid grid">
+            <div class="field col-12">
+              <label for="fournisseurId" class="block mb-2">Fournisseur</label>
+              <p-select
+                id="fournisseurId"
+                formControlName="fournisseurId"
+                [options]="fournisseurs"
+                optionLabel="nom"
+                optionValue="id"
+                placeholder="Sélectionnez un fournisseur"
+                [showClear]="true"
+                [style]="{'width': '100%'}">
+              </p-select>
+              <small class="text-gray-500">
+                Facultatif - Le fournisseur habituel pour ce produit
+              </small>
+            </div>
+          </div>
+
+          <!-- Boutons d'action -->
+          <div class="flex gap-2 justify-content-end mt-4 pt-3 border-top-1 border-gray-300">
+            <p-button 
+              label="Annuler" 
+              severity="secondary"
+              icon="pi pi-times"
+              (onClick)="cancel()"
+              [text]="true">
+            </p-button>
+            <p-button 
+              label="{{ isEditMode ? 'Modifier' : 'Créer' }}" 
+              icon="pi pi-check"
+              type="submit"
+              [loading]="loading"
+              [disabled]="produitForm.invalid">
+            </p-button>
+          </div>
+        </form>
+      </p-card>
+    </div>
+
+    <!-- Aide contextuelle -->
+    <div class="col-12 lg:col-4 xl:col-6">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="p-3">
+            <h3 class="m-0 text-lg font-semibold flex align-items-center gap-2">
+              <i class="pi pi-info-circle text-blue-600"></i>
+              Conseils
+            </h3>
+          </div>
+        </ng-template>
+
+        <div class="flex flex-column gap-3">
+          <div class="tip-item">
+            <div class="flex align-items-start gap-2">
+              <i class="pi pi-check-circle text-green-600 mt-1"></i>
+              <div>
+                <div class="font-semibold mb-1">Code produit unique</div>
+                <div class="text-sm text-gray-600">
+                  Utilisez un code court et mémorable (ex: FAR-001, RIZ-BLA)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tip-item">
+            <div class="flex align-items-start gap-2">
+              <i class="pi pi-check-circle text-green-600 mt-1"></i>
+              <div>
+                <div class="font-semibold mb-1">Seuil d'alerte</div>
+                <div class="text-sm text-gray-600">
+                  Définissez un seuil pour être alerté quand le stock est bas
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tip-item">
+            <div class="flex align-items-start gap-2">
+              <i class="pi pi-check-circle text-green-600 mt-1"></i>
+              <div>
+                <div class="font-semibold mb-1">Unité de mesure</div>
+                <div class="text-sm text-gray-600">
+                  Choisissez l'unité la plus appropriée pour faciliter la gestion
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tip-item">
+            <div class="flex align-items-start gap-2">
+              <i class="pi pi-check-circle text-green-600 mt-1"></i>
+              <div>
+                <div class="font-semibold mb-1">Prix unitaire</div>
+                <div class="text-sm text-gray-600">
+                  Le prix d'achat ou de revient du produit par unité
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+</div>

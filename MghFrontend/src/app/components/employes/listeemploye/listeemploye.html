@@ -1,0 +1,209 @@
+<div class="container-fluid p-4">
+  <!-- Toast pour les notifications -->
+  <p-toast></p-toast>
+  
+  <!-- Dialogue de confirmation -->
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- En-tête avec statistiques -->
+  <div class="grid mb-4">
+    <div class="col-12 md:col-4">
+      <p-card styleClass="h-full">
+        <div class="flex align-items-center justify-content-between">
+          <div>
+            <div class="text-500 font-medium mb-2">Total Employés</div>
+            <div class="text-900 font-bold text-4xl">{{ stats.total }}</div>
+          </div>
+          <div class="bg-blue-100 text-blue-600 border-circle p-3">
+            <i class="pi pi-users text-2xl"></i>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-4">
+      <p-card styleClass="h-full">
+        <div class="flex align-items-center justify-content-between">
+          <div>
+            <div class="text-500 font-medium mb-2">Employés Actifs</div>
+            <div class="text-900 font-bold text-4xl">{{ stats.actifs }}</div>
+          </div>
+          <div class="bg-green-100 text-green-600 border-circle p-3">
+            <i class="pi pi-check-circle text-2xl"></i>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-4">
+      <p-card styleClass="h-full">
+        <div class="flex align-items-center justify-content-between">
+          <div>
+            <div class="text-500 font-medium mb-2">Employés Inactifs</div>
+            <div class="text-900 font-bold text-4xl">{{ stats.inactifs }}</div>
+          </div>
+          <div class="bg-orange-100 text-orange-600 border-circle p-3">
+            <i class="pi pi-times-circle text-2xl"></i>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Carte principale -->
+  <p-card>
+    <!-- Toolbar -->
+    <p-toolbar styleClass="mb-4">
+      <div class="p-toolbar-group-start">
+        <h2 class="m-0">Gestion des Employés</h2>
+      </div>
+      <div class="p-toolbar-group-end">
+        <button 
+          pButton 
+          label="Nouvel Employé" 
+          icon="pi pi-plus" 
+          class="p-button-success"
+          (click)="navigateToCreate()">
+        </button>
+      </div>
+    </p-toolbar>
+
+    <!-- Filtres -->
+    <div class="grid mb-3">
+      <div class="col-12 md:col-4">
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input 
+            pInputText 
+            type="text" 
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()"
+            placeholder="Rechercher par nom, email ou username..."
+            class="w-full">
+        </span>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <div class="flex align-items-center">
+          <p-checkbox 
+            [(ngModel)]="includeInactive" 
+            [binary]="true"
+            (ngModelChange)="onIncludeInactiveChange()"
+            inputId="includeInactive">
+          </p-checkbox>
+          <label for="includeInactive" class="ml-2">Inclure les inactifs</label>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <button 
+          pButton 
+          label="Réinitialiser" 
+          icon="pi pi-filter-slash" 
+          class="p-button-outlined w-full"
+          (click)="clearFilters()">
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <p-table 
+      [value]="filteredEmployes" 
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} employés"
+      styleClass="p-datatable-gridlines">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="username">
+            Username
+            <p-sortIcon field="username"></p-sortIcon>
+          </th>
+          <th pSortableColumn="firstName">
+            Nom Complet
+            <p-sortIcon field="firstName"></p-sortIcon>
+          </th>
+          <th pSortableColumn="email">
+            Email
+            <p-sortIcon field="email"></p-sortIcon>
+          </th>
+          <th>Téléphone</th>
+          <th>Rôles</th>
+          <th>Statut</th>
+          <th style="width: 200px">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-employe>
+        <tr>
+          <td>
+            <strong>{{ employe.username }}</strong>
+          </td>
+          <td>{{ getFullName(employe) }}</td>
+          <td>
+            <i class="pi pi-envelope mr-2"></i>
+            {{ employe.email }}
+          </td>
+          <td>
+            <i class="pi pi-phone mr-2" *ngIf="employe.phone"></i>
+            {{ employe.phone || '-' }}
+          </td>
+          <td>
+            <p-tag 
+              *ngFor="let role of employe.roleNames" 
+              [value]="getRoleLabel(role)"
+              [severity]="getRoleColor(role)"
+              class="mr-1">
+            </p-tag>
+          </td>
+          <td>
+            <p-tag 
+              [value]="employe.active ? 'Actif' : 'Inactif'"
+              [severity]="employe.active ? 'success' : 'danger'">
+            </p-tag>
+          </td>
+          <td>
+            <div class="flex gap-2">
+              <button 
+                pButton 
+                icon="pi pi-eye" 
+                class="p-button-rounded p-button-text p-button-info"
+                pTooltip="Voir les détails"
+                (click)="navigateToDetail(employe.id!)">
+              </button>
+              <button 
+                pButton 
+                icon="pi pi-pencil" 
+                class="p-button-rounded p-button-text p-button-warning"
+                pTooltip="Modifier"
+                (click)="navigateToEdit(employe.id!)">
+              </button>
+              <button 
+                pButton 
+                [icon]="employe.active ? 'pi pi-ban' : 'pi pi-check'"
+                [class]="employe.active ? 'p-button-rounded p-button-text p-button-danger' : 'p-button-rounded p-button-text p-button-success'"
+                [pTooltip]="employe.active ? 'Désactiver' : 'Activer'"
+                (click)="toggleStatus(employe)">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center p-4">
+            <div class="text-500">
+              <i class="pi pi-info-circle text-3xl mb-3"></i>
+              <p class="m-0">Aucun employé trouvé</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

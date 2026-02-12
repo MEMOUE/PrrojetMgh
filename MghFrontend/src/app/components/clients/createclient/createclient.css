@@ -1,0 +1,123 @@
+.create-client-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card-header {
+  padding: 1.5rem;
+}
+
+.card-header h2 {
+  margin: 0;
+  color: var(--text-color);
+}
+
+.form-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title i {
+  color: var(--primary-color);
+}
+
+.p-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.5rem;
+}
+
+.p-col-12 {
+  grid-column: span 12;
+}
+
+.p-md-6 {
+  grid-column: span 6;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.required {
+  color: #ef4444;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.p-error {
+  color: #ef4444;
+  font-size: 0.875rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+/* Override PrimeNG styles */
+:host ::ng-deep {
+  .p-inputtext,
+  .p-select,
+  .p-datepicker,
+  .p-textarea {
+    width: 100%;
+  }
+
+  .p-invalid {
+    border-color: #ef4444;
+  }
+
+  .p-select-label {
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .create-client-container {
+    padding: 1rem;
+  }
+
+  .p-md-6 {
+    grid-column: span 12;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}

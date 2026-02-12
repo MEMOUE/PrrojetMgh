@@ -1,0 +1,120 @@
+::ng-deep .p-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+::ng-deep .p-card .p-card-content {
+  padding: 1.5rem;
+}
+
+/* Formulaire */
+.field {
+  margin-bottom: 1.5rem;
+}
+
+.field label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.field small.p-error {
+  display: block;
+  margin-top: 0.25rem;
+  color: #ef4444;
+}
+
+.field small.text-gray-500 {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+}
+
+/* Inputs */
+::ng-deep .p-inputtext,
+::ng-deep .p-inputnumber-input,
+::ng-deep .p-textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+::ng-deep .p-inputtext:focus,
+::ng-deep .p-inputnumber-input:focus,
+::ng-deep .p-textarea:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+::ng-deep .p-inputtext.ng-invalid.ng-dirty,
+::ng-deep .p-inputnumber-input.ng-invalid.ng-dirty,
+::ng-deep .p-textarea.ng-invalid.ng-dirty {
+  border-color: #ef4444;
+}
+
+/* Select */
+::ng-deep .p-select {
+  width: 100%;
+}
+
+::ng-deep .p-select .p-select-label {
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+
+/* InputNumber */
+::ng-deep .p-inputnumber {
+  width: 100%;
+}
+
+/* Sections */
+h3.border-top-1 {
+  padding-top: 1rem;
+  margin-top: 1.5rem;
+  border-top-color: #e5e7eb !important;
+}
+
+/* Boutons d'action */
+::ng-deep .p-button {
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+::ng-deep .p-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Card d'aide */
+.tip-item {
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 3px solid #667eea;
+}
+
+.tip-item .font-semibold {
+  color: #1f2937;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  ::ng-deep .p-card .p-card-content {
+    padding: 1rem;
+  }
+
+  .field {
+    margin-bottom: 1rem;
+  }
+
+  ::ng-deep .p-button {
+    width: 100%;
+  }
+
+  .flex.gap-2.justify-content-end {
+    flex-direction: column;
+  }
+}

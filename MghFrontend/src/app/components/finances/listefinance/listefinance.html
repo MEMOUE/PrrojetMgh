@@ -1,0 +1,295 @@
+<div class="finance-container">
+  <p-toast />
+  <p-confirmDialog />
+
+  <!-- Header -->
+  <div class="finance-header">
+    <h2>Gestion Financière</h2>
+    <p-button 
+      label="Nouvelle transaction" 
+      icon="pi pi-plus" 
+      [routerLink]="['/finances/create']"
+      styleClass="p-button-success" />
+  </div>
+
+  <!-- Statistiques -->
+  <div class="statistics-grid" *ngIf="statistiques">
+    <p-card styleClass="stat-card solde-card">
+      <div class="stat-content">
+        <div class="stat-icon">
+          <i class="pi pi-wallet"></i>
+        </div>
+        <div class="stat-details">
+          <div class="stat-label">Solde actuel</div>
+          <div class="stat-value">{{ formatCurrency(statistiques.soldeActuel) }}</div>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="stat-card revenus-card">
+      <div class="stat-content">
+        <div class="stat-icon">
+          <i class="pi pi-arrow-down"></i>
+        </div>
+        <div class="stat-details">
+          <div class="stat-label">Revenus du mois</div>
+          <div class="stat-value success">{{ formatCurrency(statistiques.revenusMois) }}</div>
+          <div class="stat-subtext">Aujourd'hui: {{ formatCurrency(statistiques.revenusJour) }}</div>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="stat-card depenses-card">
+      <div class="stat-content">
+        <div class="stat-icon">
+          <i class="pi pi-arrow-up"></i>
+        </div>
+        <div class="stat-details">
+          <div class="stat-label">Dépenses du mois</div>
+          <div class="stat-value danger">{{ formatCurrency(statistiques.depensesMois) }}</div>
+          <div class="stat-subtext">Aujourd'hui: {{ formatCurrency(statistiques.depensesJour) }}</div>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="stat-card resultat-card">
+      <div class="stat-content">
+        <div class="stat-icon">
+          <i class="pi pi-chart-line"></i>
+        </div>
+        <div class="stat-details">
+          <div class="stat-label">Résultat du mois</div>
+          <div class="stat-value" [class.success]="statistiques.resultatMois > 0" [class.danger]="statistiques.resultatMois < 0">
+            {{ formatCurrency(statistiques.resultatMois) }}
+          </div>
+          <div class="stat-subtext" *ngIf="statistiques.transactionsEnAttente > 0">
+            {{ statistiques.transactionsEnAttente }} transaction(s) en attente
+          </div>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Filtres -->
+  <p-card styleClass="filters-card">
+    <div class="filters-container">
+      <div class="filter-row">
+        <p-iconfield iconPosition="left" class="search-field">
+          <p-inputicon styleClass="pi pi-search" />
+          <input 
+            pInputText 
+            type="text" 
+            [(ngModel)]="searchTerm"
+            (input)="applyFilter()"
+            placeholder="Rechercher..." 
+            class="w-full" />
+        </p-iconfield>
+
+        <p-select
+          [(ngModel)]="selectedType"
+          [options]="typesTransaction"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Type"
+          (onChange)="onFilterChange()"
+          [showClear]="true"
+          class="filter-select" />
+
+        <p-select
+          [(ngModel)]="selectedStatut"
+          [options]="statutsTransaction"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Statut"
+          (onChange)="onFilterChange()"
+          [showClear]="true"
+          class="filter-select" />
+
+        <p-datePicker
+          [(ngModel)]="dateDebut"
+          placeholder="Date début"
+          dateFormat="dd/mm/yy"
+          (onSelect)="onFilterChange()"
+          [showClear]="true"
+          class="filter-date" />
+
+        <p-datePicker
+          [(ngModel)]="dateFin"
+          placeholder="Date fin"
+          dateFormat="dd/mm/yy"
+          (onSelect)="onFilterChange()"
+          [showClear]="true"
+          class="filter-date" />
+
+        <p-button
+          icon="pi pi-filter-slash"
+          label="Réinitialiser"
+          (onClick)="clearFilters()"
+          styleClass="p-button-outlined" />
+      </div>
+
+      <div class="export-buttons">
+        <p-button
+          icon="pi pi-file-pdf"
+          label="PDF"
+          (onClick)="exportPDF()"
+          styleClass="p-button-outlined p-button-danger" />
+        <p-button
+          icon="pi pi-file-excel"
+          label="Excel"
+          (onClick)="exportExcel()"
+          styleClass="p-button-outlined p-button-success" />
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Table des transactions -->
+  <p-card styleClass="table-card">
+    <p-table
+      [value]="filteredTransactions"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} transactions"
+      styleClass="p-datatable-sm"
+      [globalFilterFields]="['reference', 'description', 'categorie']">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="dateTransaction">
+            Date <p-sortIcon field="dateTransaction" />
+          </th>
+          <th pSortableColumn="reference">
+            Référence <p-sortIcon field="reference" />
+          </th>
+          <th pSortableColumn="type">
+            Type <p-sortIcon field="type" />
+          </th>
+          <th pSortableColumn="categorie">
+            Catégorie <p-sortIcon field="categorie" />
+          </th>
+          <th>Description</th>
+          <th pSortableColumn="montant" class="text-right">
+            Montant <p-sortIcon field="montant" />
+          </th>
+          <th>Mode paiement</th>
+          <th pSortableColumn="statut">
+            Statut <p-sortIcon field="statut" />
+          </th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-transaction>
+        <tr>
+          <td>{{ formatDateTime(transaction.dateTransaction) }}</td>
+          <td>
+            <strong>{{ transaction.reference }}</strong>
+          </td>
+          <td>
+            <p-tag 
+              [value]="getTypeLabel(transaction.type)"
+              [severity]="getSeverity(transaction.type)"
+              [icon]="transaction.type === TypeTransaction.REVENU ? 'pi pi-arrow-down' : 'pi pi-arrow-up'" />
+          </td>
+          <td>{{ transaction.categorie }}</td>
+          <td>
+            <div class="description-cell">
+              {{ transaction.description || '-' }}
+              <div class="relations" *ngIf="transaction.reservationNumero || transaction.commandeNumero">
+                <small *ngIf="transaction.reservationNumero">
+                  <i class="pi pi-home"></i> {{ transaction.reservationNumero }}
+                </small>
+                <small *ngIf="transaction.commandeNumero">
+                  <i class="pi pi-shopping-cart"></i> {{ transaction.commandeNumero }}
+                </small>
+              </div>
+            </div>
+          </td>
+          <td class="text-right">
+            <strong [class.success-text]="transaction.type === TypeTransaction.REVENU"
+                    [class.danger-text]="transaction.type === TypeTransaction.DEPENSE">
+              {{ formatCurrency(transaction.montant) }}
+            </strong>
+          </td>
+          <td>
+            <span *ngIf="transaction.modePaiement">
+              {{ getModePaiementLabel(transaction.modePaiement) }}
+            </span>
+            <span *ngIf="!transaction.modePaiement">-</span>
+          </td>
+          <td>
+            <p-tag 
+              [value]="getStatutLabel(transaction.statut)"
+              [severity]="getStatutSeverity(transaction.statut)" />
+          </td>
+          <td class="text-center">
+            <div class="action-buttons">
+              <p-button
+                icon="pi pi-eye"
+                (onClick)="viewDetails(transaction)"
+                [text]="true"
+                [rounded]="true"
+                severity="info"
+                pTooltip="Voir détails"
+                tooltipPosition="top" />
+
+              <p-button
+                icon="pi pi-check"
+                (onClick)="validerTransaction(transaction)"
+                [text]="true"
+                [rounded]="true"
+                severity="success"
+                *ngIf="transaction.statut === StatutTransaction.EN_ATTENTE"
+                pTooltip="Valider"
+                tooltipPosition="top" />
+
+              <p-button
+                icon="pi pi-pencil"
+                (onClick)="editTransaction(transaction)"
+                [text]="true"
+                [rounded]="true"
+                severity="warn"
+                *ngIf="transaction.statut === StatutTransaction.EN_ATTENTE"
+                pTooltip="Modifier"
+                tooltipPosition="top" />
+
+              <p-button
+                icon="pi pi-times"
+                (onClick)="annulerTransaction(transaction)"
+                [text]="true"
+                [rounded]="true"
+                severity="danger"
+                *ngIf="transaction.statut === StatutTransaction.VALIDEE"
+                pTooltip="Annuler"
+                tooltipPosition="top" />
+
+              <p-button
+                icon="pi pi-trash"
+                (onClick)="deleteTransaction(transaction)"
+                [text]="true"
+                [rounded]="true"
+                severity="danger"
+                *ngIf="transaction.statut === StatutTransaction.EN_ATTENTE"
+                pTooltip="Supprimer"
+                tooltipPosition="top" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9" class="text-center">
+            <div class="empty-state">
+              <i class="pi pi-inbox"></i>
+              <p>Aucune transaction trouvée</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

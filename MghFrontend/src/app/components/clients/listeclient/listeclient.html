@@ -1,0 +1,181 @@
+<div class="clients-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- En-tête avec statistiques -->
+  <div class="stats-container">
+    <p-card styleClass="stat-card">
+      <div class="stat-content">
+        <i class="pi pi-users stat-icon"></i>
+        <div class="stat-info">
+          <span class="stat-value">{{ stats.total }}</span>
+          <span class="stat-label">Total Clients</span>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="stat-card">
+      <div class="stat-content">
+        <i class="pi pi-envelope stat-icon"></i>
+        <div class="stat-info">
+          <span class="stat-value">{{ stats.avecEmail }}</span>
+          <span class="stat-label">Avec Email</span>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="stat-card">
+      <div class="stat-content">
+        <i class="pi pi-star-fill stat-icon"></i>
+        <div class="stat-info">
+          <span class="stat-value">{{ stats.fideles }}</span>
+          <span class="stat-label">Clients Fidèles</span>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Barre d'outils -->
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h2 class="m-0">Gestion des Clients</h2>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <button 
+        pButton 
+        label="Nouveau Client" 
+        icon="pi pi-plus" 
+        class="p-button-success"
+        (click)="createClient()">
+      </button>
+    </ng-template>
+  </p-toolbar>
+
+  <!-- Carte principale -->
+  <p-card>
+    <!-- Barre de recherche et filtres -->
+    <div class="search-bar">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input 
+          pInputText 
+          type="text" 
+          [(ngModel)]="searchKeyword"
+          (keyup.enter)="onSearch()"
+          placeholder="Rechercher par nom, email, téléphone..." 
+          class="search-input">
+      </span>
+      <button 
+        pButton 
+        label="Rechercher" 
+        icon="pi pi-search"
+        (click)="onSearch()"
+        class="p-button-primary">
+      </button>
+
+      <div class="checkbox-container">
+        <p-checkbox 
+          [(ngModel)]="showFidelesOnly" 
+          [binary]="true"
+          inputId="fideles"
+          (onChange)="onToggleFideles()">
+        </p-checkbox>
+        <label for="fideles" class="ml-2">Clients fidèles uniquement</label>
+      </div>
+    </div>
+
+    <!-- Table des clients -->
+    <p-table 
+      [value]="clients" 
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} clients"
+      styleClass="p-datatable-striped">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="nom">
+            Nom Complet
+            <p-sortIcon field="nom"></p-sortIcon>
+          </th>
+          <th pSortableColumn="email">
+            Email
+            <p-sortIcon field="email"></p-sortIcon>
+          </th>
+          <th pSortableColumn="telephone">
+            Téléphone
+            <p-sortIcon field="telephone"></p-sortIcon>
+          </th>
+          <th>Nationalité</th>
+          <th>Ville/Pays</th>
+          <th>Type Pièce</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-client>
+        <tr>
+          <td>
+            <strong>{{ client.prenom }} {{ client.nom }}</strong>
+          </td>
+          <td>
+            <span *ngIf="client.email">
+              <i class="pi pi-envelope mr-2"></i>{{ client.email }}
+            </span>
+            <span *ngIf="!client.email" class="text-muted">-</span>
+          </td>
+          <td>
+            <i class="pi pi-phone mr-2"></i>{{ client.telephone }}
+          </td>
+          <td>{{ client.nationalite || '-' }}</td>
+          <td>{{ client.ville || '-' }}, {{ client.pays || '-' }}</td>
+          <td>
+            <p-tag 
+              *ngIf="client.typePiece"
+              [value]="client.typePiece"
+              severity="info">
+            </p-tag>
+            <span *ngIf="!client.typePiece">-</span>
+          </td>
+          <td class="text-center">
+            <button 
+              pButton 
+              icon="pi pi-eye" 
+              class="p-button-rounded p-button-info p-button-text"
+              pTooltip="Voir détails"
+              (click)="viewClient(client)">
+            </button>
+            <button 
+              pButton 
+              icon="pi pi-pencil" 
+              class="p-button-rounded p-button-warning p-button-text"
+              pTooltip="Modifier"
+              (click)="editClient(client)">
+            </button>
+            <button 
+              pButton 
+              icon="pi pi-trash" 
+              class="p-button-rounded p-button-danger p-button-text"
+              pTooltip="Supprimer"
+              (click)="deleteClient(client)">
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center">
+            <div class="empty-state">
+              <i class="pi pi-users" style="font-size: 3rem; color: var(--surface-400);"></i>
+              <p>Aucun client trouvé</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
