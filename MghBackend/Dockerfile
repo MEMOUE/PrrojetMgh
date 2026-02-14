@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk as build
+FROM eclipse-temurin:21-jdk as build
 
 WORKDIR /app
 
@@ -18,12 +18,11 @@ RUN ./gradlew dependencies --no-daemon
 # Copier le code source
 COPY src src
 
-
 # Construire l'application
 RUN ./gradlew bootJar --no-daemon
 
 # Phase de runtime avec une image plus légère
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
@@ -32,7 +31,7 @@ RUN mkdir -p /app/logs && \
     chmod -R 777 /app/logs
 
 # Copier le JAR depuis l'étape de build
-COPY --from=build /app/build/libs/mghBakend-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/build/libs/MghBakend-0.0.1-SNAPSHOT.jar app.jar
 
 # Exposer le port
 EXPOSE 8080

@@ -22,7 +22,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copier les fichiers de build Angular
-COPY --from=build /app/dist/mgh-frontend/browser/ /usr/share/nginx/html/
+COPY --from=build /app/dist/MghFrontend/browser/ /usr/share/nginx/html/
 
 # Copier la configuration Nginx
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
