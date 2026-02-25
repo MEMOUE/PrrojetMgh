@@ -95,7 +95,15 @@ export class ReservationService {
   }
 
   addPaiement(reservationId: number, paiementData: any): Observable<any> {
-  return this.http.post<any>(`${this.apiUrl}/${reservationId}/paiements`, paiementData);
-}
+    const params = new HttpParams()
+      .set('montant', paiementData.montant.toString())
+      .set('modePaiement', paiementData.modePaiement);
+
+    return this.http.post<any>(
+      `${this.apiUrl}/${reservationId}/paiement`,
+      {},
+      { params }
+    );
+  }
 
 }
