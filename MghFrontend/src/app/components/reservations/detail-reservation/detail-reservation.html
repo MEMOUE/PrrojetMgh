@@ -5,8 +5,8 @@
   <!-- Toolbar avec actions -->
   <p-toolbar>
     <ng-template pTemplate="left">
-      <p-button 
-        icon="pi pi-arrow-left" 
+      <p-button
+        icon="pi pi-arrow-left"
         (onClick)="goBack()"
         [text]="true"
         label="Retour">
@@ -14,31 +14,31 @@
     </ng-template>
     <ng-template pTemplate="right">
       <div class="flex gap-2">
-        <p-button 
+        <p-button
           *ngIf="canCheckin()"
-          label="Check-in" 
-          icon="pi pi-sign-in" 
+          label="Check-in"
+          icon="pi pi-sign-in"
           (onClick)="doCheckin()"
           severity="success">
         </p-button>
-        <p-button 
+        <p-button
           *ngIf="canCheckout()"
-          label="Check-out" 
-          icon="pi pi-sign-out" 
+          label="Check-out"
+          icon="pi pi-sign-out"
           (onClick)="doCheckout()"
           severity="warn">
         </p-button>
-        <p-button 
+        <p-button
           *ngIf="canAddPaiement()"
-          label="Ajouter un paiement" 
-          icon="pi pi-money-bill" 
+          label="Ajouter un paiement"
+          icon="pi pi-money-bill"
           (onClick)="openPaiementDialog()"
           severity="info">
         </p-button>
-        <p-button 
+        <p-button
           *ngIf="canCancel()"
-          label="Annuler" 
-          icon="pi pi-times" 
+          label="Annuler"
+          icon="pi pi-times"
           (onClick)="cancelReservation()"
           severity="danger"
           [outlined]="true">
@@ -63,13 +63,13 @@
           </p>
         </div>
         <div class="flex gap-2 align-items-center">
-          <p-tag 
-            [value]="getStatutLabel(reservation.statut)" 
+          <p-tag
+            [value]="getStatutLabel(reservation.statut)"
             [severity]="getStatutSeverity(reservation.statut)"
             styleClass="text-lg px-3 py-2">
           </p-tag>
-          <p-tag 
-            [value]="getStatutPaiementLabel(reservation.statutPaiement)" 
+          <p-tag
+            [value]="getStatutPaiementLabel(reservation.statutPaiement)"
             [severity]="getStatutPaiementSeverity(reservation.statutPaiement)"
             styleClass="text-lg px-3 py-2">
           </p-tag>
@@ -301,14 +301,14 @@
   </div>
 
   <!-- Dialog pour ajouter un paiement -->
-  <p-dialog 
-    header="Ajouter un paiement" 
+  <p-dialog
+    header="Ajouter un paiement"
     [(visible)]="showPaiementDialog"
     [modal]="true"
     [style]="{width: '450px'}"
     [draggable]="false"
     [resizable]="false">
-    
+
     <div class="grid">
       <div class="col-12">
         <label for="montant">Montant <span class="text-red-500">*</span></label>
@@ -325,7 +325,7 @@
         <small class="text-500">Montant restant: {{ formatCurrency(reservation?.montantRestant) }}</small>
       </div>
 
-      <div class="col-12 mt-3">
+      <div class="col-12 mt-1">
         <label for="modePaiement">Mode de paiement <span class="text-red-500">*</span></label>
         <p-select
           id="modePaiement"
@@ -334,22 +334,23 @@
           optionLabel="label"
           optionValue="value"
           placeholder="Sélectionner un mode de paiement"
+          appendTo="body"
           class="w-full mt-2">
         </p-select>
       </div>
     </div>
 
     <ng-template pTemplate="footer">
-      <p-button 
-        label="Annuler" 
-        icon="pi pi-times" 
+      <p-button
+        label="Annuler"
+        icon="pi pi-times"
         (onClick)="showPaiementDialog = false"
         severity="secondary"
         [text]="true">
       </p-button>
-      <p-button 
-        label="Enregistrer" 
-        icon="pi pi-check" 
+      <p-button
+        label="Enregistrer"
+        icon="pi pi-check"
         (onClick)="savePaiement()"
         severity="success">
       </p-button>

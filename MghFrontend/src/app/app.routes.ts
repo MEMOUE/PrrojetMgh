@@ -49,13 +49,13 @@ export const routes: Routes = [
           .then(m => m.FormChambre)
       },
       {
-        path: ':id',
+        path: ':id/detail',
         loadComponent: () => import('./components/chambres/detail-chambre/detail-chambre')
           .then(m => m.DetailChambre)
       }
     ]
   },
-  { 
+  {
     path: 'reservation',
      canActivate: [AuthGuard],
     children: [
@@ -82,7 +82,7 @@ export const routes: Routes = [
       }
     ]
   },
-  { 
+  {
     path: 'employes',
      canActivate: [AuthGuard],
     children: [
@@ -109,7 +109,7 @@ export const routes: Routes = [
       }
     ]
   },
-  { 
+  {
     path: 'clients',
      canActivate: [AuthGuard],
     children: [
@@ -162,7 +162,7 @@ export const routes: Routes = [
       }
     ]
   },
-  { 
+  {
     path: 'stocks',
      canActivate: [AuthGuard],
     children: [
@@ -189,7 +189,7 @@ export const routes: Routes = [
       }
     ]
   },
-  { 
+  {
     path: 'finances',
      canActivate: [AuthGuard],
     children: [
@@ -216,7 +216,7 @@ export const routes: Routes = [
       }
     ]
   },
-  { 
+  {
     path: 'profile',
      canActivate: [AuthGuard],
     children: [

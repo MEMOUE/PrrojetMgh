@@ -18,12 +18,12 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 // Models & Services
-import { 
-  Reservation, 
-  StatutReservation, 
+import {
+  Reservation,
+  StatutReservation,
   StatutPaiement,
   STATUT_RESERVATION_LABELS,
-  STATUT_PAIEMENT_LABELS 
+  STATUT_PAIEMENT_LABELS
 } from '../../../models/reservation.model ';
 import { ReservationService } from '../../../services/reservation.service';
 
@@ -128,7 +128,7 @@ export class Listrservation implements OnInit {
   applyFilters(): void {
     this.filteredReservations = this.reservations.filter(reservation => {
       // Filtre par texte de recherche
-      const matchesSearch = !this.searchText || 
+      const matchesSearch = !this.searchText ||
         reservation.numeroReservation?.toLowerCase().includes(this.searchText.toLowerCase()) ||
         reservation.clientNom?.toLowerCase().includes(this.searchText.toLowerCase()) ||
         reservation.clientPrenom?.toLowerCase().includes(this.searchText.toLowerCase()) ||
@@ -138,11 +138,11 @@ export class Listrservation implements OnInit {
       const matchesStatut = !this.selectedStatut || reservation.statut === this.selectedStatut;
 
       // Filtre par date de début
-      const matchesDateDebut = !this.dateDebutFilter || 
+      const matchesDateDebut = !this.dateDebutFilter ||
         new Date(reservation.dateArrivee) >= this.dateDebutFilter;
 
       // Filtre par date de fin
-      const matchesDateFin = !this.dateFinFilter || 
+      const matchesDateFin = !this.dateFinFilter ||
         new Date(reservation.dateDepart) <= this.dateFinFilter;
 
       return matchesSearch && matchesStatut && matchesDateDebut && matchesDateFin;
@@ -176,7 +176,7 @@ export class Listrservation implements OnInit {
   }
 
   viewReservation(reservation: Reservation): void {
-    this.router.navigate(['/reservations/detail', reservation.id]);
+    this.router.navigate(['/reservation', reservation.id]);
   }
 
   doCheckin(reservation: Reservation): void {

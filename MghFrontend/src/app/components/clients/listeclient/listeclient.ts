@@ -64,7 +64,7 @@ export class Listeclient implements OnInit {
 
   loadClients(): void {
     this.loading = true;
-    
+
     if (this.showFidelesOnly) {
       this.loadClientsFideles();
     } else if (this.searchKeyword.trim()) {

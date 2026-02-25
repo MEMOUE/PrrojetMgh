@@ -155,6 +155,7 @@ public class ChambreService {
         chambre.setSuperficie(chambreDto.getSuperficie());
         chambre.setDescription(chambreDto.getDescription());
         chambre.setEtage(chambreDto.getEtage());
+        chambre.setStatut(chambreDto.getStatut());
         chambre.setWifi(chambreDto.getWifi());
         chambre.setClimatisation(chambreDto.getClimatisation());
         chambre.setTelevision(chambreDto.getTelevision());

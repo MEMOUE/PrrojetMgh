@@ -6,7 +6,7 @@
       <div class="header-logo" [routerLink]="isAuthenticated ? ['/dashboard'] : ['/accueil']">
         <div class="logo-wrapper">
           <div class="logo-icon">
-            <i class="pi pi-building"></i>
+            <img src="logo.png">
           </div>
           <div class="logo-status"></div>
         </div>
@@ -26,10 +26,6 @@
 
       <!-- Navigation Desktop - Connecté -->
       <nav class="header-nav" *ngIf="isAuthenticated">
-        <a [routerLink]="['/dashboard']" routerLinkActive="active" class="nav-link">
-          <i class="pi pi-home"></i>
-          <span>Dashboard</span>
-        </a>
         <a [routerLink]="['/chambres']" routerLinkActive="active" class="nav-link">
           <i class="pi pi-building"></i>
           <span>Chambres</span>
@@ -49,6 +45,10 @@
         <a [routerLink]="['/stocks']" routerLinkActive="active" class="nav-link">
           <i class="pi pi-box"></i>
           <span>Stocks</span>
+        </a>
+        <a [routerLink]="['/dashboard']" routerLinkActive="active" class="nav-link">
+          <i class="pi pi-home"></i>
+          <span>Dashboard</span>
         </a>
       </nav>
 
@@ -227,5 +227,5 @@
 </header>
 
 <!-- Backdrop for mobile menu and profile dropdown -->
-<div class="mobile-backdrop" [class.show]="showMobileMenu || showProfileMenu" 
+<div class="mobile-backdrop" [class.show]="showMobileMenu || showProfileMenu"
      (click)="closeMobileMenu(); closeProfileMenu()"></div>

@@ -216,7 +216,7 @@ export class ListeChambres implements OnInit, OnDestroy {
   }
 
   viewDetails(id: number): void {
-    this.router.navigate(['/chambres', id]);
+    this.router.navigate(['/chambres/', id, 'detail']);
   }
 
   editChambre(id: number): void {
