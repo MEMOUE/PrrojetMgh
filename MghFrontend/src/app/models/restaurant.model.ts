@@ -1,25 +1,18 @@
 // ===============================
 // MODELS POUR LE RESTAURANT
 // Compatible avec le backend Spring Boot
+// Les produits du menu proviennent directement du stock (Produit)
 // ===============================
 
-export interface ProduitMenu {
-  id?: number;
-  nom: string;
-  description?: string;
-  prix: number;
-  categorie: string; // Entrée, Plat, Dessert, Boisson
-  disponible?: boolean;
-  imageUrl?: string;
-  hotelId?: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { Produit, TypeProduit } from './produit.model';
+
+// ProduitMenu est maintenant un alias vers Produit (fusion économat/restaurant)
+export type ProduitMenu = Produit;
 
 export interface LigneCommande {
   id?: number;
-  produitMenuId: number;
-  produitMenuNom?: string;
+  produitId: number;          // Référence vers Produit (anciennement produitMenuId)
+  produitNom?: string;         // Nom du produit (anciennement produitMenuNom)
   quantite: number;
   prixUnitaire: number;
   sousTotal?: number;
@@ -29,19 +22,19 @@ export interface LigneCommande {
 export interface CommandeRestaurant {
   id?: number;
   numeroCommande?: string;
-  
+
   // Client externe (non-client de l'hôtel)
   nomClientExterne?: string;
   telephoneClientExterne?: string;
-  
+
   // OU Client de l'hôtel
   clientId?: number;
   clientNom?: string;
-  
+
   // OU Réservation
   reservationId?: number;
   reservationNumero?: string;
-  
+
   numeroTable?: string;
   statut: StatutCommandeRestaurant;
   montantTotal: number;
@@ -49,13 +42,13 @@ export interface CommandeRestaurant {
   notes?: string;
   dateCommande?: string;
   dateService?: string;
-  
+
   serveurId?: number;
   serveurNom?: string;
-  
+
   hotelId?: number;
   lignes: LigneCommande[];
-  
+
   createdAt?: string;
   updatedAt?: string;
 }
@@ -67,14 +60,6 @@ export enum StatutCommandeRestaurant {
   SERVIE = 'SERVIE',
   PAYEE = 'PAYEE',
   ANNULEE = 'ANNULEE'
-}
-
-export enum CategorieMenu {
-  ENTREE = 'Entrée',
-  PLAT = 'Plat',
-  DESSERT = 'Dessert',
-  BOISSON = 'Boisson',
-  AUTRE = 'Autre'
 }
 
 // Labels pour les statuts
@@ -97,11 +82,11 @@ export const STATUT_COMMANDE_COLORS: Record<StatutCommandeRestaurant, string> = 
   [StatutCommandeRestaurant.ANNULEE]: 'danger'
 };
 
-// Catégories disponibles
+// Catégories du menu alignées sur TypeProduit (backend)
 export const CATEGORIES_MENU = [
-  { value: 'Entrée', label: 'Entrée' },
-  { value: 'Plat', label: 'Plat' },
-  { value: 'Dessert', label: 'Dessert' },
-  { value: 'Boisson', label: 'Boisson' },
-  { value: 'Autre', label: 'Autre' }
+  { value: TypeProduit.ENTREE,  label: 'Entrées',   icon: 'pi-star' },
+  { value: TypeProduit.PLAT,    label: 'Plats',     icon: 'pi-sun' },
+  { value: TypeProduit.DESSERT, label: 'Desserts',  icon: 'pi-heart' },
+  { value: TypeProduit.BOISSON, label: 'Boissons',  icon: 'pi-droplet' },
+  { value: TypeProduit.AUTRE,   label: 'Autres',    icon: 'pi-box' }
 ];

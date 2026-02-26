@@ -15,12 +15,12 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
-
+import { TextareaModule } from 'primeng/textarea';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 // Services et modèles
 import { StockService } from '../../../services/stock.service';
-import { Produit, TypeMouvement, TYPE_MOUVEMENT_LABELS, UNITES_MESURE } from '../../../models/produit.model';
+import { Produit, TypeMouvement, TYPE_MOUVEMENT_LABELS } from '../../../models/produit.model';
 
 type Severity = "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined;
 
@@ -36,11 +36,12 @@ type Severity = "success" | "secondary" | "info" | "warn" | "danger" | "contrast
     TagModule,
     CardModule,
     ToolbarModule,
+    TextareaModule,
     ToastModule,
     ConfirmDialogModule,
     DialogModule,
     InputNumberModule,
-    SelectModule
+    SelectModule,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './listestock.html',
@@ -67,10 +68,10 @@ export class Listestock implements OnInit {
 
   // Options
   typesMouvement = [
-    { label: TYPE_MOUVEMENT_LABELS[TypeMouvement.ENTREE], value: TypeMouvement.ENTREE },
-    { label: TYPE_MOUVEMENT_LABELS[TypeMouvement.SORTIE], value: TypeMouvement.SORTIE },
+    { label: TYPE_MOUVEMENT_LABELS[TypeMouvement.ENTREE],     value: TypeMouvement.ENTREE },
+    { label: TYPE_MOUVEMENT_LABELS[TypeMouvement.SORTIE],     value: TypeMouvement.SORTIE },
     { label: TYPE_MOUVEMENT_LABELS[TypeMouvement.AJUSTEMENT], value: TypeMouvement.AJUSTEMENT },
-    { label: TYPE_MOUVEMENT_LABELS[TypeMouvement.RETOUR], value: TypeMouvement.RETOUR }
+    { label: TYPE_MOUVEMENT_LABELS[TypeMouvement.RETOUR],     value: TypeMouvement.RETOUR }
   ];
 
   constructor(
@@ -84,9 +85,6 @@ export class Listestock implements OnInit {
     this.loadProduits();
   }
 
-  /**
-   * Charger tous les produits
-   */
   loadProduits(): void {
     this.loading = true;
     this.stockService.getProduits().subscribe({
@@ -95,52 +93,29 @@ export class Listestock implements OnInit {
           this.produits = response.data;
           this.produitsFiltered = response.data;
           this.calculateStatistics();
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Succès',
-            detail: 'Produits chargés avec succès'
-          });
         }
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des produits:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: error.message || 'Erreur lors du chargement des produits'
-        });
+        console.error('Erreur:', error);
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: error.message || 'Erreur chargement' });
         this.loading = false;
       }
     });
   }
 
-  /**
-   * Calculer les statistiques
-   */
   calculateStatistics(): void {
-    this.totalProduits = this.produits.length;
-    this.totalValeurStock = this.produits.reduce(
-      (total, p) => total + (p.quantiteStock * p.prixUnitaire),
-      0
-    );
-    this.produitsEnRupture = this.produits.filter(
-      p => p.seuilAlerte && p.quantiteStock === 0
-    ).length;
-    this.produitsEnAlerte = this.produits.filter(
-      p => p.seuilAlerte && p.quantiteStock > 0 && p.quantiteStock <= p.seuilAlerte
-    ).length;
+    this.totalProduits      = this.produits.length;
+    this.totalValeurStock   = this.produits.reduce((t, p) => t + (p.quantiteStock * p.prixUnitaire), 0);
+    this.produitsEnRupture  = this.produits.filter(p => p.quantiteStock === 0).length;
+    this.produitsEnAlerte   = this.produits.filter(p => p.seuilAlerte && p.quantiteStock > 0 && p.quantiteStock <= p.seuilAlerte).length;
   }
 
-  /**
-   * Rechercher des produits
-   */
   onSearch(): void {
     if (!this.searchValue.trim()) {
       this.produitsFiltered = this.produits;
       return;
     }
-
     const search = this.searchValue.toLowerCase();
     this.produitsFiltered = this.produits.filter(p =>
       p.nom.toLowerCase().includes(search) ||
@@ -150,56 +125,36 @@ export class Listestock implements OnInit {
     );
   }
 
-  /**
-   * Effacer la recherche
-   */
   clearSearch(): void {
     this.searchValue = '';
     this.produitsFiltered = this.produits;
   }
 
-  /**
-   * Aller à la page de création
-   */
   goToCreate(): void {
     this.router.navigate(['/stocks/create']);
   }
 
-  /**
-   * Voir les détails d'un produit
-   */
+  // ✅ CORRIGÉ : route /stocks/:id
   viewDetails(produit: Produit): void {
     this.router.navigate(['/stocks', produit.id]);
   }
 
-  /**
-   * Modifier un produit
-   */
+  // ✅ CORRIGÉ : route /stocks/:id/edit
   editProduit(produit: Produit): void {
-    this.router.navigate(['/stocks/edit', produit.id]);
+    this.router.navigate(['/stocks', produit.id, 'edit']);
   }
 
-  /**
-   * Ouvrir le dialogue d'ajustement de stock
-   */
   openAjustementDialog(produit: Produit): void {
-    this.produitSelectionne = produit;
-    this.quantiteAjustement = 0;
-    this.typeAjustement = TypeMouvement.ENTREE;
-    this.motifAjustement = '';
+    this.produitSelectionne  = produit;
+    this.quantiteAjustement  = 0;
+    this.typeAjustement      = TypeMouvement.ENTREE;
+    this.motifAjustement     = '';
     this.displayAjustementDialog = true;
   }
 
-  /**
-   * Sauvegarder l'ajustement de stock
-   */
   saveAjustement(): void {
     if (!this.produitSelectionne || this.quantiteAjustement <= 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Attention',
-        detail: 'Veuillez saisir une quantité valide'
-      });
+      this.messageService.add({ severity: 'warn', summary: 'Attention', detail: 'Veuillez saisir une quantité valide' });
       return;
     }
 
@@ -212,31 +167,20 @@ export class Listestock implements OnInit {
     ).subscribe({
       next: (response) => {
         if (response.success) {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Succès',
-            detail: 'Stock ajusté avec succès'
-          });
+          this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Stock ajusté avec succès' });
           this.displayAjustementDialog = false;
-          this.loadProduits(); // Recharger la liste
+          this.loadProduits();
         }
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erreur lors de l\'ajustement:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: error.message || 'Erreur lors de l\'ajustement du stock'
-        });
+        console.error('Erreur ajustement:', error);
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: error.message || 'Erreur ajustement' });
         this.loading = false;
       }
     });
   }
 
-  /**
-   * Supprimer un produit
-   */
   deleteProduit(produit: Produit): void {
     this.confirmationService.confirm({
       message: `Êtes-vous sûr de vouloir supprimer le produit "${produit.nom}" ?`,
@@ -248,61 +192,40 @@ export class Listestock implements OnInit {
         this.stockService.deleteProduit(produit.id!).subscribe({
           next: (response) => {
             if (response.success) {
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Succès',
-                detail: 'Produit supprimé avec succès'
-              });
+              this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Produit supprimé' });
               this.loadProduits();
             }
           },
           error: (error) => {
-            console.error('Erreur lors de la suppression:', error);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: error.message || 'Erreur lors de la suppression'
-            });
+            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: error.message || 'Erreur suppression' });
           }
         });
       }
     });
   }
 
-  /**
-   * Obtenir la sévérité du tag de stock
-   */
   getStockSeverity(produit: Produit): Severity {
-    if (produit.quantiteStock === 0) {
-      return 'danger';
-    }
-    if (produit.seuilAlerte && produit.quantiteStock <= produit.seuilAlerte) {
-      return 'warning' as Severity;
-    }
+    if (produit.quantiteStock === 0) return 'danger';
+    if (produit.seuilAlerte && produit.quantiteStock <= produit.seuilAlerte) return 'warn';
     return 'success';
   }
 
-  /**
-   * Obtenir le label du stock
-   */
   getStockLabel(produit: Produit): string {
-    if (produit.quantiteStock === 0) {
-      return 'Rupture';
-    }
-    if (produit.seuilAlerte && produit.quantiteStock <= produit.seuilAlerte) {
-      return 'Alerte';
-    }
+    if (produit.quantiteStock === 0) return 'Rupture';
+    if (produit.seuilAlerte && produit.quantiteStock <= produit.seuilAlerte) return 'Alerte';
     return 'En stock';
   }
 
-  /**
-   * Formater le prix
-   */
   formatPrice(price: number): string {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'XOF',
       minimumFractionDigits: 0
     }).format(price);
+  }
+
+  // Getter pratique pour l'unité dans le dialog
+  get uniteSelectionnee(): string {
+    return this.produitSelectionne?.unite ?? '';
   }
 }

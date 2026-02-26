@@ -186,7 +186,12 @@ export const routes: Routes = [
         path: ':id',
         loadComponent: () => import('./components/stocks/detailstock/detailstock')
           .then(m => m.Detailstock)
-      }
+      },
+      {
+        path: ':id/historique',
+        loadComponent: () => import('./components/stocks/stock-historique/stock-historique')
+          .then(m => m.StockHistorique)
+      },
     ]
   },
   {

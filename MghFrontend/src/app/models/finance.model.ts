@@ -11,8 +11,8 @@ export interface Transaction {
   montant: number;
   description?: string;
   dateTransaction: string | Date;
-  modePaiement?: ModePaiement;
-  
+  modePaiement?: ModePaiementTransaction;
+
   // Relations
   reservationId?: number;
   reservationNumero?: string;
@@ -20,101 +20,62 @@ export interface Transaction {
   commandeNumero?: string;
   fournisseurId?: number;
   fournisseurNom?: string;
-  
+
   // Pièce justificative
   pieceJustificative?: string;
   numeroPiece?: string;
-  
-  // Statut
+
+  // Statut & validation
   statut: StatutTransaction;
   validePar?: string;
   dateValidation?: string;
-  
+
   // Informations système
   hotelId?: number;
   createdById?: number;
   createdByName?: string;
   createdAt?: string;
   updatedAt?: string;
-  
+
   notes?: string;
 }
 
-export interface CategorieFinanciere {
-  id?: number;
-  nom: string;
-  type: TypeTransaction;
-  description?: string;
-  budgetMensuel?: number;
-  icone?: string;
-  couleur?: string;
-  actif?: boolean;
-  hotelId?: number;
-}
-
-export interface RapportFinancier {
-  periode: string;
-  dateDebut: string;
-  dateFin: string;
-  
-  // Revenus
-  totalRevenus: number;
-  revenusReservations: number;
-  revenusRestaurant: number;
-  autresRevenus: number;
-  
-  // Dépenses
-  totalDepenses: number;
-  depensesAchats: number;
-  depensesSalaires: number;
-  depensesCharges: number;
-  autresDepenses: number;
-  
-  // Résultats
-  resultatNet: number;
-  margeNette: number;
-  
-  // Évolution
-  evolutionRevenus?: number;
-  evolutionDepenses?: number;
-  evolutionResultat?: number;
-  
-  // Détails par catégorie
-  detailsCategories: DetailCategorie[];
-}
-
-export interface DetailCategorie {
-  categorie: string;
-  type: TypeTransaction;
-  montant: number;
-  pourcentage: number;
-  nombreTransactions: number;
-  evolution?: number;
-}
+// ─── Statistiques ──────────────────────────────────────────────────────────
 
 export interface StatistiquesFinancieres {
+  // Solde
   soldeActuel: number;
+  solde: number;
+
+  // Totaux
+  totalRevenus: number;
+  totalDepenses: number;
+
+  // Jour
   revenusJour: number;
   depensesJour: number;
+
+  // Mois
   revenusMois: number;
   depensesMois: number;
   resultatMois: number;
-  
-  topCategories: {
-    categorie: string;
-    montant: number;
-  }[];
-  
+
+  // Transactions
+  nombreTransactions: number;
+  transactionsEnAttente: number;
+  montantEnAttente: number;
+
+  // Détails
+  topCategories: { categorie: string; montant: number }[];
   evolutionMensuelle: {
     mois: string;
     revenus: number;
     depenses: number;
     resultat: number;
   }[];
-  
-  transactionsEnAttente: number;
-  montantEnAttente: number;
 }
+
+// ─── Enums ─────────────────────────────────────────────────────────────────
 
 export enum TypeTransaction {
   REVENU = 'REVENU',
@@ -128,7 +89,8 @@ export enum StatutTransaction {
   REMBOURSEE = 'REMBOURSEE'
 }
 
-export enum ModePaiement {
+/** Doit correspondre exactement à l'enum backend ModePaiementTransaction */
+export enum ModePaiementTransaction {
   ESPECES = 'ESPECES',
   CARTE_BANCAIRE = 'CARTE_BANCAIRE',
   VIREMENT = 'VIREMENT',
@@ -140,19 +102,21 @@ export enum ModePaiement {
   MOOV_MONEY = 'MOOV_MONEY'
 }
 
-// Labels pour les types de transaction
+// Alias pour compatibilité avec l'ancien nom utilisé dans les composants
+export { ModePaiementTransaction as ModePaiement };
+
+// ─── Labels ────────────────────────────────────────────────────────────────
+
 export const TYPE_TRANSACTION_LABELS: Record<TypeTransaction, string> = {
   [TypeTransaction.REVENU]: 'Revenu',
   [TypeTransaction.DEPENSE]: 'Dépense'
 };
 
-// Couleurs pour les types de transaction
 export const TYPE_TRANSACTION_COLORS: Record<TypeTransaction, string> = {
   [TypeTransaction.REVENU]: 'success',
   [TypeTransaction.DEPENSE]: 'danger'
 };
 
-// Labels pour les statuts
 export const STATUT_TRANSACTION_LABELS: Record<StatutTransaction, string> = {
   [StatutTransaction.EN_ATTENTE]: 'En attente',
   [StatutTransaction.VALIDEE]: 'Validée',
@@ -160,7 +124,6 @@ export const STATUT_TRANSACTION_LABELS: Record<StatutTransaction, string> = {
   [StatutTransaction.REMBOURSEE]: 'Remboursée'
 };
 
-// Couleurs pour les statuts
 export const STATUT_TRANSACTION_COLORS: Record<StatutTransaction, string> = {
   [StatutTransaction.EN_ATTENTE]: 'warning',
   [StatutTransaction.VALIDEE]: 'success',
@@ -168,20 +131,20 @@ export const STATUT_TRANSACTION_COLORS: Record<StatutTransaction, string> = {
   [StatutTransaction.REMBOURSEE]: 'info'
 };
 
-// Labels pour les modes de paiement
-export const MODE_PAIEMENT_LABELS: Record<ModePaiement, string> = {
-  [ModePaiement.ESPECES]: 'Espèces',
-  [ModePaiement.CARTE_BANCAIRE]: 'Carte bancaire',
-  [ModePaiement.VIREMENT]: 'Virement',
-  [ModePaiement.CHEQUE]: 'Chèque',
-  [ModePaiement.MOBILE_MONEY]: 'Mobile Money',
-  [ModePaiement.ORANGE_MONEY]: 'Orange Money',
-  [ModePaiement.MTN_MONEY]: 'MTN Money',
-  [ModePaiement.WAVE]: 'Wave',
-  [ModePaiement.MOOV_MONEY]: 'Moov Money'
+export const MODE_PAIEMENT_LABELS: Record<ModePaiementTransaction, string> = {
+  [ModePaiementTransaction.ESPECES]: 'Espèces',
+  [ModePaiementTransaction.CARTE_BANCAIRE]: 'Carte bancaire',
+  [ModePaiementTransaction.VIREMENT]: 'Virement',
+  [ModePaiementTransaction.CHEQUE]: 'Chèque',
+  [ModePaiementTransaction.MOBILE_MONEY]: 'Mobile Money',
+  [ModePaiementTransaction.ORANGE_MONEY]: 'Orange Money',
+  [ModePaiementTransaction.MTN_MONEY]: 'MTN Money',
+  [ModePaiementTransaction.WAVE]: 'Wave',
+  [ModePaiementTransaction.MOOV_MONEY]: 'Moov Money'
 };
 
-// Catégories de revenus par défaut
+// ─── Catégories ────────────────────────────────────────────────────────────
+
 export const CATEGORIES_REVENUS = [
   { nom: 'Hébergement', icone: 'pi-home', couleur: '#4CAF50' },
   { nom: 'Restauration', icone: 'pi-shopping-cart', couleur: '#FF9800' },
@@ -190,7 +153,6 @@ export const CATEGORIES_REVENUS = [
   { nom: 'Autres revenus', icone: 'pi-dollar', couleur: '#00BCD4' }
 ];
 
-// Catégories de dépenses par défaut
 export const CATEGORIES_DEPENSES = [
   { nom: 'Achats stock', icone: 'pi-shopping-bag', couleur: '#F44336' },
   { nom: 'Salaires', icone: 'pi-users', couleur: '#E91E63' },

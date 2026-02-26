@@ -16,7 +16,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ClientService } from '../../../services/client.service';
-import { Client } from '../../../models/client.model ';
+import { Client } from '../../../models/client.model';
 
 @Component({
   selector: 'app-listeclient',

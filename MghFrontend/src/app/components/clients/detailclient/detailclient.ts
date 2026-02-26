@@ -12,7 +12,7 @@ import { DividerModule } from 'primeng/divider';
 
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ClientService } from '../../../services/client.service';
-import { Client } from '../../../models/client.model '; 
+import { Client } from '../../../models/client.model';
 @Component({
   selector: 'app-detailclient',
   standalone: true,
@@ -112,19 +112,19 @@ export class Detailclient implements OnInit {
   formatDate(date: string | Date | undefined): string {
     if (!date) return '-';
     const d = new Date(date);
-    return d.toLocaleDateString('fr-FR', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return d.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   }
 
   formatDateTime(dateTime: string | undefined): string {
     if (!dateTime) return '-';
     const d = new Date(dateTime);
-    return d.toLocaleDateString('fr-FR', { 
-      year: 'numeric', 
-      month: 'long', 
+    return d.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'

@@ -2,6 +2,7 @@ package com.mghbackend.repository;
 
 import com.mghbackend.entity.Hotel;
 import com.mghbackend.entity.Produit;
+import com.mghbackend.enums.TypeProduit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +18,21 @@ public interface ProduitRepository extends JpaRepository<Produit, Long> {
 
     Optional<Produit> findByCode(String code);
 
-    @Query("SELECT p FROM Produit p WHERE p.hotel = :hotel AND p.quantiteStock <= p.seuilAlerte")
+    // ── Filtres pour le menu restaurant ────────────────────────
+
+    /** Tous les produits d'un type (ex. toutes les BOISSON d'un hôtel) */
+    List<Produit> findByHotelAndTypeProduit(Hotel hotel, TypeProduit typeProduit);
+
+    /** Produits disponibles d'un type (pour l'affichage menu) */
+    List<Produit> findByHotelAndTypeProduitAndDisponibleTrue(Hotel hotel, TypeProduit typeProduit);
+
+    /** Tous les produits disponibles (menu complet) */
+    List<Produit> findByHotelAndDisponibleTrue(Hotel hotel);
+
+    // ── Alertes stock ───────────────────────────────────────────
+
+    @Query("SELECT p FROM Produit p WHERE p.hotel = :hotel " +
+            "AND p.seuilAlerte IS NOT NULL " +
+            "AND p.quantiteStock <= p.seuilAlerte")
     List<Produit> findProduitsEnRuptureStock(@Param("hotel") Hotel hotel);
 }

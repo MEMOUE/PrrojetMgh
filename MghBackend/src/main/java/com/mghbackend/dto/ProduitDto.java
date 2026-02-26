@@ -1,5 +1,6 @@
 package com.mghbackend.dto;
 
+import com.mghbackend.enums.TypeProduit;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +35,15 @@ public class ProduitDto {
     @NotNull(message = "Le prix unitaire est obligatoire")
     @DecimalMin(value = "0.0", message = "Le prix doit être positif")
     private BigDecimal prixUnitaire;
+
+    /** Catégorie restaurant : BOISSON, ENTREE, PLAT, DESSERT, AUTRE */
+    @NotNull(message = "Le type de produit est obligatoire")
+    private TypeProduit typeProduit;
+
+    /** Visible et commandable depuis le restaurant */
+    private Boolean disponible;
+
+    private String imageUrl;
 
     private Long fournisseurId;
     private String fournisseurNom;

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
-// PrimeNG Modules
+// PrimeNG
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -15,11 +15,11 @@ import { FinanceService } from '../../../services/finance.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 // Models
-import { 
+import {
   Transaction,
   TypeTransaction,
   StatutTransaction,
-  ModePaiement,
+  ModePaiementTransaction,
   TYPE_TRANSACTION_LABELS,
   TYPE_TRANSACTION_COLORS,
   STATUT_TRANSACTION_LABELS,
@@ -48,16 +48,9 @@ export class Detailfinance implements OnInit {
   loading = false;
   transactionId: number | null = null;
 
-  // Enums pour le template
+  // Expose enums au template
   TypeTransaction = TypeTransaction;
   StatutTransaction = StatutTransaction;
-  
-  // Labels pour le template
-  TYPE_LABELS = TYPE_TRANSACTION_LABELS;
-  TYPE_COLORS = TYPE_TRANSACTION_COLORS;
-  STATUT_LABELS = STATUT_TRANSACTION_LABELS;
-  STATUT_COLORS = STATUT_TRANSACTION_COLORS;
-  MODE_PAIEMENT_LABELS = MODE_PAIEMENT_LABELS;
 
   constructor(
     private financeService: FinanceService,
@@ -70,73 +63,47 @@ export class Detailfinance implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.transactionId = +params['id'];
-      if (this.transactionId) {
-        this.loadTransaction();
-      }
+      if (this.transactionId) this.loadTransaction();
     });
   }
 
   loadTransaction(): void {
     if (!this.transactionId) return;
-
     this.loading = true;
     this.financeService.getTransactionById(this.transactionId).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.transaction = response.data;
-        }
+        if (response.success) this.transaction = response.data;
         this.loading = false;
       },
-      error: (error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Impossible de charger la transaction'
-        });
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de charger la transaction' });
         this.loading = false;
         this.router.navigate(['/finances']);
       }
     });
   }
 
-  goBack(): void {
-    this.router.navigate(['/finances']);
-  }
+  goBack(): void { this.router.navigate(['/finances']); }
 
   editTransaction(): void {
-    if (this.transaction?.id) {
-      this.router.navigate(['/finances/edit', this.transaction.id]);
-    }
+    if (this.transaction?.id) this.router.navigate(['/finances/edit', this.transaction.id]);
   }
 
   validerTransaction(): void {
     if (!this.transaction?.id) return;
-
     this.confirmationService.confirm({
-      message: `Voulez-vous valider cette transaction de ${this.transaction.montant} FCFA ?`,
-      header: 'Confirmation',
-      icon: 'pi pi-check-circle',
-      acceptLabel: 'Oui',
-      rejectLabel: 'Non',
+      message: `Valider cette transaction de ${this.formatCurrency(this.transaction.montant)} ?`,
+      header: 'Confirmation', icon: 'pi pi-check-circle',
+      acceptLabel: 'Oui', rejectLabel: 'Non',
       accept: () => {
         this.financeService.validerTransaction(this.transaction!.id!).subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Succès',
-                detail: 'Transaction validée avec succès'
-              });
+          next: (r) => {
+            if (r.success) {
+              this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Transaction validée' });
               this.loadTransaction();
             }
           },
-          error: (error) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: 'Impossible de valider la transaction'
-            });
-          }
+          error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de valider' })
         });
       }
     });
@@ -144,33 +111,20 @@ export class Detailfinance implements OnInit {
 
   annulerTransaction(): void {
     if (!this.transaction?.id) return;
-
     this.confirmationService.confirm({
-      message: 'Voulez-vous vraiment annuler cette transaction ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Oui',
-      rejectLabel: 'Non',
+      message: 'Voulez-vous annuler cette transaction ?',
+      header: 'Confirmation', icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Oui', rejectLabel: 'Non',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
         this.financeService.annulerTransaction(this.transaction!.id!).subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Succès',
-                detail: 'Transaction annulée'
-              });
+          next: (r) => {
+            if (r.success) {
+              this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Transaction annulée' });
               this.loadTransaction();
             }
           },
-          error: (error) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: 'Impossible d\'annuler la transaction'
-            });
-          }
+          error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible d\'annuler' })
         });
       }
     });
@@ -178,77 +132,58 @@ export class Detailfinance implements OnInit {
 
   deleteTransaction(): void {
     if (!this.transaction?.id) return;
-
     this.confirmationService.confirm({
-      message: 'Êtes-vous sûr de vouloir supprimer cette transaction ?',
-      header: 'Confirmation de suppression',
-      icon: 'pi pi-trash',
-      acceptLabel: 'Oui',
-      rejectLabel: 'Non',
+      message: 'Supprimer définitivement cette transaction ?',
+      header: 'Suppression', icon: 'pi pi-trash',
+      acceptLabel: 'Oui', rejectLabel: 'Non',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
         this.financeService.deleteTransaction(this.transaction!.id!).subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Succès',
-                detail: 'Transaction supprimée'
-              });
+          next: (r) => {
+            if (r.success) {
+              this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Transaction supprimée' });
               this.router.navigate(['/finances']);
             }
           },
-          error: (error) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: 'Impossible de supprimer la transaction'
-            });
-          }
+          error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de supprimer' })
         });
       }
     });
   }
 
+  // ─── FORMATAGE ─────────────────────────────────────────────────────────────
+
   formatCurrency(amount: number): string {
     return new Intl.NumberFormat('fr-FR', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(amount) + ' FCFA';
   }
 
   formatDateTime(date: string | Date | undefined): string {
-    if (!date) return '';
-    const d = new Date(date);
+    if (!date) return '-';
     return new Intl.DateTimeFormat('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(d);
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    }).format(new Date(date));
   }
 
   formatDate(date: string | Date | undefined): string {
-    if (!date) return '';
-    const d = new Date(date);
+    if (!date) return '-';
     return new Intl.DateTimeFormat('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }).format(d);
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    }).format(new Date(date));
   }
 
   getTypeLabel(type: TypeTransaction): string {
-    return this.TYPE_LABELS[type];
+    return TYPE_TRANSACTION_LABELS[type] ?? type;
   }
 
   getStatutLabel(statut: StatutTransaction): string {
-    return this.STATUT_LABELS[statut];
+    return STATUT_TRANSACTION_LABELS[statut] ?? statut;
   }
 
-  getModePaiementLabel(mode: ModePaiement): string {
-    return this.MODE_PAIEMENT_LABELS[mode as ModePaiement];
+  getModePaiementLabel(mode: string): string {
+    return MODE_PAIEMENT_LABELS[mode as ModePaiementTransaction] ?? mode;
   }
 
   getSeverity(type: TypeTransaction): 'success' | 'danger' {
@@ -256,7 +191,7 @@ export class Detailfinance implements OnInit {
   }
 
   getStatutSeverity(statut: StatutTransaction): 'success' | 'warn' | 'danger' | 'info' {
-    const severity = STATUT_TRANSACTION_COLORS[statut];
-    return severity === 'warning' ? 'warn' : severity as 'success' | 'warn' | 'danger' | 'info';
+    const s = STATUT_TRANSACTION_COLORS[statut];
+    return s === 'warning' ? 'warn' : s as any;
   }
 }

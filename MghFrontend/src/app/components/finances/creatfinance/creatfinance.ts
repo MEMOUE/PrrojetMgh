@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 
-// PrimeNG Modules
+// PrimeNG
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -13,6 +13,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { ToastModule } from 'primeng/toast';
 import { FileUploadModule } from 'primeng/fileupload';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { TextareaModule } from 'primeng/textarea';
 
 // Services
 import { FinanceService } from '../../../services/finance.service';
@@ -21,11 +22,11 @@ import { RestaurantService } from '../../../services/restaurant.service';
 import { MessageService } from 'primeng/api';
 
 // Models
-import { 
+import {
   Transaction,
   TypeTransaction,
   StatutTransaction,
-  ModePaiement,
+  ModePaiementTransaction,
   CATEGORIES_REVENUS,
   CATEGORIES_DEPENSES,
   MODE_PAIEMENT_LABELS
@@ -46,7 +47,8 @@ import {
     DatePickerModule,
     ToastModule,
     FileUploadModule,
-    AutoCompleteModule
+    AutoCompleteModule,
+    TextareaModule
   ],
   templateUrl: './creatfinance.html',
   styleUrl: './creatfinance.css',
@@ -58,28 +60,24 @@ export class Creatfinance implements OnInit {
   isEditMode = false;
   transactionId: number | null = null;
 
-  // Enums pour le template
+  // Expose enums au template
   TypeTransaction = TypeTransaction;
   StatutTransaction = StatutTransaction;
 
-  // Options pour les selects
   typesTransaction = [
     { label: 'Revenu', value: TypeTransaction.REVENU },
     { label: 'Dépense', value: TypeTransaction.DEPENSE }
   ];
 
-  categoriesOptions: any[] = [];
+  categoriesOptions: { label: string; value: string }[] = [];
 
-  modesPaiement = Object.keys(ModePaiement).map(key => ({
-    label: MODE_PAIEMENT_LABELS[key as ModePaiement],
+  modesPaiement = Object.keys(ModePaiementTransaction).map(key => ({
+    label: MODE_PAIEMENT_LABELS[key as ModePaiementTransaction],
     value: key
   }));
 
-  // Autocomplete suggestions
-  reservationsSuggestions: any[] = [];
-  commandesSuggestions: any[] = [];
-
-  // Upload
+  reservationsSuggestions: { label: string; value: number }[] = [];
+  commandesSuggestions: { label: string; value: number }[] = [];
   uploadedFile: File | null = null;
 
   constructor(
@@ -90,12 +88,12 @@ export class Creatfinance implements OnInit {
     private messageService: MessageService,
     private router: Router,
     private route: ActivatedRoute
-  ) {
-    this.initForm();
-  }
+  ) {}
 
   ngOnInit(): void {
-    // Vérifier si on est en mode édition
+    this.initForm();
+    this.updateCategories(TypeTransaction.REVENU);
+
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.isEditMode = true;
@@ -104,68 +102,53 @@ export class Creatfinance implements OnInit {
       }
     });
 
-    // Charger les catégories par défaut
-    this.updateCategories(TypeTransaction.REVENU);
+    // Recharger catégories quand le type change
+    this.transactionForm.get('type')?.valueChanges.subscribe(type => {
+      this.transactionForm.get('categorie')?.setValue('');
+      this.updateCategories(type);
+    });
   }
 
   initForm(): void {
     this.transactionForm = this.fb.group({
       type: [TypeTransaction.REVENU, Validators.required],
       categorie: ['', Validators.required],
-      montant: [null, [Validators.required, Validators.min(0)]],
+      montant: [null, [Validators.required, Validators.min(1)]],
       dateTransaction: [new Date(), Validators.required],
       description: [''],
       modePaiement: [null],
-      
-      // Relations (optionnelles)
       reservationId: [null],
       commandeRestaurantId: [null],
-      
-      // Pièce justificative
       numeroPiece: [''],
-      
-      // Notes
       notes: ['']
-    });
-
-    // Écouter les changements de type pour mettre à jour les catégories
-    this.transactionForm.get('type')?.valueChanges.subscribe(type => {
-      this.updateCategories(type);
     });
   }
 
   loadTransaction(): void {
     if (!this.transactionId) return;
-
     this.loading = true;
     this.financeService.getTransactionById(this.transactionId).subscribe({
       next: (response) => {
         if (response.success) {
-          const transaction = response.data;
-          
+          const t = response.data;
+          this.updateCategories(t.type);
           this.transactionForm.patchValue({
-            type: transaction.type,
-            categorie: transaction.categorie,
-            montant: transaction.montant,
-            dateTransaction: new Date(transaction.dateTransaction),
-            description: transaction.description,
-            modePaiement: transaction.modePaiement,
-            reservationId: transaction.reservationId,
-            commandeRestaurantId: transaction.commandeRestaurantId,
-            numeroPiece: transaction.numeroPiece,
-            notes: transaction.notes
+            type: t.type,
+            categorie: t.categorie,
+            montant: t.montant,
+            dateTransaction: t.dateTransaction ? new Date(t.dateTransaction) : new Date(),
+            description: t.description,
+            modePaiement: t.modePaiement,
+            reservationId: t.reservationId,
+            commandeRestaurantId: t.commandeRestaurantId,
+            numeroPiece: t.numeroPiece,
+            notes: t.notes
           });
-
-          this.updateCategories(transaction.type);
         }
         this.loading = false;
       },
-      error: (error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Impossible de charger la transaction'
-        });
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de charger la transaction' });
         this.loading = false;
         this.router.navigate(['/finances']);
       }
@@ -173,129 +156,91 @@ export class Creatfinance implements OnInit {
   }
 
   updateCategories(type: TypeTransaction): void {
-    if (type === TypeTransaction.REVENU) {
-      this.categoriesOptions = CATEGORIES_REVENUS.map(cat => ({
-        label: cat.nom,
-        value: cat.nom
-      }));
-    } else {
-      this.categoriesOptions = CATEGORIES_DEPENSES.map(cat => ({
-        label: cat.nom,
-        value: cat.nom
-      }));
-    }
+    const list = type === TypeTransaction.REVENU ? CATEGORIES_REVENUS : CATEGORIES_DEPENSES;
+    this.categoriesOptions = list.map(c => ({ label: c.nom, value: c.nom }));
   }
 
-  searchReservations(event: any): void {
-    const query = event.query.toLowerCase();
-    
-    this.reservationService.searchReservations(query).subscribe({
+  searchReservations(event: { query: string }): void {
+    this.reservationService.searchReservations(event.query).subscribe({
       next: (response) => {
         if (response.success) {
           this.reservationsSuggestions = response.data.map(r => ({
-            label: `${r.numeroReservation} - ${r.clientNom} ${r.clientPrenom}`,
-            value: r.id
+            label: `${r.numeroReservation} – ${r.clientNom ?? ''} ${r.clientPrenom ?? ''}`.trim(),
+            value: r.id!
           }));
         }
       },
-      error: (error) => {
-        console.error('Erreur lors de la recherche de réservations', error);
-      }
+      error: () => {}
     });
   }
 
-  searchCommandes(event: any): void {
+  searchCommandes(event: { query: string }): void {
     const query = event.query.toLowerCase();
-    
     this.restaurantService.getCommandes().subscribe({
       next: (response) => {
         if (response.success) {
           this.commandesSuggestions = response.data
             .filter(c => c.numeroCommande?.toLowerCase().includes(query))
             .map(c => ({
-              label: `${c.numeroCommande} - Table ${c.numeroTable || 'N/A'}`,
-              value: c.id
+              label: `${c.numeroCommande} – Table ${c.numeroTable ?? 'N/A'}`,
+              value: c.id!
             }));
         }
       },
-      error: (error) => {
-        console.error('Erreur lors de la recherche de commandes', error);
-      }
+      error: () => {}
     });
   }
 
-  onFileSelect(event: any): void {
-    if (event.files && event.files.length > 0) {
-      this.uploadedFile = event.files[0];
-    }
+  onFileSelect(event: { files: File[] }): void {
+    if (event.files?.length) this.uploadedFile = event.files[0];
   }
 
   onSubmit(): void {
     if (this.transactionForm.invalid) {
-      Object.keys(this.transactionForm.controls).forEach(key => {
-        const control = this.transactionForm.get(key);
-        if (control?.invalid) {
-          control.markAsTouched();
-        }
-      });
-      
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Attention',
-        detail: 'Veuillez remplir tous les champs obligatoires'
-      });
+      Object.values(this.transactionForm.controls).forEach(c => c.markAsTouched());
+      this.messageService.add({ severity: 'warn', summary: 'Attention', detail: 'Veuillez remplir les champs obligatoires' });
       return;
     }
 
     this.loading = true;
-    const formValue = this.transactionForm.value;
+    const fv = this.transactionForm.value;
 
-    // Préparer l'objet Transaction
+    // Extraire l'ID si l'autocomplete a retourné un objet
+    const reservationId = fv.reservationId?.value ?? fv.reservationId ?? null;
+    const commandeId = fv.commandeRestaurantId?.value ?? fv.commandeRestaurantId ?? null;
+
     const transaction: Transaction = {
-      type: formValue.type,
-      categorie: formValue.categorie,
-      montant: formValue.montant,
-      dateTransaction: this.formatDate(formValue.dateTransaction),
-      description: formValue.description,
-      modePaiement: formValue.modePaiement,
-      reservationId: formValue.reservationId,
-      commandeRestaurantId: formValue.commandeRestaurantId,
-      numeroPiece: formValue.numeroPiece,
-      notes: formValue.notes,
+      type: fv.type,
+      categorie: fv.categorie,
+      montant: fv.montant,
+      dateTransaction: this.formatDateISO(fv.dateTransaction),
+      description: fv.description,
+      modePaiement: fv.modePaiement,
+      reservationId,
+      commandeRestaurantId: commandeId,
+      numeroPiece: fv.numeroPiece,
+      notes: fv.notes,
       statut: StatutTransaction.EN_ATTENTE
     };
 
-    // Créer ou mettre à jour
-    const operation = this.isEditMode && this.transactionId
+    const op$ = this.isEditMode && this.transactionId
       ? this.financeService.updateTransaction(this.transactionId, transaction)
       : this.financeService.createTransaction(transaction);
 
-    operation.subscribe({
+    op$.subscribe({
       next: (response) => {
         if (response.success) {
           this.messageService.add({
             severity: 'success',
             summary: 'Succès',
-            detail: this.isEditMode 
-              ? 'Transaction mise à jour avec succès' 
-              : 'Transaction créée avec succès'
+            detail: this.isEditMode ? 'Transaction mise à jour' : 'Transaction créée'
           });
-
-          // Rediriger vers la liste après un court délai
-          setTimeout(() => {
-            this.router.navigate(['/finances']);
-          }, 1500);
+          setTimeout(() => this.router.navigate(['/finances']), 1500);
         }
         this.loading = false;
       },
-      error: (error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: this.isEditMode
-            ? 'Impossible de mettre à jour la transaction'
-            : 'Impossible de créer la transaction'
-        });
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: err?.error?.message ?? 'Une erreur est survenue' });
         this.loading = false;
       }
     });
@@ -305,27 +250,16 @@ export class Creatfinance implements OnInit {
     this.router.navigate(['/finances']);
   }
 
-  formatDate(date: Date): string {
+  private formatDateISO(date: Date): string {
     const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-    const seconds = String(d.getSeconds()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   }
 
-  // Getters pour faciliter l'accès aux contrôles du formulaire
+  // Getters pour le template
   get type() { return this.transactionForm.get('type'); }
   get categorie() { return this.transactionForm.get('categorie'); }
   get montant() { return this.transactionForm.get('montant'); }
   get dateTransaction() { return this.transactionForm.get('dateTransaction'); }
-  get description() { return this.transactionForm.get('description'); }
   get modePaiement() { return this.transactionForm.get('modePaiement'); }
-  get reservationId() { return this.transactionForm.get('reservationId'); }
-  get commandeRestaurantId() { return this.transactionForm.get('commandeRestaurantId'); }
-  get numeroPiece() { return this.transactionForm.get('numeroPiece'); }
-  get notes() { return this.transactionForm.get('notes'); }
 }

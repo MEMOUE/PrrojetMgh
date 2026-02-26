@@ -16,12 +16,12 @@ import { SelectModule } from 'primeng/select';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 import { RestaurantService } from '../../../services/restaurant.service';
-import { 
-  CommandeRestaurant, 
+import {
+  CommandeRestaurant,
   StatutCommandeRestaurant,
   STATUT_COMMANDE_LABELS,
-  STATUT_COMMANDE_COLORS 
-} from '../../../models/restaurant.model ';
+  STATUT_COMMANDE_COLORS
+} from '../../../models/restaurant.model';
 type Severity = "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined;
 
 @Component({
@@ -203,7 +203,7 @@ export class Listeresto implements OnInit {
 
   ajouterPaiement(commande: CommandeRestaurant): void {
     const montantRestant = commande.montantTotal - (commande.montantPaye || 0);
-    
+
     // Vous pourriez ouvrir un dialog ici pour saisir le montant
     // Pour l'instant, on paie le montant restant
     this.confirmationService.confirm({

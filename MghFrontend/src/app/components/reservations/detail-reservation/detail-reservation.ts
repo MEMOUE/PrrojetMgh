@@ -18,14 +18,14 @@ import { FormsModule } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 // Models & Services
-import { 
-  Reservation, 
-  StatutReservation, 
+import {
+  Reservation,
+  StatutReservation,
   StatutPaiement,
   ModePaiement,
   STATUT_RESERVATION_LABELS,
-  STATUT_PAIEMENT_LABELS 
-} from '../../../models/reservation.model ';
+  STATUT_PAIEMENT_LABELS
+} from '../../../models/reservation.model';
 import { ReservationService } from '../../../services/reservation.service';
 
 interface ModePaiementOption {
@@ -58,7 +58,7 @@ type Severity = "success" | "info" | "warn" | "danger" | "secondary" | "contrast
 export class DetailReservation implements OnInit {
   reservation: Reservation | null = null;
   loading = false;
-  
+
   // Dialog pour paiement
   showPaiementDialog = false;
   montantPaiement: number = 0;
@@ -241,7 +241,7 @@ export class DetailReservation implements OnInit {
 
   openPaiementDialog(): void {
     if (!this.reservation) return;
-    
+
     this.montantPaiement = 0;
     this.modePaiementSelected = '';
     this.showPaiementDialog = true;
@@ -373,7 +373,7 @@ export class DetailReservation implements OnInit {
   }
 
   canCancel(): boolean {
-    return this.reservation?.statut !== StatutReservation.TERMINEE && 
+    return this.reservation?.statut !== StatutReservation.TERMINEE &&
            this.reservation?.statut !== StatutReservation.ANNULEE &&
            this.reservation?.statut !== StatutReservation.EN_COURS;
   }

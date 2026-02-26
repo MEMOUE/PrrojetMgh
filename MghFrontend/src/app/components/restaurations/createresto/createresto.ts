@@ -15,13 +15,14 @@ import { TableModule } from 'primeng/table';
 
 import { RestaurantService } from '../../../services/restaurant.service';
 import { ReservationService } from '../../../services/reservation.service';
-import { 
-  CommandeRestaurant, 
-  ProduitMenu, 
+import {
+  CommandeRestaurant,
+  ProduitMenu,
   LigneCommande,
-  CATEGORIES_MENU 
-} from '../../../models/restaurant.model ';
-import { Reservation } from '../../../models/reservation.model ';
+  CATEGORIES_MENU
+} from '../../../models/restaurant.model';
+import { TypeProduit } from '../../../models/produit.model';
+import { Reservation } from '../../../models/reservation.model';
 
 @Component({
   selector: 'app-createresto',
@@ -48,14 +49,13 @@ export class Createresto implements OnInit {
   loading: boolean = false;
   isEditMode: boolean = false;
   commandeId?: number;
-  
-  produitsParCategorie: Map<string, ProduitMenu[]> = new Map();
+
+  produitsParCategorie: Map<TypeProduit, ProduitMenu[]> = new Map();
   categories = CATEGORIES_MENU;
 
-  // Options de type client
   typeClientOptions = [
     { label: 'Client externe', value: 'externe' },
-    { label: 'Réservation', value: 'reservation' }
+    { label: 'Réservation',    value: 'reservation' }
   ];
 
   constructor(
@@ -72,7 +72,6 @@ export class Createresto implements OnInit {
     this.loadProduitsMenu();
     this.loadReservations();
 
-    // Vérifier si mode édition
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.isEditMode = true;
@@ -84,48 +83,39 @@ export class Createresto implements OnInit {
 
   initForm(): void {
     this.commandeForm = this.fb.group({
-      typeClient: ['externe', Validators.required],
-      
-      // Client externe
-      nomClientExterne: [''],
-      telephoneClientExterne: [''],
-      
-      // Réservation
-      reservationId: [null],
-      
-      numeroTable: [''],
-      notes: [''],
-      
-      // Lignes de commande
-      lignes: this.fb.array([])
+      typeClient:              ['externe', Validators.required],
+      nomClientExterne:        [''],
+      telephoneClientExterne:  [''],
+      reservationId:           [null],
+      numeroTable:             [''],
+      notes:                   [''],
+      lignes:                  this.fb.array([])
     });
 
-    // Gérer le changement de type client
     this.commandeForm.get('typeClient')?.valueChanges.subscribe(type => {
       this.updateValidators(type);
     });
   }
 
   updateValidators(typeClient: string): void {
-    const nomControl = this.commandeForm.get('nomClientExterne');
-    const telControl = this.commandeForm.get('telephoneClientExterne');
-    const reservationControl = this.commandeForm.get('reservationId');
+    const nomCtrl         = this.commandeForm.get('nomClientExterne');
+    const telCtrl         = this.commandeForm.get('telephoneClientExterne');
+    const reservationCtrl = this.commandeForm.get('reservationId');
 
-    // Réinitialiser les validateurs
-    nomControl?.clearValidators();
-    telControl?.clearValidators();
-    reservationControl?.clearValidators();
+    nomCtrl?.clearValidators();
+    telCtrl?.clearValidators();
+    reservationCtrl?.clearValidators();
 
     if (typeClient === 'externe') {
-      nomControl?.setValidators([Validators.required]);
-      telControl?.setValidators([Validators.required]);
+      nomCtrl?.setValidators([Validators.required]);
+      telCtrl?.setValidators([Validators.required]);
     } else if (typeClient === 'reservation') {
-      reservationControl?.setValidators([Validators.required]);
+      reservationCtrl?.setValidators([Validators.required]);
     }
 
-    nomControl?.updateValueAndValidity();
-    telControl?.updateValueAndValidity();
-    reservationControl?.updateValueAndValidity();
+    nomCtrl?.updateValueAndValidity();
+    telCtrl?.updateValueAndValidity();
+    reservationCtrl?.updateValueAndValidity();
   }
 
   get lignes(): FormArray {
@@ -140,8 +130,7 @@ export class Createresto implements OnInit {
           this.organiserParCategorie();
         }
       },
-      error: (error) => {
-        console.error('Erreur lors du chargement des produits:', error);
+      error: () => {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
@@ -154,10 +143,11 @@ export class Createresto implements OnInit {
   organiserParCategorie(): void {
     this.produitsParCategorie.clear();
     this.produitsMenu.forEach(produit => {
-      if (!this.produitsParCategorie.has(produit.categorie)) {
-        this.produitsParCategorie.set(produit.categorie, []);
+      const type = produit.typeProduit ?? TypeProduit.AUTRE;
+      if (!this.produitsParCategorie.has(type)) {
+        this.produitsParCategorie.set(type, []);
       }
-      this.produitsParCategorie.get(produit.categorie)!.push(produit);
+      this.produitsParCategorie.get(type)!.push(produit);
     });
   }
 
@@ -168,9 +158,7 @@ export class Createresto implements OnInit {
           this.reservations = response.data;
         }
       },
-      error: (error) => {
-        console.error('Erreur lors du chargement des réservations:', error);
-      }
+      error: (error) => console.error('Erreur réservations:', error)
     });
   }
 
@@ -183,12 +171,9 @@ export class Createresto implements OnInit {
         }
         this.loading = false;
       },
-      error: (error) => {
-        console.error('Erreur lors du chargement de la commande:', error);
+      error: () => {
         this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Impossible de charger la commande'
+          severity: 'error', summary: 'Erreur', detail: 'Impossible de charger la commande'
         });
         this.loading = false;
       }
@@ -196,75 +181,74 @@ export class Createresto implements OnInit {
   }
 
   patchFormWithCommande(commande: CommandeRestaurant): void {
-    // Déterminer le type de client
-    let typeClient = 'externe';
-    if (commande.reservationId) {
-      typeClient = 'reservation';
-    }
+    const typeClient = commande.reservationId ? 'reservation' : 'externe';
 
     this.commandeForm.patchValue({
-      typeClient: typeClient,
-      nomClientExterne: commande.nomClientExterne,
+      typeClient,
+      nomClientExterne:       commande.nomClientExterne,
       telephoneClientExterne: commande.telephoneClientExterne,
-      reservationId: commande.reservationId,
-      numeroTable: commande.numeroTable,
-      notes: commande.notes
+      reservationId:          commande.reservationId,
+      numeroTable:            commande.numeroTable,
+      notes:                  commande.notes
     });
 
-    // Ajouter les lignes
-    commande.lignes.forEach(ligne => {
-      this.ajouterLigneExistante(ligne);
-    });
+    commande.lignes.forEach(ligne => this.ajouterLigneExistante(ligne));
   }
 
   ajouterLigneExistante(ligne: LigneCommande): void {
     const ligneGroup = this.fb.group({
-      produitMenuId: [ligne.produitMenuId, Validators.required],
-      quantite: [ligne.quantite, [Validators.required, Validators.min(1)]],
+      produitId:    [ligne.produitId, Validators.required],
+      quantite:     [ligne.quantite, [Validators.required, Validators.min(1)]],
       prixUnitaire: [ligne.prixUnitaire],
-      sousTotal: [ligne.sousTotal],
-      notes: [ligne.notes]
+      sousTotal:    [ligne.sousTotal],
+      notes:        [ligne.notes]
     });
-
     this.lignes.push(ligneGroup);
   }
 
   ajouterProduit(produit: ProduitMenu): void {
+    // Vérifier si le produit est déjà dans le panier
+    const existing = this.lignes.controls.find(
+      c => c.get('produitId')?.value === produit.id
+    );
+    if (existing) {
+      const currentQty = existing.get('quantite')?.value || 0;
+      existing.patchValue({ quantite: currentQty + 1 });
+      this.calculerSousTotal(existing as FormGroup);
+      return;
+    }
+
     const ligneGroup = this.fb.group({
-      produitMenuId: [produit.id, Validators.required],
-      produitMenuNom: [produit.nom],
-      quantite: [1, [Validators.required, Validators.min(1)]],
-      prixUnitaire: [produit.prix],
-      sousTotal: [produit.prix],
-      notes: ['']
+      produitId:    [produit.id, Validators.required],
+      produitNom:   [produit.nom],
+      quantite:     [1, [Validators.required, Validators.min(1)]],
+      prixUnitaire: [produit.prixUnitaire],
+      sousTotal:    [produit.prixUnitaire],
+      notes:        ['']
     });
 
-    // Observer les changements de quantité
     ligneGroup.get('quantite')?.valueChanges.subscribe(() => {
       this.calculerSousTotal(ligneGroup);
     });
 
     this.lignes.push(ligneGroup);
-    this.calculerMontantTotal();
   }
 
   supprimerLigne(index: number): void {
     this.lignes.removeAt(index);
-    this.calculerMontantTotal();
   }
 
   calculerSousTotal(ligneGroup: FormGroup): void {
-    const quantite = ligneGroup.get('quantite')?.value || 0;
+    const quantite     = ligneGroup.get('quantite')?.value || 0;
     const prixUnitaire = ligneGroup.get('prixUnitaire')?.value || 0;
-    const sousTotal = quantite * prixUnitaire;
-    ligneGroup.patchValue({ sousTotal }, { emitEvent: false });
-    this.calculerMontantTotal();
+    ligneGroup.patchValue({ sousTotal: quantite * prixUnitaire }, { emitEvent: false });
   }
 
   calculerMontantTotal(): number {
-    return this.lignes.controls.reduce((total, control) => {
-      return total + (control.get('sousTotal')?.value || 0);
-    }, 0);
+    return this.lignes.controls.reduce(
+      (total, control) => total + (control.get('sousTotal')?.value || 0),
+      0
+    );
   }
 
   getNomProduit(produitId: number): string {
@@ -272,12 +256,15 @@ export class Createresto implements OnInit {
     return produit?.nom || '';
   }
 
+  getProduitsCategorie(typeProduit: TypeProduit): ProduitMenu[] {
+    return this.produitsParCategorie.get(typeProduit) || [];
+  }
+
   onSubmit(): void {
     if (this.commandeForm.invalid) {
       this.markFormGroupTouched(this.commandeForm);
       this.messageService.add({
-        severity: 'warn',
-        summary: 'Attention',
+        severity: 'warn', summary: 'Attention',
         detail: 'Veuillez remplir tous les champs obligatoires'
       });
       return;
@@ -285,42 +272,35 @@ export class Createresto implements OnInit {
 
     if (this.lignes.length === 0) {
       this.messageService.add({
-        severity: 'warn',
-        summary: 'Attention',
+        severity: 'warn', summary: 'Attention',
         detail: 'Veuillez ajouter au moins un produit'
       });
       return;
     }
 
     const formValue = this.commandeForm.value;
-    
+
     const commande: CommandeRestaurant = {
       statut: 'EN_ATTENTE' as any,
       montantTotal: this.calculerMontantTotal(),
       lignes: this.lignes.value.map((ligne: any) => ({
-        produitMenuId: ligne.produitMenuId,
-        quantite: ligne.quantite,
+        produitId:    ligne.produitId,
+        quantite:     ligne.quantite,
         prixUnitaire: ligne.prixUnitaire,
-        sousTotal: ligne.sousTotal,
-        notes: ligne.notes
+        sousTotal:    ligne.sousTotal,
+        notes:        ligne.notes
       }))
     };
 
-    // Ajouter les informations du client
     if (formValue.typeClient === 'externe') {
-      commande.nomClientExterne = formValue.nomClientExterne;
+      commande.nomClientExterne       = formValue.nomClientExterne;
       commande.telephoneClientExterne = formValue.telephoneClientExterne;
     } else if (formValue.typeClient === 'reservation') {
       commande.reservationId = formValue.reservationId;
     }
 
-    if (formValue.numeroTable) {
-      commande.numeroTable = formValue.numeroTable;
-    }
-
-    if (formValue.notes) {
-      commande.notes = formValue.notes;
-    }
+    if (formValue.numeroTable) commande.numeroTable = formValue.numeroTable;
+    if (formValue.notes)       commande.notes       = formValue.notes;
 
     this.loading = true;
 
@@ -334,21 +314,15 @@ export class Createresto implements OnInit {
           this.messageService.add({
             severity: 'success',
             summary: 'Succès',
-            detail: this.isEditMode 
-              ? 'Commande modifiée avec succès' 
-              : 'Commande créée avec succès'
+            detail: this.isEditMode ? 'Commande modifiée avec succès' : 'Commande créée avec succès'
           });
-          setTimeout(() => {
-            this.router.navigate(['/restauration']);
-          }, 1500);
+          setTimeout(() => this.router.navigate(['/restauration']), 1500);
         }
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erreur lors de la sauvegarde:', error);
         this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
+          severity: 'error', summary: 'Erreur',
           detail: error.error?.message || 'Impossible de sauvegarder la commande'
         });
         this.loading = false;
@@ -364,7 +338,6 @@ export class Createresto implements OnInit {
     Object.keys(formGroup.controls).forEach(key => {
       const control = formGroup.get(key);
       control?.markAsTouched();
-
       if (control instanceof FormGroup || control instanceof FormArray) {
         this.markFormGroupTouched(control);
       }
@@ -374,9 +347,5 @@ export class Createresto implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.commandeForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
-  }
-
-  getProduitsCategorie(categorie: string): ProduitMenu[] {
-    return this.produitsParCategorie.get(categorie) || [];
   }
 }

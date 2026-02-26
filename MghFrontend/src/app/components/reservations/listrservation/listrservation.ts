@@ -24,7 +24,7 @@ import {
   StatutPaiement,
   STATUT_RESERVATION_LABELS,
   STATUT_PAIEMENT_LABELS
-} from '../../../models/reservation.model ';
+} from '../../../models/reservation.model';
 import { ReservationService } from '../../../services/reservation.service';
 
 interface StatutOption {

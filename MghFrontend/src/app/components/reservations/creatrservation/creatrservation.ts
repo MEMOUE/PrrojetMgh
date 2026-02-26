@@ -23,7 +23,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 // Services et Models
 import { ReservationService } from '../../../services/reservation.service';
 import { ChambreService } from '../../../services/chambre.service';
-import { CreateReservationRequest, Client, ModePaiement } from '../../../models/reservation.model ';
+import { CreateReservationRequest, Client, ModePaiement } from '../../../models/reservation.model';
 import { Chambre, TYPE_CHAMBRE_LABELS } from '../../../models/hotel.model';
 
 @Component({
@@ -55,7 +55,7 @@ import { Chambre, TYPE_CHAMBRE_LABELS } from '../../../models/hotel.model';
 export class Creatrservation implements OnInit {
   // Exposition de TYPE_CHAMBRE_LABELS pour le template
   readonly TYPE_CHAMBRE_LABELS = TYPE_CHAMBRE_LABELS;
-  
+
   // État du wizard
   activeIndex: number = 0;
   loading: boolean = false;
@@ -71,7 +71,7 @@ export class Creatrservation implements OnInit {
   chambresDisponibles: Chambre[] = [];
   selectedChambre?: Chambre;
   clientType: 'nouveau' | 'existant' = 'nouveau';
-  
+
   // Options pour les dropdowns
   typePieceOptions = [
     { label: 'Carte d\'identité nationale', value: 'CNI' },
@@ -183,7 +183,7 @@ export class Creatrservation implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           const reservation = response.data;
-          
+
           this.datesForm.patchValue({
             chambreId: reservation.chambreId,
             dateArrivee: new Date(reservation.dateArrivee),
@@ -237,7 +237,7 @@ export class Creatrservation implements OnInit {
 
   private loadChambresDisponibles(dateArrivee: Date, dateDepart: Date): void {
     this.loading = true;
-    
+
     const dateArriveeStr = this.formatDateForAPI(dateArrivee);
     const dateDepartStr = this.formatDateForAPI(dateDepart);
 
@@ -247,7 +247,7 @@ export class Creatrservation implements OnInit {
     ).subscribe({
       next: (chambres) => {
         this.chambresDisponibles = chambres;
-        
+
         if (this.chambresDisponibles.length === 0) {
           this.messageService.add({
             severity: 'info',
@@ -301,7 +301,7 @@ export class Creatrservation implements OnInit {
 
   nextStep(): void {
     const currentForm = this.getCurrentForm();
-    
+
     if (currentForm.valid) {
       if (this.activeIndex === 0 && !this.selectedChambre) {
         this.messageService.add({
@@ -348,7 +348,7 @@ export class Creatrservation implements OnInit {
 
   onClientTypeChange(type: 'nouveau' | 'existant'): void {
     this.clientType = type;
-    
+
     if (type === 'existant') {
       this.clientForm.patchValue({
         prenom: '',
@@ -364,7 +364,7 @@ export class Creatrservation implements OnInit {
         pays: '',
         notes: ''
       });
-      
+
       Object.keys(this.clientForm.controls).forEach(key => {
         if (key !== 'clientId') {
           this.clientForm.get(key)?.disable();
@@ -382,11 +382,11 @@ export class Creatrservation implements OnInit {
           this.clientForm.get(key)?.clearValidators();
         }
       });
-      
+
       this.clientForm.get('prenom')?.setValidators([Validators.required, Validators.minLength(2)]);
       this.clientForm.get('nom')?.setValidators([Validators.required, Validators.minLength(2)]);
       this.clientForm.get('telephone')?.setValidators([Validators.required]);
-      
+
       Object.keys(this.clientForm.controls).forEach(key => {
         this.clientForm.get(key)?.updateValueAndValidity();
       });
@@ -426,7 +426,7 @@ export class Creatrservation implements OnInit {
         this.loading = false;
         return;
       }
-      
+
       (request as any).montantPaye = this.paiementForm.value.montantPaye;
       (request as any).modePaiement = this.paiementForm.value.modePaiement;
     }
@@ -439,8 +439,8 @@ export class Creatrservation implements OnInit {
         email: this.clientForm.value.email || undefined,
         typePiece: this.clientForm.value.typePiece || undefined,
         pieceIdentite: this.clientForm.value.pieceIdentite || undefined,
-        dateNaissance: this.clientForm.value.dateNaissance 
-          ? this.formatDateForAPI(this.clientForm.value.dateNaissance) 
+        dateNaissance: this.clientForm.value.dateNaissance
+          ? this.formatDateForAPI(this.clientForm.value.dateNaissance)
           : undefined,
         nationalite: this.clientForm.value.nationalite || undefined,
         adresse: this.clientForm.value.adresse || undefined,
@@ -462,7 +462,7 @@ export class Creatrservation implements OnInit {
             summary: 'Réservation créée',
             detail: `Réservation N° ${response.data.numeroReservation} créée avec succès`
           });
-          
+
           setTimeout(() => {
             this.router.navigate(['/reservation']);
           }, 1500);
@@ -493,12 +493,12 @@ export class Creatrservation implements OnInit {
   /**
    * Obtient le label formaté d'un type de chambre de manière type-safe
    * Résout le problème d'indexation stricte de TypeScript
-   * 
+   *
    * Explication du problème :
    * TYPE_CHAMBRE_LABELS est typé comme Record<TypeChambre, string>
    * Mais chambre.type vient de l'API comme un simple string
    * TypeScript refuse d'utiliser un string pour indexer un Record strict
-   * 
+   *
    * Solution :
    * On fait une assertion de type avec 'as keyof typeof'
    * Cela dit à TypeScript : "Je garantis que ce string est une clé valide"
@@ -572,7 +572,7 @@ export class Creatrservation implements OnInit {
    * Gère le cas où selectedChambre pourrait être undefined
    */
   getChambrePrixFormate(): string {
-    return this.selectedChambre 
+    return this.selectedChambre
       ? this.selectedChambre.prixParNuit.toLocaleString('fr-FR') + ' FCFA'
       : '0 FCFA';
   }

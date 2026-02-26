@@ -13,7 +13,7 @@ import { ToastModule } from 'primeng/toast';
 
 import { MessageService } from 'primeng/api';
 import { ClientService } from '../../../services/client.service';
-import { Client, TYPES_PIECE, PAYS_COURANTS } from '../../../models/client.model ';
+import { Client, TYPES_PIECE, PAYS_COURANTS } from '../../../models/client.model';
 
 @Component({
   selector: 'app-createclient',
@@ -37,7 +37,7 @@ export class Createclient implements OnInit {
   isEditMode: boolean = false;
   clientId?: number;
   loading: boolean = false;
-  
+
   typesPiece = TYPES_PIECE;
   paysCourants = PAYS_COURANTS.map(p => ({ label: p, value: p }));
 
@@ -51,7 +51,7 @@ export class Createclient implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    
+
     // Vérifier si on est en mode édition
     this.route.params.subscribe(params => {
       if (params['id']) {
@@ -129,7 +129,7 @@ export class Createclient implements OnInit {
 
     const clientData: Client = {
       ...this.clientForm.value,
-      dateNaissance: this.clientForm.value.dateNaissance 
+      dateNaissance: this.clientForm.value.dateNaissance
         ? new Date(this.clientForm.value.dateNaissance).toISOString().split('T')[0]
         : null
     };

@@ -16,20 +16,16 @@
     <div class="col-12 lg:col-8 xl:col-6">
       <p-card>
         <form [formGroup]="produitForm" (ngSubmit)="onSubmit()">
-          
+
           <!-- Informations générales -->
           <div class="formgrid grid">
             <div class="field col-12 md:col-6">
               <label for="nom" class="block mb-2">
                 Nom du produit <span class="text-red-500">*</span>
               </label>
-              <input 
-                id="nom"
-                type="text"
-                pInputText
-                formControlName="nom"
-                placeholder="Ex: Farine de blé"
-                class="w-full"
+              <input
+                id="nom" type="text" pInputText formControlName="nom"
+                placeholder="Ex: Farine de blé" class="w-full"
                 [class.ng-invalid]="hasError('nom', 'required') || hasError('nom', 'minlength')"
                 [class.ng-dirty]="produitForm.get('nom')?.dirty" />
               @if (hasError('nom', 'required') || hasError('nom', 'minlength')) {
@@ -41,13 +37,9 @@
               <label for="code" class="block mb-2">
                 Code produit <span class="text-red-500">*</span>
               </label>
-              <input 
-                id="code"
-                type="text"
-                pInputText
-                formControlName="code"
-                placeholder="Ex: FAR-001"
-                class="w-full"
+              <input
+                id="code" type="text" pInputText formControlName="code"
+                placeholder="Ex: FAR-001" class="w-full"
                 [class.ng-invalid]="hasError('code', 'required')"
                 [class.ng-dirty]="produitForm.get('code')?.dirty" />
               @if (hasError('code', 'required')) {
@@ -60,19 +52,58 @@
 
             <div class="field col-12">
               <label for="description" class="block mb-2">Description</label>
-              <textarea 
-                id="description"
-                pInputTextarea
-                formControlName="description"
-                rows="3"
-                placeholder="Description du produit..."
-                class="w-full">
+              <textarea
+                id="description" pInputTextarea formControlName="description"
+                rows="3" placeholder="Description du produit..." class="w-full">
               </textarea>
+            </div>
+          </div>
+
+          <!-- Catégorie restaurant -->
+          <h3 class="text-lg font-semibold mb-3 mt-4 border-top-1 border-gray-300 pt-3">
+            <i class="pi pi-shopping-cart text-orange-500 mr-2"></i>
+            Catégorie restaurant
+          </h3>
+
+          <div class="formgrid grid">
+            <div class="field col-12 md:col-6">
+              <label for="typeProduit" class="block mb-2">
+                Type de produit <span class="text-red-500">*</span>
+                <i class="pi pi-info-circle text-gray-500 ml-1"
+                   pTooltip="Détermine dans quel onglet du menu restaurant ce produit apparaît"></i>
+              </label>
+              <p-select
+                id="typeProduit"
+                formControlName="typeProduit"
+                [options]="typesProduit"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Sélectionnez un type"
+                [style]="{'width': '100%'}">
+              </p-select>
+              @if (hasError('typeProduit', 'required')) {
+                <small class="p-error">{{ getErrorMessage('typeProduit') }}</small>
+              }
+            </div>
+
+            <div class="field col-12 md:col-6 flex align-items-center gap-2" style="padding-top: 2rem">
+              <p-checkbox
+                formControlName="disponible"
+                [binary]="true"
+                inputId="disponible">
+              </p-checkbox>
+              <label for="disponible" class="cursor-pointer">
+                Disponible au menu restaurant
+                <small class="block text-gray-500">
+                  Basculé automatiquement si le stock atteint 0
+                </small>
+              </label>
             </div>
           </div>
 
           <!-- Gestion du stock -->
           <h3 class="text-lg font-semibold mb-3 mt-4 border-top-1 border-gray-300 pt-3">
+            <i class="pi pi-box text-purple-500 mr-2"></i>
             Gestion du stock
           </h3>
 
@@ -82,13 +113,9 @@
                 Quantité en stock <span class="text-red-500">*</span>
               </label>
               <p-inputNumber
-                id="quantiteStock"
-                formControlName="quantiteStock"
-                [min]="0"
-                [step]="1"
-                placeholder="0"
-                class="w-full"
-                [inputStyleClass]="'w-full'">
+                id="quantiteStock" formControlName="quantiteStock"
+                [min]="0" [step]="1" placeholder="0"
+                class="w-full" [inputStyleClass]="'w-full'">
               </p-inputNumber>
               @if (hasError('quantiteStock', 'required') || hasError('quantiteStock', 'min')) {
                 <small class="p-error">{{ getErrorMessage('quantiteStock') }}</small>
@@ -100,13 +127,9 @@
                 Unité <span class="text-red-500">*</span>
               </label>
               <p-select
-                id="unite"
-                formControlName="unite"
-                [options]="unites"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Sélectionnez une unité"
-                [style]="{'width': '100%'}">
+                id="unite" formControlName="unite"
+                [options]="unites" optionLabel="label" optionValue="value"
+                placeholder="Sélectionnez une unité" [style]="{'width': '100%'}">
               </p-select>
               @if (hasError('unite', 'required')) {
                 <small class="p-error">{{ getErrorMessage('unite') }}</small>
@@ -116,17 +139,13 @@
             <div class="field col-12 md:col-6">
               <label for="seuilAlerte" class="block mb-2">
                 Seuil d'alerte
-                <i class="pi pi-info-circle text-gray-500 ml-1" 
+                <i class="pi pi-info-circle text-gray-500 ml-1"
                    pTooltip="Quantité minimale avant déclenchement d'une alerte"></i>
               </label>
               <p-inputNumber
-                id="seuilAlerte"
-                formControlName="seuilAlerte"
-                [min]="0"
-                [step]="1"
-                placeholder="Ex: 10"
-                class="w-full"
-                [inputStyleClass]="'w-full'">
+                id="seuilAlerte" formControlName="seuilAlerte"
+                [min]="0" [step]="1" placeholder="Ex: 10"
+                class="w-full" [inputStyleClass]="'w-full'">
               </p-inputNumber>
             </div>
 
@@ -135,14 +154,9 @@
                 Prix unitaire (FCFA) <span class="text-red-500">*</span>
               </label>
               <p-inputNumber
-                id="prixUnitaire"
-                formControlName="prixUnitaire"
-                [min]="0"
-                [minFractionDigits]="0"
-                [maxFractionDigits]="0"
-                placeholder="0"
-                class="w-full"
-                suffix=" FCFA"
+                id="prixUnitaire" formControlName="prixUnitaire"
+                [min]="0" [minFractionDigits]="0" [maxFractionDigits]="0"
+                placeholder="0" class="w-full" suffix=" FCFA"
                 [inputStyleClass]="'w-full'">
               </p-inputNumber>
               @if (hasError('prixUnitaire', 'required') || hasError('prixUnitaire', 'min')) {
@@ -153,6 +167,7 @@
 
           <!-- Fournisseur -->
           <h3 class="text-lg font-semibold mb-3 mt-4 border-top-1 border-gray-300 pt-3">
+            <i class="pi pi-truck text-blue-500 mr-2"></i>
             Fournisseur
           </h3>
 
@@ -160,36 +175,22 @@
             <div class="field col-12">
               <label for="fournisseurId" class="block mb-2">Fournisseur</label>
               <p-select
-                id="fournisseurId"
-                formControlName="fournisseurId"
-                [options]="fournisseurs"
-                optionLabel="nom"
-                optionValue="id"
+                id="fournisseurId" formControlName="fournisseurId"
+                [options]="fournisseurs" optionLabel="nom" optionValue="id"
                 placeholder="Sélectionnez un fournisseur"
-                [showClear]="true"
-                [style]="{'width': '100%'}">
+                [showClear]="true" [style]="{'width': '100%'}">
               </p-select>
-              <small class="text-gray-500">
-                Facultatif - Le fournisseur habituel pour ce produit
-              </small>
+              <small class="text-gray-500">Facultatif - Le fournisseur habituel pour ce produit</small>
             </div>
           </div>
 
           <!-- Boutons d'action -->
           <div class="flex gap-2 justify-content-end mt-4 pt-3 border-top-1 border-gray-300">
-            <p-button 
-              label="Annuler" 
-              severity="secondary"
-              icon="pi pi-times"
-              (onClick)="cancel()"
-              [text]="true">
+            <p-button label="Annuler" severity="secondary" icon="pi pi-times"
+                      (onClick)="cancel()" [text]="true">
             </p-button>
-            <p-button 
-              label="{{ isEditMode ? 'Modifier' : 'Créer' }}" 
-              icon="pi pi-check"
-              type="submit"
-              [loading]="loading"
-              [disabled]="produitForm.invalid">
+            <p-button label="{{ isEditMode ? 'Modifier' : 'Créer' }}" icon="pi pi-check"
+                      type="submit" [loading]="loading" [disabled]="produitForm.invalid">
             </p-button>
           </div>
         </form>
@@ -213,9 +214,35 @@
             <div class="flex align-items-start gap-2">
               <i class="pi pi-check-circle text-green-600 mt-1"></i>
               <div>
-                <div class="font-semibold mb-1">Code produit unique</div>
+                <div class="font-semibold mb-1">Type de produit</div>
                 <div class="text-sm text-gray-600">
-                  Utilisez un code court et mémorable (ex: FAR-001, RIZ-BLA)
+                  Détermine l'onglet du menu restaurant. Ex: choisir <strong>Boisson</strong>
+                  fera apparaître ce produit dans l'onglet Boissons.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tip-item">
+            <div class="flex align-items-start gap-2">
+              <i class="pi pi-check-circle text-green-600 mt-1"></i>
+              <div>
+                <div class="font-semibold mb-1">Disponibilité automatique</div>
+                <div class="text-sm text-gray-600">
+                  Quand le stock tombe à 0, le produit disparaît automatiquement
+                  du menu restaurant. Il réapparaît dès qu'un réapprovisionnement est effectué.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tip-item">
+            <div class="flex align-items-start gap-2">
+              <i class="pi pi-check-circle text-green-600 mt-1"></i>
+              <div>
+                <div class="font-semibold mb-1">Prix unitaire</div>
+                <div class="text-sm text-gray-600">
+                  Ce prix sera utilisé lors de la création des commandes restaurant.
                 </div>
               </div>
             </div>
@@ -228,30 +255,7 @@
                 <div class="font-semibold mb-1">Seuil d'alerte</div>
                 <div class="text-sm text-gray-600">
                   Définissez un seuil pour être alerté quand le stock est bas
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tip-item">
-            <div class="flex align-items-start gap-2">
-              <i class="pi pi-check-circle text-green-600 mt-1"></i>
-              <div>
-                <div class="font-semibold mb-1">Unité de mesure</div>
-                <div class="text-sm text-gray-600">
-                  Choisissez l'unité la plus appropriée pour faciliter la gestion
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tip-item">
-            <div class="flex align-items-start gap-2">
-              <i class="pi pi-check-circle text-green-600 mt-1"></i>
-              <div>
-                <div class="font-semibold mb-1">Prix unitaire</div>
-                <div class="text-sm text-gray-600">
-                  Le prix d'achat ou de revient du produit par unité
+                  et éviter les ruptures au restaurant.
                 </div>
               </div>
             </div>

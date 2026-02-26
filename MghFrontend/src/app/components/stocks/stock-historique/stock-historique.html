@@ -1,0 +1,244 @@
+<div class="container-fluid p-4">
+  <p-toast></p-toast>
+
+  <!-- En-tête -->
+  <div class="flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800 mb-1">Historique des mouvements</h2>
+      <p class="text-gray-600">Suivi de toutes les entrées et sorties de stock</p>
+    </div>
+    <p-button
+      label="Retour au stock"
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      [text]="true"
+      (onClick)="goToStock()">
+    </p-button>
+  </div>
+
+  <!-- Statistiques rapides -->
+  <div class="grid mb-4">
+    <div class="col-12 md:col-3">
+      <p-card styleClass="stat-card">
+        <div class="flex align-items-center gap-3">
+          <div class="w-3rem h-3rem border-round bg-blue-100 flex align-items-center justify-content-center">
+            <i class="pi pi-list text-blue-600 text-xl"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-bold">{{ totalMouvements }}</div>
+            <div class="text-sm text-gray-500">Total mouvements</div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+    <div class="col-12 md:col-3">
+      <p-card styleClass="stat-card">
+        <div class="flex align-items-center gap-3">
+          <div class="w-3rem h-3rem border-round bg-green-100 flex align-items-center justify-content-center">
+            <i class="pi pi-arrow-down text-green-600 text-xl"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-green-700">{{ totalEntrees }}</div>
+            <div class="text-sm text-gray-500">Entrées</div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+    <div class="col-12 md:col-3">
+      <p-card styleClass="stat-card">
+        <div class="flex align-items-center gap-3">
+          <div class="w-3rem h-3rem border-round bg-red-100 flex align-items-center justify-content-center">
+            <i class="pi pi-arrow-up text-red-600 text-xl"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-red-700">{{ totalSorties }}</div>
+            <div class="text-sm text-gray-500">Sorties</div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+    <div class="col-12 md:col-3">
+      <p-card styleClass="stat-card">
+        <div class="flex align-items-center gap-3">
+          <div class="w-3rem h-3rem border-round bg-orange-100 flex align-items-center justify-content-center">
+            <i class="pi pi-refresh text-orange-600 text-xl"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-orange-700">{{ totalAjustements }}</div>
+            <div class="text-sm text-gray-500">Ajustements / Retours</div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Tableau -->
+  <p-card>
+    <p-toolbar styleClass="mb-4">
+      <ng-template pTemplate="left">
+        <div class="flex align-items-center gap-2 flex-wrap">
+
+          <!-- Recherche -->
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchValue"
+              (input)="applyFilters()"
+              placeholder="Produit, motif..."
+              class="w-full md:w-16rem" />
+          </span>
+
+          <!-- Filtre par type -->
+          <p-select
+            [(ngModel)]="filtreType"
+            [options]="typesOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Tous les types"
+            [showClear]="true"
+            (onChange)="applyFilters()"
+            [style]="{ width: '180px' }">
+          </p-select>
+
+          <!-- Filtre par produit -->
+          <p-select
+            [(ngModel)]="filtreProduitId"
+            [options]="produitsOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Tous les produits"
+            [showClear]="true"
+            [filter]="true"
+            filterPlaceholder="Chercher..."
+            (onChange)="applyFilters()"
+            [style]="{ width: '200px' }">
+          </p-select>
+
+          <!-- Bouton reset -->
+          @if (searchValue || filtreType || filtreProduitId) {
+            <p-button
+              icon="pi pi-filter-slash"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              pTooltip="Réinitialiser les filtres"
+              (onClick)="resetFilters()">
+            </p-button>
+          }
+        </div>
+      </ng-template>
+      <ng-template pTemplate="right">
+        <span class="text-sm text-gray-500">
+          {{ mouvementsFiltered.length }} résultat(s)
+        </span>
+      </ng-template>
+    </p-toolbar>
+
+    <p-table
+      [value]="mouvementsFiltered"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="15"
+      [rowsPerPageOptions]="[15, 30, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} mouvements"
+      [sortField]="'dateMouvement'"
+      [sortOrder]="-1"
+      styleClass="p-datatable-gridlines p-datatable-sm">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="dateMouvement">
+            Date <p-sortIcon field="dateMouvement"></p-sortIcon>
+          </th>
+          <th pSortableColumn="produitNom">
+            Produit <p-sortIcon field="produitNom"></p-sortIcon>
+          </th>
+          <th>Code</th>
+          <th pSortableColumn="type">
+            Type <p-sortIcon field="type"></p-sortIcon>
+          </th>
+          <th class="text-right">Quantité</th>
+          <th>Motif</th>
+          <th>Effectué par</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-m>
+        <tr>
+          <!-- Date -->
+          <td class="white-space-nowrap">
+            <div class="font-semibold text-sm">{{ formatDate(m.dateMouvement) }}</div>
+            <div class="text-xs text-gray-400">{{ formatHeure(m.dateMouvement) }}</div>
+          </td>
+
+          <!-- Produit -->
+          <td>
+            <div class="font-semibold">{{ m.produitNom }}</div>
+            <div class="text-xs text-gray-400">{{ m.produitUnite }}</div>
+          </td>
+
+          <!-- Code -->
+          <td>
+            <span class="text-xs font-mono text-gray-600 bg-gray-100 border-round px-2 py-1">
+              {{ m.produitCode }}
+            </span>
+          </td>
+
+          <!-- Type (badge coloré) -->
+          <td>
+            <p-tag
+              [value]="getTypeLabel(m.type)"
+              [severity]="getTypeSeverity(m.type)"
+              [icon]="getTypeIcon(m.type)">
+            </p-tag>
+          </td>
+
+          <!-- Quantité -->
+          <td class="text-right">
+            <span
+              class="font-bold text-lg"
+              [class.text-green-600]="m.type === 'ENTREE' || m.type === 'RETOUR'"
+              [class.text-red-600]="m.type === 'SORTIE'"
+              [class.text-orange-600]="m.type === 'AJUSTEMENT'">
+              {{ m.type === 'SORTIE' ? '-' : '+' }}{{ m.quantite }}
+            </span>
+            <span class="text-xs text-gray-400 ml-1">{{ m.produitUnite }}</span>
+          </td>
+
+          <!-- Motif -->
+          <td>
+            <span class="text-sm">{{ m.motif || '-' }}</span>
+          </td>
+
+          <!-- Utilisateur -->
+          <td>
+            @if (m.userNom) {
+              <div class="flex align-items-center gap-2">
+                <span class="w-2rem h-2rem border-round-full bg-primary-100 text-primary-700
+                             flex align-items-center justify-content-center text-xs font-bold">
+                  {{ getInitiales(m.userNom) }}
+                </span>
+                <span class="text-sm">{{ m.userNom }}</span>
+              </div>
+            } @else {
+              <span class="text-gray-400 text-sm">Système</span>
+            }
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center p-5">
+            <i class="pi pi-history text-4xl text-gray-300 mb-3 block"></i>
+            <p class="text-gray-500 font-semibold">Aucun mouvement trouvé</p>
+            <p class="text-gray-400 text-sm">Essayez de modifier vos filtres</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

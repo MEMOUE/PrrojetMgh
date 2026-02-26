@@ -2,13 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environment/environment';
-import { 
-  Transaction, 
-  CategorieFinanciere, 
-  RapportFinancier, 
+import {
+  Transaction,
   StatistiquesFinancieres,
   TypeTransaction,
-  StatutTransaction 
+  StatutTransaction
 } from '../models/finance.model';
 
 interface ApiResponse<T> {
@@ -21,142 +19,81 @@ interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class FinanceService {
-  private transactionsUrl = `${environment.apiUrl}/transactions`;
-  private categoriesUrl = `${environment.apiUrl}/categories-financieres`;
-  private rapportsUrl = `${environment.apiUrl}/rapports-financiers`;
+  private baseUrl = `${environment.apiUrl}/transactions`;
 
   constructor(private http: HttpClient) {}
 
-  // ========== TRANSACTIONS ==========
+  // ─── TRANSACTIONS ──────────────────────────────────────────────────────────
 
-  // Créer une transaction
+  /** Créer une transaction */
   createTransaction(transaction: Transaction): Observable<ApiResponse<Transaction>> {
-    return this.http.post<ApiResponse<Transaction>>(this.transactionsUrl, transaction);
+    return this.http.post<ApiResponse<Transaction>>(this.baseUrl, transaction);
   }
 
-  // Obtenir toutes les transactions
+  /** Liste complète des transactions de l'hôtel */
   getTransactions(
     dateDebut?: string,
     dateFin?: string,
     type?: TypeTransaction,
     statut?: StatutTransaction
   ): Observable<ApiResponse<Transaction[]>> {
-    let params = new HttpParams();
-    if (dateDebut) params = params.set('dateDebut', dateDebut);
-    if (dateFin) params = params.set('dateFin', dateFin);
-    if (type) params = params.set('type', type);
-    if (statut) params = params.set('statut', statut);
-
-    return this.http.get<ApiResponse<Transaction[]>>(this.transactionsUrl, { params });
+    // Le filtrage date/type/statut est fait côté frontend (le backend retourne tout)
+    return this.http.get<ApiResponse<Transaction[]>>(this.baseUrl);
   }
 
-  // Obtenir une transaction par ID
+  /** Transaction par ID */
   getTransactionById(id: number): Observable<ApiResponse<Transaction>> {
-    return this.http.get<ApiResponse<Transaction>>(`${this.transactionsUrl}/${id}`);
+    return this.http.get<ApiResponse<Transaction>>(`${this.baseUrl}/${id}`);
   }
 
-  // Obtenir les transactions par type
+  /** Transactions par type */
   getTransactionsByType(type: TypeTransaction): Observable<ApiResponse<Transaction[]>> {
-    return this.http.get<ApiResponse<Transaction[]>>(`${this.transactionsUrl}/type/${type}`);
+    return this.http.get<ApiResponse<Transaction[]>>(`${this.baseUrl}/type/${type}`);
   }
 
-  // Obtenir les transactions par catégorie
-  getTransactionsByCategorie(categorie: string): Observable<ApiResponse<Transaction[]>> {
-    return this.http.get<ApiResponse<Transaction[]>>(`${this.transactionsUrl}/categorie/${categorie}`);
-  }
-
-  // Obtenir les transactions en attente
+  /** Transactions en attente */
   getTransactionsEnAttente(): Observable<ApiResponse<Transaction[]>> {
-    return this.http.get<ApiResponse<Transaction[]>>(`${this.transactionsUrl}/en-attente`);
+    return this.http.get<ApiResponse<Transaction[]>>(`${this.baseUrl}/en-attente`);
   }
 
-  // Mettre à jour une transaction
-  updateTransaction(id: number, transaction: Partial<Transaction>): Observable<ApiResponse<Transaction>> {
-    return this.http.put<ApiResponse<Transaction>>(`${this.transactionsUrl}/${id}`, transaction);
-  }
-
-  // Valider une transaction
-  validerTransaction(id: number): Observable<ApiResponse<Transaction>> {
-    return this.http.post<ApiResponse<Transaction>>(`${this.transactionsUrl}/${id}/valider`, {});
-  }
-
-  // Annuler une transaction
-  annulerTransaction(id: number, motif?: string): Observable<ApiResponse<Transaction>> {
-    const params = motif ? new HttpParams().set('motif', motif) : new HttpParams();
-    return this.http.post<ApiResponse<Transaction>>(`${this.transactionsUrl}/${id}/annuler`, {}, { params });
-  }
-
-  // Supprimer une transaction
-  deleteTransaction(id: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.transactionsUrl}/${id}`);
-  }
-
-  // Rechercher des transactions
+  /** Recherche de transactions */
   searchTransactions(keyword: string): Observable<ApiResponse<Transaction[]>> {
     const params = new HttpParams().set('keyword', keyword);
-    return this.http.get<ApiResponse<Transaction[]>>(`${this.transactionsUrl}/search`, { params });
+    return this.http.get<ApiResponse<Transaction[]>>(`${this.baseUrl}/search`, { params });
   }
 
-  // ========== CATÉGORIES FINANCIÈRES ==========
-
-  // Créer une catégorie
-  createCategorie(categorie: CategorieFinanciere): Observable<ApiResponse<CategorieFinanciere>> {
-    return this.http.post<ApiResponse<CategorieFinanciere>>(this.categoriesUrl, categorie);
+  /** Mettre à jour une transaction */
+  updateTransaction(id: number, transaction: Partial<Transaction>): Observable<ApiResponse<Transaction>> {
+    return this.http.put<ApiResponse<Transaction>>(`${this.baseUrl}/${id}`, transaction);
   }
 
-  // Obtenir toutes les catégories
-  getCategories(): Observable<ApiResponse<CategorieFinanciere[]>> {
-    return this.http.get<ApiResponse<CategorieFinanciere[]>>(this.categoriesUrl);
+  /** Valider une transaction */
+  validerTransaction(id: number): Observable<ApiResponse<Transaction>> {
+    return this.http.post<ApiResponse<Transaction>>(`${this.baseUrl}/${id}/valider`, {});
   }
 
-  // Obtenir les catégories actives
-  getCategoriesActives(): Observable<ApiResponse<CategorieFinanciere[]>> {
-    return this.http.get<ApiResponse<CategorieFinanciere[]>>(`${this.categoriesUrl}/actives`);
+  /** Annuler une transaction */
+  annulerTransaction(id: number, motif?: string): Observable<ApiResponse<Transaction>> {
+    const params = motif ? new HttpParams().set('motif', motif) : new HttpParams();
+    return this.http.post<ApiResponse<Transaction>>(
+      `${this.baseUrl}/${id}/annuler`, {}, { params });
   }
 
-  // Obtenir les catégories par type
-  getCategoriesByType(type: TypeTransaction): Observable<ApiResponse<CategorieFinanciere[]>> {
-    return this.http.get<ApiResponse<CategorieFinanciere[]>>(`${this.categoriesUrl}/type/${type}`);
+  /** Supprimer une transaction */
+  deleteTransaction(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/${id}`);
   }
 
-  // Mettre à jour une catégorie
-  updateCategorie(id: number, categorie: Partial<CategorieFinanciere>): Observable<ApiResponse<CategorieFinanciere>> {
-    return this.http.put<ApiResponse<CategorieFinanciere>>(`${this.categoriesUrl}/${id}`, categorie);
-  }
+  // ─── STATISTIQUES ──────────────────────────────────────────────────────────
 
-  // Supprimer une catégorie
-  deleteCategorie(id: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.categoriesUrl}/${id}`);
-  }
-
-  // ========== STATISTIQUES & RAPPORTS ==========
-
-  // Obtenir les statistiques financières
+  /** Statistiques financières */
   getStatistiques(): Observable<ApiResponse<StatistiquesFinancieres>> {
-    return this.http.get<ApiResponse<StatistiquesFinancieres>>(`${this.transactionsUrl}/statistiques`);
+    return this.http.get<ApiResponse<StatistiquesFinancieres>>(`${this.baseUrl}/statistiques`);
   }
 
-  // Obtenir un rapport financier
-  getRapport(dateDebut: string, dateFin: string): Observable<ApiResponse<RapportFinancier>> {
-    const params = new HttpParams()
-      .set('dateDebut', dateDebut)
-      .set('dateFin', dateFin);
-    return this.http.get<ApiResponse<RapportFinancier>>(this.rapportsUrl, { params });
-  }
+  // ─── EXPORT ────────────────────────────────────────────────────────────────
 
-  // Obtenir le rapport mensuel
-  getRapportMensuel(annee: number, mois: number): Observable<ApiResponse<RapportFinancier>> {
-    return this.http.get<ApiResponse<RapportFinancier>>(
-      `${this.rapportsUrl}/mensuel/${annee}/${mois}`
-    );
-  }
-
-  // Obtenir le rapport annuel
-  getRapportAnnuel(annee: number): Observable<ApiResponse<RapportFinancier>> {
-    return this.http.get<ApiResponse<RapportFinancier>>(`${this.rapportsUrl}/annuel/${annee}`);
-  }
-
-  // Exporter les transactions
+  /** Export PDF ou Excel */
   exportTransactions(
     format: 'PDF' | 'EXCEL',
     dateDebut?: string,
@@ -165,10 +102,6 @@ export class FinanceService {
     let params = new HttpParams().set('format', format);
     if (dateDebut) params = params.set('dateDebut', dateDebut);
     if (dateFin) params = params.set('dateFin', dateFin);
-
-    return this.http.get(`${this.transactionsUrl}/export`, {
-      params,
-      responseType: 'blob'
-    });
+    return this.http.get(`${this.baseUrl}/export`, { params, responseType: 'blob' });
   }
 }

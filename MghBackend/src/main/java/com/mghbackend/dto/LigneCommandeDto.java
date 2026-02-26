@@ -13,9 +13,11 @@ import java.math.BigDecimal;
 public class LigneCommandeDto {
     private Long id;
 
-    @NotNull(message = "Le produit menu est obligatoire")
-    private Long produitMenuId;
-    private String produitMenuNom;
+    /** ID du produit en stock (anciennement produitMenuId) */
+    @NotNull(message = "Le produit est obligatoire")
+    private Long produitId;
+
+    private String produitNom;
 
     @NotNull(message = "La quantité est obligatoire")
     @Min(value = 1, message = "La quantité doit être au moins 1")

@@ -6,6 +6,7 @@ import com.mghbackend.entity.*;
 import com.mghbackend.enums.StatutCommandeRestaurant;
 import com.mghbackend.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,18 +17,26 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
 public class CommandeRestaurantService {
 
     private final CommandeRestaurantRepository commandeRepository;
-    private final ProduitMenuRepository produitMenuRepository;
+    private final ProduitRepository produitRepository;         // ← Produit (stock)
     private final ClientRepository clientRepository;
     private final ReservationRepository reservationRepository;
     private final HotelRepository hotelRepository;
     private final UserRepository userRepository;
     private final LigneCommandeRepository ligneCommandeRepository;
+    private final ProduitService produitService;              // ← pour décrémenter le stock
 
-    public CommandeRestaurantDto createCommande(Long hotelId, CommandeRestaurantDto dto, Long userId) {
+    // ─────────────────────────────────────────────────────────────
+    // Création d'une commande + décrémentation automatique du stock
+    // ─────────────────────────────────────────────────────────────
+
+    public CommandeRestaurantDto createCommande(Long hotelId,
+                                                CommandeRestaurantDto dto,
+                                                Long userId) {
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new RuntimeException("Hôtel non trouvé"));
 
@@ -38,7 +47,7 @@ public class CommandeRestaurantService {
         commande.setNotes(dto.getNotes());
 
         // Client externe OU client de l'hôtel OU réservation
-        if (dto.getNomClientExterne() != null && !dto.getNomClientExterne().isEmpty()) {
+        if (dto.getNomClientExterne() != null && !dto.getNomClientExterne().isBlank()) {
             commande.setNomClientExterne(dto.getNomClientExterne());
             commande.setTelephoneClientExterne(dto.getTelephoneClientExterne());
         } else if (dto.getClientId() != null) {
@@ -52,28 +61,57 @@ public class CommandeRestaurantService {
         }
 
         if (userId != null) {
-            User user = userRepository.findById(userId).orElse(null);
-            commande.setServeur(user);
+            userRepository.findById(userId).ifPresent(commande::setServeur);
         }
 
-        // Calculer le montant total
+        // ── Lignes + calcul total + décrémentation stock ──────────
         BigDecimal montantTotal = BigDecimal.ZERO;
-        for (LigneCommandeDto ligneDto : dto.getLignes()) {
-            ProduitMenu produitMenu = produitMenuRepository.findById(ligneDto.getProduitMenuId())
-                    .orElseThrow(() -> new RuntimeException("Produit menu non trouvé: " + ligneDto.getProduitMenuId()));
 
-            BigDecimal sousTotal = produitMenu.getPrix().multiply(BigDecimal.valueOf(ligneDto.getQuantite()));
+        for (LigneCommandeDto ligneDto : dto.getLignes()) {
+            Produit produit = produitRepository.findById(ligneDto.getProduitId())
+                    .orElseThrow(() -> new RuntimeException(
+                            "Produit non trouvé : id=" + ligneDto.getProduitId()));
+
+            if (!produit.getDisponible()) {
+                throw new RuntimeException(
+                        "Le produit '" + produit.getNom() + "' n'est pas disponible");
+            }
+
+            BigDecimal qte = BigDecimal.valueOf(ligneDto.getQuantite());
+
+            // Vérification stock avant tout enregistrement
+            if (produit.getQuantiteStock().compareTo(qte) < 0) {
+                throw new RuntimeException(
+                        "Stock insuffisant pour '" + produit.getNom() +
+                                "'. Stock disponible : " + produit.getQuantiteStock() +
+                                " " + produit.getUnite());
+            }
+
+            BigDecimal sousTotal = produit.getPrixUnitaire().multiply(qte);
             montantTotal = montantTotal.add(sousTotal);
 
             LigneCommande ligne = new LigneCommande();
             ligne.setCommande(commande);
-            ligne.setProduitMenu(produitMenu);
+            ligne.setProduit(produit);
             ligne.setQuantite(ligneDto.getQuantite());
-            ligne.setPrixUnitaire(produitMenu.getPrix());
+            ligne.setPrixUnitaire(produit.getPrixUnitaire());
             ligne.setSousTotal(sousTotal);
             ligne.setNotes(ligneDto.getNotes());
 
             commande.getLignes().add(ligne);
+
+            // ✅ Décrémentation automatique du stock
+            produitService.ajusterStock(
+                    produit.getId(),
+                    qte,
+                    com.mghbackend.enums.TypeMouvement.SORTIE,
+                    "Commande restaurant " + commande.getNumeroCommande(),
+                    userId
+            );
+
+            log.info("📦 Stock décrémenté : produit={}, qte={}, restant={}",
+                    produit.getNom(), qte,
+                    produit.getQuantiteStock().subtract(qte));
         }
 
         commande.setMontantTotal(montantTotal);
@@ -82,6 +120,10 @@ public class CommandeRestaurantService {
         CommandeRestaurant saved = commandeRepository.save(commande);
         return convertToDto(saved);
     }
+
+    // ─────────────────────────────────────────────────────────────
+    // Lecture
+    // ─────────────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
     public List<CommandeRestaurantDto> getCommandesByHotel(Long hotelId) {
@@ -92,7 +134,12 @@ public class CommandeRestaurantService {
                 .collect(Collectors.toList());
     }
 
-    public CommandeRestaurantDto updateStatut(Long commandeId, StatutCommandeRestaurant statut) {
+    // ─────────────────────────────────────────────────────────────
+    // Mises à jour
+    // ─────────────────────────────────────────────────────────────
+
+    public CommandeRestaurantDto updateStatut(Long commandeId,
+                                              StatutCommandeRestaurant statut) {
         CommandeRestaurant commande = commandeRepository.findById(commandeId)
                 .orElseThrow(() -> new RuntimeException("Commande non trouvée"));
         commande.setStatut(statut);
@@ -101,8 +148,22 @@ public class CommandeRestaurantService {
             commande.setDateService(java.time.LocalDateTime.now());
         }
 
-        CommandeRestaurant saved = commandeRepository.save(commande);
-        return convertToDto(saved);
+        // Si la commande est annulée → remettre le stock
+        if (statut == StatutCommandeRestaurant.ANNULEE) {
+            for (LigneCommande ligne : commande.getLignes()) {
+                produitService.ajusterStock(
+                        ligne.getProduit().getId(),
+                        BigDecimal.valueOf(ligne.getQuantite()),
+                        com.mghbackend.enums.TypeMouvement.RETOUR,
+                        "Annulation commande " + commande.getNumeroCommande(),
+                        null
+                );
+                log.info("♻️  Stock restitué suite annulation : produit={}",
+                        ligne.getProduit().getNom());
+            }
+        }
+
+        return convertToDto(commandeRepository.save(commande));
     }
 
     public CommandeRestaurantDto addPaiement(Long commandeId, BigDecimal montant) {
@@ -116,9 +177,12 @@ public class CommandeRestaurantService {
             commande.setStatut(StatutCommandeRestaurant.PAYEE);
         }
 
-        CommandeRestaurant saved = commandeRepository.save(commande);
-        return convertToDto(saved);
+        return convertToDto(commandeRepository.save(commande));
     }
+
+    // ─────────────────────────────────────────────────────────────
+    // Utilitaires
+    // ─────────────────────────────────────────────────────────────
 
     private String generateNumeroCommande() {
         String numero;
@@ -155,18 +219,19 @@ public class CommandeRestaurantService {
 
         if (commande.getServeur() != null) {
             dto.setServeurId(commande.getServeur().getId());
-            dto.setServeurNom(commande.getServeur().getFirstName() + " " + commande.getServeur().getLastName());
+            dto.setServeurNom(commande.getServeur().getFirstName() + " " +
+                    commande.getServeur().getLastName());
         }
 
         dto.setHotelId(commande.getHotel().getId());
 
-        // Convertir les lignes
+        // Lignes
         List<LigneCommandeDto> lignesDto = commande.getLignes().stream()
                 .map(ligne -> {
                     LigneCommandeDto ligneDto = new LigneCommandeDto();
                     ligneDto.setId(ligne.getId());
-                    ligneDto.setProduitMenuId(ligne.getProduitMenu().getId());
-                    ligneDto.setProduitMenuNom(ligne.getProduitMenu().getNom());
+                    ligneDto.setProduitId(ligne.getProduit().getId());
+                    ligneDto.setProduitNom(ligne.getProduit().getNom());
                     ligneDto.setQuantite(ligne.getQuantite());
                     ligneDto.setPrixUnitaire(ligne.getPrixUnitaire());
                     ligneDto.setSousTotal(ligne.getSousTotal());

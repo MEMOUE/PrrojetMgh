@@ -23,7 +23,6 @@
         </div>
       </p-card>
     </div>
-
     <div class="col-12 md:col-3">
       <p-card styleClass="stat-card">
         <div class="stat-content">
@@ -37,7 +36,6 @@
         </div>
       </p-card>
     </div>
-
     <div class="col-12 md:col-3">
       <p-card styleClass="stat-card">
         <div class="stat-content">
@@ -51,7 +49,6 @@
         </div>
       </p-card>
     </div>
-
     <div class="col-12 md:col-3">
       <p-card styleClass="stat-card">
         <div class="stat-content">
@@ -74,45 +71,37 @@
         <div class="flex align-items-center gap-2">
           <span class="p-input-icon-left">
             <i class="pi pi-search"></i>
-            <input 
-              pInputText 
-              type="text" 
+            <input
+              pInputText
+              type="text"
               [(ngModel)]="searchValue"
               (input)="onSearch()"
               placeholder="Rechercher un produit..."
               class="w-full md:w-20rem" />
           </span>
           @if (searchValue) {
-            <p-button 
-              icon="pi pi-times" 
-              severity="secondary"
-              (onClick)="clearSearch()"
-              [text]="true"
-              [rounded]="true">
+            <p-button icon="pi pi-times" severity="secondary"
+                      (onClick)="clearSearch()" [text]="true" [rounded]="true">
             </p-button>
           }
         </div>
       </ng-template>
-
       <ng-template pTemplate="right">
-        <p-button 
-          label="Nouveau produit" 
-          icon="pi pi-plus" 
-          (onClick)="goToCreate()">
+        <p-button label="Nouveau produit" icon="pi pi-plus" (onClick)="goToCreate()">
         </p-button>
       </ng-template>
     </p-toolbar>
 
-    <p-table 
-      [value]="produitsFiltered" 
+    <p-table
+      [value]="produitsFiltered"
       [loading]="loading"
       [paginator]="true"
       [rows]="10"
       [rowsPerPageOptions]="[10, 25, 50]"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-      styleClass="p-datatable-striped">
-      
+      styleClass="p-datatable-gridlines">
+
       <ng-template pTemplate="header">
         <tr>
           <th>Code</th>
@@ -128,84 +117,44 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-produit>
-        <tr>
+        <tr class="table-row-mono">
+          <td><span class="font-semibold">{{ produit.code }}</span></td>
           <td>
-            <span class="font-semibold">{{ produit.code }}</span>
-          </td>
-          <td>
-            <div>
-              <div class="font-semibold">{{ produit.nom }}</div>
-              @if (produit.description) {
-                <div class="text-sm text-gray-600">{{ produit.description }}</div>
-              }
-            </div>
+            <div class="font-semibold">{{ produit.nom }}</div>
+            @if (produit.description) {
+              <div class="text-sm text-gray-500">{{ produit.description }}</div>
+            }
           </td>
           <td>
             <span [class.text-red-600]="produit.quantiteStock === 0"
                   [class.text-orange-600]="produit.seuilAlerte && produit.quantiteStock > 0 && produit.quantiteStock <= produit.seuilAlerte"
-                  [class.font-bold]="produit.seuilAlerte && produit.quantiteStock <= produit.seuilAlerte">
+                  class="font-semibold">
               {{ produit.quantiteStock }}
             </span>
             @if (produit.seuilAlerte) {
-              <div class="text-xs text-gray-500">Seuil: {{ produit.seuilAlerte }}</div>
+              <div class="text-xs text-gray-400">Seuil: {{ produit.seuilAlerte }}</div>
             }
           </td>
           <td>{{ produit.unite }}</td>
           <td>{{ formatPrice(produit.prixUnitaire) }}</td>
+          <td><span class="font-semibold">{{ formatPrice(produit.quantiteStock * produit.prixUnitaire) }}</span></td>
           <td>
-            <span class="font-semibold">
-              {{ formatPrice(produit.quantiteStock * produit.prixUnitaire) }}
-            </span>
+            <p-tag [value]="getStockLabel(produit)" [severity]="getStockSeverity(produit)"></p-tag>
           </td>
-          <td>
-            <p-tag 
-              [value]="getStockLabel(produit)" 
-              [severity]="getStockSeverity(produit)">
-            </p-tag>
-          </td>
-          <td>
-            {{ produit.fournisseurNom || '-' }}
-          </td>
+          <td>{{ produit.fournisseurNom || '-' }}</td>
           <td class="text-center">
-            <div class="flex gap-2 justify-content-center">
-              <p-button 
-                icon="pi pi-eye" 
-                severity="info"
-                [text]="true"
-                [rounded]="true"
-                (onClick)="viewDetails(produit)"
-                pTooltip="Voir les détails"
-                tooltipPosition="top">
+            <div class="flex gap-1 justify-content-center">
+              <p-button icon="pi pi-eye" severity="info" [text]="true" [rounded]="true"
+                        (onClick)="viewDetails(produit)" pTooltip="Voir les détails" tooltipPosition="top">
               </p-button>
-              
-              <p-button 
-                icon="pi pi-pencil" 
-                severity="warn" 
-                [text]="true"
-                [rounded]="true"
-                (onClick)="editProduit(produit)"
-                pTooltip="Modifier"
-                tooltipPosition="top">
+              <p-button icon="pi pi-pencil" severity="warn" [text]="true" [rounded]="true"
+                        (onClick)="editProduit(produit)" pTooltip="Modifier" tooltipPosition="top">
               </p-button>
-              
-              <p-button 
-                icon="pi pi-refresh" 
-                severity="success"
-                [text]="true"
-                [rounded]="true"
-                (onClick)="openAjustementDialog(produit)"
-                pTooltip="Ajuster le stock"
-                tooltipPosition="top">
+              <p-button icon="pi pi-refresh" severity="success" [text]="true" [rounded]="true"
+                        (onClick)="openAjustementDialog(produit)" pTooltip="Ajuster le stock" tooltipPosition="top">
               </p-button>
-              
-              <p-button 
-                icon="pi pi-trash" 
-                severity="danger"
-                [text]="true"
-                [rounded]="true"
-                (onClick)="deleteProduit(produit)"
-                pTooltip="Supprimer"
-                tooltipPosition="top">
+              <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                        (onClick)="deleteProduit(produit)" pTooltip="Supprimer" tooltipPosition="top">
               </p-button>
             </div>
           </td>
@@ -215,7 +164,7 @@
       <ng-template pTemplate="emptymessage">
         <tr>
           <td colspan="9" class="text-center p-4">
-            <i class="pi pi-inbox text-4xl text-gray-400 mb-3"></i>
+            <i class="pi pi-inbox text-4xl text-gray-400 mb-3 block"></i>
             <p class="text-gray-600">Aucun produit trouvé</p>
           </td>
         </tr>
@@ -223,73 +172,84 @@
     </p-table>
   </p-card>
 
-  <!-- Dialogue d'ajustement de stock -->
-  <p-dialog 
-    [(visible)]="displayAjustementDialog" 
-    [modal]="true" 
-    [style]="{width: '500px'}"
+  <!-- ✅ Dialog Ajustement de stock - CORRIGÉ overflow + appendTo -->
+  <p-dialog
+    [(visible)]="displayAjustementDialog"
+    [modal]="true"
+    [style]="{ width: '500px' }"
+    [contentStyle]="{ 'overflow-y': 'visible', 'overflow-x': 'visible', 'padding': '1.25rem' }"
     header="Ajuster le stock"
-    [closable]="true">
-    
+    [closable]="true"
+    [draggable]="false"
+    appendTo="body">
+
     @if (produitSelectionne) {
       <div class="flex flex-column gap-3">
-        <div class="p-3 bg-blue-50 border-round">
-          <div class="font-bold mb-1">{{ produitSelectionne.nom }}</div>
-          <div class="text-sm text-gray-600">Stock actuel: {{ produitSelectionne.quantiteStock }} {{ produitSelectionne.unite }}</div>
+
+        <!-- Info produit -->
+        <div class="p-3 bg-blue-50 border-round border-left-3 border-blue-400">
+          <div class="font-bold text-gray-800 mb-1">{{ produitSelectionne.nom }}</div>
+          <div class="text-sm text-gray-600">
+            Stock actuel :
+            <span class="font-semibold text-blue-700">
+              {{ produitSelectionne.quantiteStock }} {{ produitSelectionne.unite }}
+            </span>
+          </div>
         </div>
 
-        <div class="field">
-          <label for="typeAjustement" class="block mb-2">Type de mouvement *</label>
-          <p-select 
-            id="typeAjustement"
+        <!-- Type de mouvement -->
+        <div class="field mb-0">
+          <label class="block font-semibold mb-2">
+            Type de mouvement <span class="text-red-500">*</span>
+          </label>
+          <p-select
             [(ngModel)]="typeAjustement"
             [options]="typesMouvement"
             optionLabel="label"
             optionValue="value"
             placeholder="Sélectionnez un type"
-            [style]="{'width': '100%'}">
+            appendTo="body"
+            [style]="{ 'width': '100%' }">
           </p-select>
         </div>
 
-        <div class="field">
-          <label for="quantiteAjustement" class="block mb-2">Quantité *</label>
-          <p-inputNumber 
-            id="quantiteAjustement"
+        <!-- Quantité -->
+        <div class="field mb-0">
+          <label class="block font-semibold mb-2">
+            Quantité <span class="text-red-500">*</span>
+          </label>
+          <p-inputNumber
             [(ngModel)]="quantiteAjustement"
-            [min]="0"
+            [min]="1"
             [step]="1"
-            [style]="{'width': '100%'}"
-            suffix=" {{ produitSelectionne.unite }}">
+            [suffix]="' ' + uniteSelectionnee"
+            [style]="{ 'width': '100%' }"
+            [inputStyleClass]="'w-full'">
           </p-inputNumber>
         </div>
 
-        <div class="field">
-          <label for="motifAjustement" class="block mb-2">Motif</label>
-          <textarea 
-            id="motifAjustement"
-            pInputText
+        <!-- Motif -->
+        <div class="field mb-0">
+          <label class="block font-semibold mb-2">Motif</label>
+          <textarea
+            pTextarea
             [(ngModel)]="motifAjustement"
             rows="3"
-            class="w-full"
+            style="width: 100%; resize: vertical;"
             placeholder="Expliquez la raison de cet ajustement...">
           </textarea>
         </div>
+
       </div>
     }
 
     <ng-template pTemplate="footer">
       <div class="flex gap-2 justify-content-end">
-        <p-button 
-          label="Annuler" 
-          severity="secondary"
-          (onClick)="displayAjustementDialog = false"
-          [text]="true">
+        <p-button label="Annuler" severity="secondary"
+                  (onClick)="displayAjustementDialog = false" [text]="true">
         </p-button>
-        <p-button 
-          label="Enregistrer" 
-          icon="pi pi-check"
-          (onClick)="saveAjustement()"
-          [loading]="loading">
+        <p-button label="Enregistrer" icon="pi pi-check"
+                  (onClick)="saveAjustement()" [loading]="loading">
         </p-button>
       </div>
     </ng-template>

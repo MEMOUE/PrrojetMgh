@@ -10,6 +10,7 @@
 
   <form [formGroup]="commandeForm" (ngSubmit)="onSubmit()">
     <div class="form-grid">
+
       <!-- Section Client -->
       <p-card header="Informations Client" class="section-card">
         <div class="form-group">
@@ -29,12 +30,9 @@
         <div *ngIf="commandeForm.get('typeClient')?.value === 'externe'" class="client-externe-section">
           <div class="form-group">
             <label for="nomClientExterne">Nom du Client *</label>
-            <input 
-              pInputText 
-              id="nomClientExterne"
-              formControlName="nomClientExterne"
-              placeholder="Nom complet du client"
-              class="w-full"
+            <input
+              pInputText id="nomClientExterne" formControlName="nomClientExterne"
+              placeholder="Nom complet du client" class="w-full"
               [class.ng-invalid]="isFieldInvalid('nomClientExterne')">
             <small class="p-error" *ngIf="isFieldInvalid('nomClientExterne')">
               Le nom du client est obligatoire
@@ -43,12 +41,9 @@
 
           <div class="form-group">
             <label for="telephoneClientExterne">Téléphone *</label>
-            <input 
-              pInputText 
-              id="telephoneClientExterne"
-              formControlName="telephoneClientExterne"
-              placeholder="+225 XX XX XX XX XX"
-              class="w-full"
+            <input
+              pInputText id="telephoneClientExterne" formControlName="telephoneClientExterne"
+              placeholder="+225 XX XX XX XX XX" class="w-full"
               [class.ng-invalid]="isFieldInvalid('telephoneClientExterne')">
             <small class="p-error" *ngIf="isFieldInvalid('telephoneClientExterne')">
               Le téléphone est obligatoire
@@ -61,14 +56,10 @@
           <div class="form-group">
             <label for="reservationId">Réservation *</label>
             <p-select
-              id="reservationId"
-              formControlName="reservationId"
-              [options]="reservations"
-              optionLabel="numeroReservation"
-              optionValue="id"
+              id="reservationId" formControlName="reservationId"
+              [options]="reservations" optionLabel="numeroReservation" optionValue="id"
               placeholder="Sélectionner une réservation"
-              [class.ng-invalid]="isFieldInvalid('reservationId')"
-              class="w-full">
+              [class.ng-invalid]="isFieldInvalid('reservationId')" class="w-full">
               <ng-template let-reservation pTemplate="item">
                 <div class="reservation-option">
                   <strong>{{ reservation.numeroReservation }}</strong>
@@ -85,12 +76,8 @@
 
         <div class="form-group">
           <label for="numeroTable">Numéro de Table</label>
-          <input 
-            pInputText 
-            id="numeroTable"
-            formControlName="numeroTable"
-            placeholder="Ex: T5, Table 5, etc."
-            class="w-full">
+          <input pInputText id="numeroTable" formControlName="numeroTable"
+                 placeholder="Ex: T5, Table 5, etc." class="w-full">
         </div>
       </p-card>
 
@@ -98,25 +85,34 @@
       <p-card header="Sélection des Produits" class="section-card full-width">
         <div class="produits-grid">
           <div *ngFor="let cat of categories" class="categorie-section">
-            <h4 class="categorie-title">{{ cat.label }}</h4>
-            <div class="produits-list">
-              <div 
-                *ngFor="let produit of getProduitsCategorie(cat.value)" 
-                class="produit-card"
-                (click)="ajouterProduit(produit)">
-                <div class="produit-info">
-                  <h5>{{ produit.nom }}</h5>
-                  <p *ngIf="produit.description" class="produit-description">{{ produit.description }}</p>
-                  <div class="produit-prix">{{ produit.prix.toLocaleString('fr-FR') }} FCFA</div>
+            <!-- N'afficher la catégorie que si elle contient des produits -->
+            <ng-container *ngIf="getProduitsCategorie(cat.value).length > 0">
+              <h4 class="categorie-title">
+                <i [class]="'pi ' + cat.icon + ' mr-2'"></i>{{ cat.label }}
+              </h4>
+              <div class="produits-list">
+                <div
+                  *ngFor="let produit of getProduitsCategorie(cat.value)"
+                  class="produit-card"
+                  (click)="ajouterProduit(produit)">
+                  <div class="produit-info">
+                    <h5>{{ produit.nom }}</h5>
+                    <p *ngIf="produit.description" class="produit-description">{{ produit.description }}</p>
+                    <div class="produit-prix">{{ produit.prixUnitaire.toLocaleString('fr-FR') }} FCFA</div>
+                  </div>
+                  <button type="button" pButton icon="pi pi-plus"
+                          class="p-button-rounded p-button-success p-button-sm">
+                  </button>
                 </div>
-                <button 
-                  type="button"
-                  pButton 
-                  icon="pi pi-plus" 
-                  class="p-button-rounded p-button-success p-button-sm">
-                </button>
               </div>
-            </div>
+            </ng-container>
+          </div>
+
+          <!-- Message si aucun produit disponible -->
+          <div *ngIf="produitsMenu.length === 0" class="empty-cart">
+            <i class="pi pi-info-circle" style="font-size: 2rem; color: #ccc;"></i>
+            <p>Aucun produit disponible au menu</p>
+            <small>Ajoutez des produits dans la gestion des stocks pour les faire apparaître ici</small>
           </div>
         </div>
       </p-card>
@@ -129,11 +125,11 @@
           <small>Cliquez sur les produits ci-dessus pour les ajouter</small>
         </div>
 
-        <p-table 
+        <p-table
           *ngIf="lignes.length > 0"
           [value]="lignes.controls"
           styleClass="p-datatable-sm">
-          
+
           <ng-template pTemplate="header">
             <tr>
               <th>Produit</th>
@@ -148,17 +144,14 @@
           <ng-template pTemplate="body" let-ligne let-i="rowIndex">
             <tr [formGroup]="ligne">
               <td>
-                <strong>{{ getNomProduit(ligne.get('produitMenuId')?.value) }}</strong>
+                <!-- Cherche le nom via produitId -->
+                <strong>{{ getNomProduit(ligne.get('produitId')?.value) }}</strong>
               </td>
               <td>
                 <p-inputNumber
                   formControlName="quantite"
-                  [showButtons]="true"
-                  [min]="1"
-                  [max]="99"
-                  buttonLayout="horizontal"
-                  inputId="minmax-buttons"
-                  class="w-full">
+                  [showButtons]="true" [min]="1" [max]="99"
+                  buttonLayout="horizontal" class="w-full">
                 </p-inputNumber>
               </td>
               <td>
@@ -168,19 +161,13 @@
                 <strong>{{ ligne.get('sousTotal')?.value?.toLocaleString('fr-FR') }} FCFA</strong>
               </td>
               <td>
-                <input 
-                  pInputText 
-                  formControlName="notes"
-                  placeholder="Notes spéciales..."
-                  class="w-full">
+                <input pInputText formControlName="notes"
+                       placeholder="Notes spéciales..." class="w-full">
               </td>
               <td>
-                <button 
-                  type="button"
-                  pButton 
-                  icon="pi pi-trash" 
-                  class="p-button-danger p-button-text p-button-sm"
-                  (click)="supprimerLigne(i)">
+                <button type="button" pButton icon="pi pi-trash"
+                        class="p-button-danger p-button-text p-button-sm"
+                        (click)="supprimerLigne(i)">
                 </button>
               </td>
             </tr>
@@ -197,15 +184,12 @@
         </p-table>
       </p-card>
 
-      <!-- Section Notes -->
+      <!-- Notes -->
       <p-card header="Notes Supplémentaires" class="section-card full-width">
         <div class="form-group">
           <label for="notes">Remarques</label>
-          <textarea 
-            pInputTextarea 
-            id="notes"
-            formControlName="notes"
-            rows="4"
+          <textarea
+            pInputTextarea id="notes" formControlName="notes" rows="4"
             placeholder="Notes ou remarques particulières sur cette commande..."
             class="w-full">
           </textarea>
@@ -215,22 +199,14 @@
 
     <!-- Boutons d'action -->
     <div class="action-buttons">
-      <button 
-        type="button"
-        pButton 
-        label="Annuler" 
-        icon="pi pi-times" 
-        class="p-button-secondary"
-        (click)="annuler()">
+      <button type="button" pButton label="Annuler" icon="pi pi-times"
+              class="p-button-secondary" (click)="annuler()">
       </button>
-      <button 
-        type="submit"
-        pButton 
-        [label]="isEditMode ? 'Modifier' : 'Créer la Commande'" 
-        icon="pi pi-check" 
-        class="p-button-success"
-        [loading]="loading"
-        [disabled]="loading || lignes.length === 0">
+      <button type="submit" pButton
+              [label]="isEditMode ? 'Modifier' : 'Créer la Commande'"
+              icon="pi pi-check" class="p-button-success"
+              [loading]="loading"
+              [disabled]="loading || lignes.length === 0">
       </button>
     </div>
   </form>

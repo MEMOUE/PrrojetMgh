@@ -16,9 +16,13 @@ public class LigneCommande extends BaseEntity {
     @JoinColumn(name = "commande_id", nullable = false)
     private CommandeRestaurant commande;
 
+    /**
+     * Lien direct vers le stock : un produit du stock = un item du menu.
+     * Remplace l'ancienne entité ProduitMenu.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "produit_menu_id", nullable = false)
-    private ProduitMenu produitMenu;
+    @JoinColumn(name = "produit_id", nullable = false)
+    private Produit produit;
 
     @Column(nullable = false)
     private Integer quantite;
@@ -30,5 +34,5 @@ public class LigneCommande extends BaseEntity {
     private BigDecimal sousTotal;
 
     @Column(columnDefinition = "TEXT")
-    private String notes; // Notes spéciales pour la préparation
+    private String notes;
 }

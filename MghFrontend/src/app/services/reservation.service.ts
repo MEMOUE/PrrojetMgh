@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environment/environment';
-import { Reservation, CreateReservationRequest, StatutReservation } from '../models/reservation.model ';
+import { Reservation, CreateReservationRequest, StatutReservation} from '../models/reservation.model';
 
 interface ApiResponse<T> {
   success: boolean;

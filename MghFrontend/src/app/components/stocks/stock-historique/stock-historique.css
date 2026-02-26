@@ -1,0 +1,25 @@
+/* Cartes statistiques */
+:host ::ng-deep .stat-card .p-card-body {
+  padding: 1rem 1.25rem;
+}
+
+/* Badge type de mouvement avec icône */
+:host ::ng-deep .p-tag .p-tag-icon {
+  margin-right: 0.25rem;
+  font-size: 0.75rem;
+}
+
+/* Lignes du tableau */
+:host ::ng-deep .p-datatable-sm .p-datatable-tbody > tr > td {
+  padding: 0.6rem 0.75rem;
+}
+
+/* Quantité mise en valeur */
+.text-lg {
+  font-size: 1.05rem;
+}
+
+/* Avatar initiales */
+.border-round-full {
+  border-radius: 50%;
+}

@@ -3,6 +3,7 @@ package com.mghbackend.controller;
 import com.mghbackend.dto.ProduitDto;
 import com.mghbackend.dto.reponse.ApiResponse;
 import com.mghbackend.enums.TypeMouvement;
+import com.mghbackend.enums.TypeProduit;
 import com.mghbackend.security.CustomUserPrincipal;
 import com.mghbackend.service.ProduitService;
 import jakarta.validation.Valid;
@@ -24,6 +25,10 @@ public class ProduitController {
 
     private final ProduitService produitService;
 
+    // ─────────────────────────────────────────────────────────────
+    // Stock (économat)
+    // ─────────────────────────────────────────────────────────────
+
     @PostMapping
     @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_MODIFIER_STOCK')")
     public ResponseEntity<ApiResponse<ProduitDto>> createProduit(
@@ -34,8 +39,7 @@ public class ProduitController {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(ApiResponse.success("Produit créé avec succès", produit));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -47,8 +51,7 @@ public class ProduitController {
             List<ProduitDto> produits = produitService.getProduitsByHotel(principal.getHotelId());
             return ResponseEntity.ok(ApiResponse.success(produits));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -60,8 +63,7 @@ public class ProduitController {
             List<ProduitDto> produits = produitService.getProduitsEnRupture(principal.getHotelId());
             return ResponseEntity.ok(ApiResponse.success(produits));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -74,12 +76,58 @@ public class ProduitController {
             @RequestParam(required = false) String motif,
             @AuthenticationPrincipal CustomUserPrincipal principal) {
         try {
-            Long userId = principal.getAccountType().equals("USER") ? principal.getId() : null;
+            Long userId = "USER".equals(principal.getAccountType()) ? principal.getId() : null;
             produitService.ajusterStock(id, quantite, type, motif, userId);
             return ResponseEntity.ok(ApiResponse.success("Stock ajusté avec succès", null));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Menu restaurant (lecture des produits par catégorie)
+    // ─────────────────────────────────────────────────────────────
+
+    /**
+     * Menu complet (tous types disponibles).
+     * Utilisé par l'interface restaurant pour afficher tous les onglets.
+     */
+    @GetMapping("/menu")
+    @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_VOIR_COMMANDES')")
+    public ResponseEntity<ApiResponse<List<ProduitDto>>> getMenuComplet(
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
+        try {
+            List<ProduitDto> produits = produitService.getMenuComplet(principal.getHotelId());
+            return ResponseEntity.ok(ApiResponse.success(produits));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    /**
+     * Menu filtré par type : /api/produits/menu/BOISSON, /api/produits/menu/PLAT, etc.
+     */
+    @GetMapping("/menu/{type}")
+    @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_VOIR_COMMANDES')")
+    public ResponseEntity<ApiResponse<List<ProduitDto>>> getMenuParType(
+            @PathVariable TypeProduit type,
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
+        try {
+            List<ProduitDto> produits = produitService.getMenuParType(principal.getHotelId(), type);
+            return ResponseEntity.ok(ApiResponse.success(produits));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_VOIR_STOCK')")
+    public ResponseEntity<ApiResponse<ProduitDto>> getProduitById(@PathVariable Long id) {
+        try {
+            ProduitDto produit = produitService.getProduitById(id);
+            return ResponseEntity.ok(ApiResponse.success(produit));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 }

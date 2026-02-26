@@ -12,12 +12,12 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 import { RestaurantService } from '../../../services/restaurant.service';
-import { 
-  CommandeRestaurant, 
+import {
+  CommandeRestaurant,
   StatutCommandeRestaurant,
   STATUT_COMMANDE_LABELS,
-  STATUT_COMMANDE_COLORS 
-} from '../../../models/restaurant.model ';
+  STATUT_COMMANDE_COLORS
+} from '../../../models/restaurant.model';
 type Severity = "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined;
 
 @Component({
@@ -114,7 +114,7 @@ export class Detailresto implements OnInit {
     if (!this.commande) return;
 
     const montantRestant = this.commande.montantTotal - (this.commande.montantPaye || 0);
-    
+
     this.confirmationService.confirm({
       message: `Enregistrer un paiement de ${montantRestant.toLocaleString('fr-FR')} FCFA ?`,
       header: 'Paiement',
@@ -157,7 +157,7 @@ export class Detailresto implements OnInit {
   getStatutSeverity(statut: StatutCommandeRestaurant): Severity {
     return (STATUT_COMMANDE_COLORS[statut] || 'info') as Severity;
   }
-  
+
   getClientDisplay(): string {
     if (!this.commande) return '';
 
