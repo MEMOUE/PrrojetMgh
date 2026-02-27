@@ -249,6 +249,13 @@ export const routes: Routes = [
       .then(m => m.UnauthorizedComponent)
   },
   {
+    path: 'planning',
+    loadComponent: () =>
+      import('./components/planning/planning').then(m => m.Planning),
+    canActivate: [AuthGuard],
+    data: { title: 'Planning' }
+  },
+  {
     path: '**',
     redirectTo: '/accueil'
   }

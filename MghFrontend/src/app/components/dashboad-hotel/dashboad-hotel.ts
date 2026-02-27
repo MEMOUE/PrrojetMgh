@@ -49,13 +49,7 @@ export class DashboadHotel {
       route: '/finances',
       gradient: 'from-rose-500 to-red-600'
     },
-    // {
-    //   title: 'Rapports',
-    //   description: 'Statistiques et performances.',
-    //   icon: 'pi-chart-line',
-    //   route: '/rapports',
-    //   gradient: 'from-cyan-500 to-sky-600'
-    // },
+
     {
       title: 'Personnel',
       description: 'Employés et plannings.',
@@ -76,6 +70,13 @@ export class DashboadHotel {
       icon: 'pi-cog',
       route: '/profile',
       gradient: 'from-teal-500 to-sky-900'
+    },
+    {
+      title: 'Panning',
+      description: 'Panning des Reservations.',
+      icon: 'pi-chart-line',
+      route: '/planning',
+      gradient: 'from-cyan-500 to-sky-600'
     }
   ];
 

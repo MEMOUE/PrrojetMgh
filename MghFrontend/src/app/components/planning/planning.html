@@ -1,1 +1,240 @@
-<p>planning works!</p>
+<div class="planning-wrapper">
+
+  <!-- ───── TOOLBAR ───── -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <h1 class="page-title">
+        <span class="icon">⬛</span> Planning des réservations
+      </h1>
+      <span class="month-label">{{ getMonthLabel() }}</span>
+    </div>
+    <div class="toolbar-right">
+      <button class="btn-nav" (click)="navigateDays(-7)" title="7 jours avant">‹‹</button>
+      <button class="btn-nav" (click)="navigateDays(-1)" title="Jour précédent">‹</button>
+      <button class="btn-today" (click)="goToToday()">Aujourd'hui</button>
+      <button class="btn-nav" (click)="navigateDays(1)" title="Jour suivant">›</button>
+      <button class="btn-nav" (click)="navigateDays(7)" title="7 jours après">››</button>
+      <button class="btn-refresh" (click)="loadData()" title="Actualiser">↻</button>
+    </div>
+  </div>
+
+  <!-- ───── LÉGENDE ───── -->
+  <div class="legend">
+    <span *ngFor="let entry of statutConfig | keyvalue" class="legend-item">
+      <span class="legend-dot" [style.background]="entry.value.border"></span>
+      {{ entry.value.label }}
+    </span>
+  </div>
+
+  <!-- ───── ÉTAT ───── -->
+  <div *ngIf="loading" class="state-box">
+    <div class="spinner"></div>
+    <p>Chargement du planning…</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="state-box error">
+    <span>⚠</span> {{ error }}
+    <button (click)="loadData()">Réessayer</button>
+  </div>
+
+  <!-- ───── GRILLE ───── -->
+  <div *ngIf="!loading && !error" class="grid-scroll-container">
+    <table class="planning-table">
+      <thead>
+      <!-- Ligne des mois (optionnel regroupement) -->
+      <tr class="header-dates">
+        <th class="th-room sticky-col">Chambre</th>
+        <th *ngFor="let d of dates; trackBy: trackDate"
+            class="th-date"
+            [class.today-col]="isToday(d)"
+            [class.weekend-col]="isSaturday(d) || isSunday(d)">
+          <span class="day-name">{{ getDayName(d) }}</span>
+          <span class="day-num">{{ formatDate(d) }}</span>
+        </th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let chambre of chambres; trackBy: trackChambre" class="chambre-row">
+        <!-- Numéro de chambre -->
+        <td class="td-room sticky-col">
+          <span class="room-num">{{ chambre.numero }}</span>
+          <span class="room-type">{{ chambre.type }}</span>
+        </td>
+
+        <!-- Cellules par date -->
+        <td
+          *ngFor="let d of dates; trackBy: trackDate"
+          class="td-cell"
+          [class.today-col]="isToday(d)"
+          [class.weekend-col]="isSaturday(d) || isSunday(d)"
+          [class.has-res]="!!getRes(chambre.id!, d)"
+          [class.res-start]="isStartDate(chambre.id!, d)"
+          [class.res-end]="isEndDate(chambre.id!, d)"
+          [ngStyle]="getCellStyle(getRes(chambre.id!, d))"
+          (click)="onCellClick(chambre.id!, d)"
+        >
+            <span
+              *ngIf="isStartDate(chambre.id!, d) && getRes(chambre.id!, d) as res"
+              class="client-name">
+              {{ res.clientPrenom }} {{ res.clientNom }}
+            </span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ───── MODAL ───── -->
+  <div *ngIf="showModal && selectedReservation" class="modal-overlay" (click)="closeModal()">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+
+      <!-- Header modal -->
+      <div class="modal-header">
+        <div class="modal-title-block">
+          <span class="res-num">{{ selectedReservation.numeroReservation }}</span>
+          <span
+            class="statut-badge"
+            [style.background]="getStatutCfg(selectedReservation.statut).bg"
+            [style.color]="getStatutCfg(selectedReservation.statut).color"
+            [style.border-color]="getStatutCfg(selectedReservation.statut).border">
+            {{ getStatutCfg(selectedReservation.statut).label }}
+          </span>
+        </div>
+        <button class="btn-close" (click)="closeModal()">✕</button>
+      </div>
+
+      <!-- Corps modal -->
+      <div class="modal-body">
+
+        <!-- Client -->
+        <div class="info-section">
+          <h3 class="info-title">Client</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Nom</span>
+              <span class="info-value">{{ selectedReservation.clientPrenom }} {{ selectedReservation.clientNom }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedReservation.clientTelephone">
+              <span class="info-label">Téléphone</span>
+              <span class="info-value">{{ selectedReservation.clientTelephone }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Séjour -->
+        <div class="info-section">
+          <h3 class="info-title">Séjour</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Chambre</span>
+              <span class="info-value">{{ selectedReservation.chambreNumero }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Arrivée</span>
+              <span class="info-value">{{ formatDateLong(selectedReservation.dateArrivee) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Départ</span>
+              <span class="info-value">{{ formatDateLong(selectedReservation.dateDepart) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Durée</span>
+              <span class="info-value">{{ selectedReservation.nombreNuits }} nuit(s)</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Occupants</span>
+              <span class="info-value">{{ selectedReservation.nombreAdultes }} adulte(s), {{ selectedReservation.nombreEnfants || 0 }} enfant(s)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paiement -->
+        <div class="info-section">
+          <h3 class="info-title">Paiement</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Total</span>
+              <span class="info-value strong">{{ formatMontant(selectedReservation.montantTotal) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Payé</span>
+              <span class="info-value green">{{ formatMontant(selectedReservation.montantPaye) }}</span>
+            </div>
+            <div class="info-item" *ngIf="(selectedReservation.montantRestant || 0) > 0">
+              <span class="info-label">Reste</span>
+              <span class="info-value red">{{ formatMontant(selectedReservation.montantRestant) }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedReservation.modePaiement">
+              <span class="info-label">Mode</span>
+              <span class="info-value">{{ selectedReservation.modePaiement }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulaire paiement -->
+        <div *ngIf="showPaiementForm" class="paiement-form">
+          <h3 class="info-title">Enregistrer un paiement</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Montant (F CFA)</label>
+              <input type="number" [(ngModel)]="paiementMontant" min="0" placeholder="Ex: 50000" />
+            </div>
+            <div class="form-group">
+              <label>Mode de paiement</label>
+              <select [(ngModel)]="paiementMode">
+                <option *ngFor="let m of modesPaiement" [value]="m.value">{{ m.label }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-secondary" (click)="showPaiementForm = false">Annuler</button>
+            <button class="btn-primary" (click)="submitPaiement()" [disabled]="paiementMontant <= 0">
+              Valider le paiement
+            </button>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="info-section" *ngIf="selectedReservation.notes">
+          <h3 class="info-title">Notes</h3>
+          <p class="notes-text">{{ selectedReservation.notes }}</p>
+        </div>
+      </div>
+
+      <!-- Footer avec actions -->
+      <div class="modal-footer">
+        <div class="actions-row">
+          <button
+            *ngIf="canCheckin()"
+            class="btn-action checkin"
+            (click)="doCheckin()">
+            ✓ Check-in
+          </button>
+          <button
+            *ngIf="canCheckout()"
+            class="btn-action checkout"
+            (click)="doCheckout()">
+            ⬛ Check-out
+          </button>
+          <button
+            *ngIf="canPay() && !showPaiementForm"
+            class="btn-action pay"
+            (click)="showPaiementForm = true">
+            $ Paiement
+          </button>
+          <button
+            *ngIf="canCancel()"
+            class="btn-action cancel"
+            (click)="doCancel()">
+            ✕ Annuler
+          </button>
+          <button class="btn-action print" (click)="printFacture()">
+            ⬛ Imprimer facture
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
