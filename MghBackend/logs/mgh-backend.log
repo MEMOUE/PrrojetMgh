@@ -13978,3 +13978,2981 @@ org.springframework.web.servlet.resource.NoResourceFoundException: No static res
         produits p1_0 
     where
         p1_0.id=?
+2026-02-27 08:37:04 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 2 deletions, 0 modifications)
+2026-02-27 08:37:04 [Thread-5] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:37:04 [Thread-5] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-02-27 08:37:04 [Thread-5] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-02-27 08:37:04 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:37:04 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:37:05 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:37:05 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 74 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:37:05 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:37:05 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:37:05 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:37:05 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:37:05 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1075 ms
+2026-02-27 08:37:05 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:37:05 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:37:05 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:37:05 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Starting...
+2026-02-27 08:37:05 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@40d4391
+2026-02-27 08:37:05 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Start completed.
+2026-02-27 08:37:05 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:37:06 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:37:06 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:37:06 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:37:06 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:37:06 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:37:06 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:37:06 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:37:07 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:37:07 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:37:07 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:37:07 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:37:07 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:37:07 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:37:07 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:37:07 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:37:07 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:37:07 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:37:08 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:37:09 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:37:09 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:37:09 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:37:09 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 5.326 seconds (process running for 53703.285)
+2026-02-27 08:37:09 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:37:09 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:37:09 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:37:09 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:37:09 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:37:09 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:37:09 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:37:09 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:37:14 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (2 additions, 0 deletions, 0 modifications)
+2026-02-27 08:37:14 [Thread-7] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:37:14 [Thread-7] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Shutdown initiated...
+2026-02-27 08:37:14 [Thread-7] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Shutdown completed.
+2026-02-27 08:37:15 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:37:15 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:37:16 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:37:16 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 66 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:37:16 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:37:16 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:37:16 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:37:16 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:37:16 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1012 ms
+2026-02-27 08:37:16 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:37:16 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:37:16 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:37:16 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-3 - Starting...
+2026-02-27 08:37:16 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-3 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6e08065a
+2026-02-27 08:37:16 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-3 - Start completed.
+2026-02-27 08:37:16 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:37:16 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:37:16 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:37:16 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:37:16 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:37:16 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:37:16 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:37:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:37:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:37:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:37:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:37:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:37:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:37:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:37:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:37:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:37:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:37:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:37:17 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:37:18 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:37:19 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:37:19 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:37:19 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 3.828 seconds (process running for 53712.568)
+2026-02-27 08:37:19 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:37:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:37:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:37:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:37:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:37:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:37:19 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:37:19 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:38:48 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 2 deletions, 0 modifications)
+2026-02-27 08:38:48 [Thread-11] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:38:48 [Thread-11] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-3 - Shutdown initiated...
+2026-02-27 08:38:48 [Thread-11] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-3 - Shutdown completed.
+2026-02-27 08:38:48 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:38:48 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:38:49 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:38:49 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 174 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:38:50 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:38:50 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:38:50 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:38:50 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:38:50 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1858 ms
+2026-02-27 08:38:50 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:38:50 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:38:50 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:38:50 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-4 - Starting...
+2026-02-27 08:38:50 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-4 - Added connection com.mysql.cj.jdbc.ConnectionImpl@295c13c4
+2026-02-27 08:38:50 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-4 - Start completed.
+2026-02-27 08:38:50 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:38:52 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:38:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:38:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:38:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:38:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:38:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:38:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:38:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:38:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:38:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:38:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:38:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:38:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:38:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:38:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:38:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:38:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:38:54 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:38:55 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:38:56 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:38:57 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:38:57 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 9.027 seconds (process running for 53810.955)
+2026-02-27 08:38:57 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:38:57 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:38:57 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:38:57 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:38:57 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:38:57 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:38:57 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:38:57 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:38:58 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (2 additions, 0 deletions, 0 modifications)
+2026-02-27 08:38:58 [Thread-15] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:38:58 [Thread-15] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-4 - Shutdown initiated...
+2026-02-27 08:38:58 [Thread-15] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-4 - Shutdown completed.
+2026-02-27 08:38:58 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:38:58 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:38:58 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:38:58 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 55 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:38:59 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:38:59 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:38:59 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:38:59 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:38:59 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 736 ms
+2026-02-27 08:38:59 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:38:59 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:38:59 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:38:59 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-5 - Starting...
+2026-02-27 08:38:59 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-5 - Added connection com.mysql.cj.jdbc.ConnectionImpl@487f6ef0
+2026-02-27 08:38:59 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-5 - Start completed.
+2026-02-27 08:38:59 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:38:59 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:38:59 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:38:59 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:38:59 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:38:59 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:38:59 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:38:59 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:38:59 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:39:00 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:39:00 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:39:00 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:39:00 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:39:00 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:39:00 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:39:00 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:39:00 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:39:00 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:39:01 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:39:01 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:39:02 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:39:02 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:39:02 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 3.712 seconds (process running for 53815.666)
+2026-02-27 08:39:02 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:39:02 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:39:02 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:39:02 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:39:02 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:39:02 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:39:02 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:39:02 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:40:43 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 2 deletions, 0 modifications)
+2026-02-27 08:40:43 [Thread-19] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:40:43 [Thread-19] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-5 - Shutdown initiated...
+2026-02-27 08:40:43 [Thread-19] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-5 - Shutdown completed.
+2026-02-27 08:40:43 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:40:43 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:40:45 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:40:45 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 181 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:40:46 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:40:46 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:40:46 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:40:46 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:40:46 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2882 ms
+2026-02-27 08:40:46 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:40:46 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:40:46 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:40:46 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-6 - Starting...
+2026-02-27 08:40:46 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-6 - Added connection com.mysql.cj.jdbc.ConnectionImpl@35ae8fe8
+2026-02-27 08:40:46 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-6 - Start completed.
+2026-02-27 08:40:46 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:40:49 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:40:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:40:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:40:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:40:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:40:50 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:40:51 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:40:51 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:40:51 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:40:51 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 7.851 seconds (process running for 53925.043)
+2026-02-27 08:40:51 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:40:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:40:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:40:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:40:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:40:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:40:51 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:40:51 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:40:52 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (2 additions, 0 deletions, 0 modifications)
+2026-02-27 08:40:52 [Thread-23] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:40:52 [Thread-23] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-6 - Shutdown initiated...
+2026-02-27 08:40:52 [Thread-23] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-6 - Shutdown completed.
+2026-02-27 08:40:53 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:40:53 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:40:53 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:40:53 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 46 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:40:53 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:40:53 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:40:53 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:40:53 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:40:53 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 436 ms
+2026-02-27 08:40:53 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:40:53 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:40:53 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:40:53 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-7 - Starting...
+2026-02-27 08:40:53 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-7 - Added connection com.mysql.cj.jdbc.ConnectionImpl@55200d81
+2026-02-27 08:40:53 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-7 - Start completed.
+2026-02-27 08:40:53 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:40:53 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:40:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:40:53 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:40:54 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:40:55 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:40:55 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:40:56 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:40:56 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:40:56 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 3.129 seconds (process running for 53929.688)
+2026-02-27 08:40:56 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:40:56 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:40:56 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:40:56 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:40:56 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:40:56 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:40:56 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:40:56 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:41:09 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 2 deletions, 0 modifications)
+2026-02-27 08:41:09 [Thread-27] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:41:09 [Thread-27] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-7 - Shutdown initiated...
+2026-02-27 08:41:09 [Thread-27] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-7 - Shutdown completed.
+2026-02-27 08:41:09 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:41:09 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:41:10 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:41:10 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 145 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:41:11 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:41:11 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:41:11 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:41:11 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:41:11 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1853 ms
+2026-02-27 08:41:11 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:41:11 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:41:11 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:41:11 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-8 - Starting...
+2026-02-27 08:41:11 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-8 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6b728e7a
+2026-02-27 08:41:11 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-8 - Start completed.
+2026-02-27 08:41:11 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:41:13 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:41:13 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:41:13 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:41:13 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:41:13 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:41:13 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:41:13 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:41:13 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:41:13 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:41:13 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:41:14 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:41:14 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:41:14 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:41:14 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:41:14 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:41:14 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:41:14 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:41:14 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:41:16 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:41:17 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:41:17 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:41:17 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 7.811 seconds (process running for 53950.588)
+2026-02-27 08:41:17 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:41:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:41:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:41:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:41:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:41:17 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:41:17 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:41:17 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:41:18 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (2 additions, 0 deletions, 0 modifications)
+2026-02-27 08:41:18 [Thread-31] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:41:18 [Thread-31] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-8 - Shutdown initiated...
+2026-02-27 08:41:18 [Thread-31] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-8 - Shutdown completed.
+2026-02-27 08:41:18 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:41:18 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:41:19 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:41:19 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 92 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:41:19 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:41:19 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:41:19 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:41:19 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:41:19 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1041 ms
+2026-02-27 08:41:19 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:41:19 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:41:19 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:41:19 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-9 - Starting...
+2026-02-27 08:41:19 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-9 - Added connection com.mysql.cj.jdbc.ConnectionImpl@272f6b1e
+2026-02-27 08:41:19 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-9 - Start completed.
+2026-02-27 08:41:19 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:41:20 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:41:20 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:41:20 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:41:20 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:41:20 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:41:20 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:41:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:41:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:41:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:41:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:41:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:41:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:41:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:41:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:41:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:41:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:41:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:41:22 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:41:22 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:41:22 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:41:23 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:41:23 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 4.345 seconds (process running for 53956.528)
+2026-02-27 08:41:23 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:41:23 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:41:23 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:41:23 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:41:23 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:41:23 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:41:23 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:41:23 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:44:36 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 2 deletions, 0 modifications)
+2026-02-27 08:44:36 [Thread-35] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:44:36 [Thread-35] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-9 - Shutdown initiated...
+2026-02-27 08:44:36 [Thread-35] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-9 - Shutdown completed.
+2026-02-27 08:44:36 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:44:36 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:44:37 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:44:37 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 205 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:44:39 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:44:39 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:44:39 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:44:40 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:44:40 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3532 ms
+2026-02-27 08:44:41 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:44:41 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:44:41 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:44:41 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-10 - Starting...
+2026-02-27 08:44:41 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-10 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4d7c924e
+2026-02-27 08:44:41 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-10 - Start completed.
+2026-02-27 08:44:41 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:44:42 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:44:42 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:44:43 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:44:43 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:44:43 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:44:43 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:44:44 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:44:45 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:44:45 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:44:45 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 9.463 seconds (process running for 54159.387)
+2026-02-27 08:44:45 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:44:45 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:44:45 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:44:45 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:44:45 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:44:45 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:44:45 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:44:45 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:44:47 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (2 additions, 0 deletions, 0 modifications)
+2026-02-27 08:44:47 [Thread-39] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:44:47 [Thread-39] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-10 - Shutdown initiated...
+2026-02-27 08:44:47 [Thread-39] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-10 - Shutdown completed.
+2026-02-27 08:44:47 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:44:47 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:44:48 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:44:48 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 107 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:44:48 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:44:48 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:44:48 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:44:48 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:44:48 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1141 ms
+2026-02-27 08:44:48 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:44:48 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:44:48 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:44:48 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-11 - Starting...
+2026-02-27 08:44:48 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-11 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2c406fa7
+2026-02-27 08:44:48 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-11 - Start completed.
+2026-02-27 08:44:48 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:44:49 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:44:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:44:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:44:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:44:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:44:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:44:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:44:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:44:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:44:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:44:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:44:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:44:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:44:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:44:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:44:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:44:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:44:51 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:44:51 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:44:52 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:44:52 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:44:52 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 4.809 seconds (process running for 54165.788)
+2026-02-27 08:44:52 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:44:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:44:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:44:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:44:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:44:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:44:52 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:44:52 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:48:28 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 2 deletions, 0 modifications)
+2026-02-27 08:48:28 [Thread-43] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:48:28 [Thread-43] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-11 - Shutdown initiated...
+2026-02-27 08:48:28 [Thread-43] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-11 - Shutdown completed.
+2026-02-27 08:48:28 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:48:28 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:48:30 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:48:30 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 117 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:48:30 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:48:30 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:48:30 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:48:30 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:48:30 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2224 ms
+2026-02-27 08:48:30 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:48:30 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:48:30 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:48:30 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-12 - Starting...
+2026-02-27 08:48:30 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-12 - Added connection com.mysql.cj.jdbc.ConnectionImpl@365a7eca
+2026-02-27 08:48:30 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-12 - Start completed.
+2026-02-27 08:48:30 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:48:31 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:48:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:48:32 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:48:32 [restartedMain] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'commandeRestaurantController' defined in file [C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main\com\mghbackend\controller\CommandeRestaurantController.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'com.mghbackend.service.CommandeRestaurantService' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2026-02-27 08:48:32 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:48:32 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-12 - Shutdown initiated...
+2026-02-27 08:48:32 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-12 - Shutdown completed.
+2026-02-27 08:48:32 [restartedMain] INFO  o.a.catalina.core.StandardService - Stopping service [Tomcat]
+2026-02-27 08:48:32 [restartedMain] INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-02-27 08:48:32 [restartedMain] ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 0 of constructor in com.mghbackend.controller.CommandeRestaurantController required a bean of type 'com.mghbackend.service.CommandeRestaurantService' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'com.mghbackend.service.CommandeRestaurantService' in your configuration.
+
+2026-02-27 08:48:34 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:48:34 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:48:34 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:48:34 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 52 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:48:34 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:48:34 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:48:34 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:48:34 [restartedMain] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:48:34 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 507 ms
+2026-02-27 08:48:34 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:48:34 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:48:34 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:48:34 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-13 - Starting...
+2026-02-27 08:48:34 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-13 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4b58a8e8
+2026-02-27 08:48:34 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-13 - Start completed.
+2026-02-27 08:48:34 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:48:35 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:48:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:48:36 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:48:37 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:48:37 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:48:37 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:48:37 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 3.536 seconds (process running for 54391.193)
+2026-02-27 08:48:37 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:48:37 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:48:37 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:48:37 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:48:37 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:48:37 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:48:37 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:48:37 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:48:44 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 2 deletions, 0 modifications)
+2026-02-27 08:48:44 [Thread-47] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:48:44 [Thread-47] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-13 - Shutdown initiated...
+2026-02-27 08:48:44 [Thread-47] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-13 - Shutdown completed.
+2026-02-27 08:48:44 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:48:44 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:48:45 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:48:46 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 466 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:48:47 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:48:47 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:48:47 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:48:47 [restartedMain] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:48:47 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2756 ms
+2026-02-27 08:48:47 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:48:47 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:48:47 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:48:47 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-14 - Starting...
+2026-02-27 08:48:47 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-14 - Added connection com.mysql.cj.jdbc.ConnectionImpl@396cc133
+2026-02-27 08:48:47 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-14 - Start completed.
+2026-02-27 08:48:47 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:48:48 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:48:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:48:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:48:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:48:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:48:49 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:48:50 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:48:52 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:48:52 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:48:52 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 7.653 seconds (process running for 54405.702)
+2026-02-27 08:48:52 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:48:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:48:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:48:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:48:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:48:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:48:52 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:48:52 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:51:14 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 2 deletions, 0 modifications)
+2026-02-27 08:51:14 [Thread-54] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:51:14 [Thread-54] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-14 - Shutdown initiated...
+2026-02-27 08:51:14 [Thread-54] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-14 - Shutdown completed.
+2026-02-27 08:51:14 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:51:14 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:51:16 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:51:16 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 178 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:51:17 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:51:17 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:51:17 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:51:17 [restartedMain] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:51:17 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3703 ms
+2026-02-27 08:51:18 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:51:18 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:51:18 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:51:18 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-15 - Starting...
+2026-02-27 08:51:18 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-15 - Added connection com.mysql.cj.jdbc.ConnectionImpl@592944de
+2026-02-27 08:51:18 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-15 - Start completed.
+2026-02-27 08:51:18 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:51:18 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:51:18 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:51:18 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:51:18 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:51:18 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:51:18 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:51:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:51:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:51:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:51:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:51:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:51:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:51:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:51:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:51:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:51:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:51:19 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:51:20 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:51:21 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:51:21 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:51:21 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:51:21 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 7.522 seconds (process running for 54555.254)
+2026-02-27 08:51:21 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:51:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:51:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:51:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:51:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:51:21 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:51:21 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:51:21 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:52:23 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 2 deletions, 0 modifications)
+2026-02-27 08:52:23 [Thread-58] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:52:23 [Thread-58] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-15 - Shutdown initiated...
+2026-02-27 08:52:23 [Thread-58] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-15 - Shutdown completed.
+2026-02-27 08:52:23 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:52:23 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:52:24 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:52:24 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 131 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:52:24 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:52:24 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:52:24 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:52:24 [restartedMain] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:52:24 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1517 ms
+2026-02-27 08:52:25 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:52:25 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:52:25 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:52:25 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-16 - Starting...
+2026-02-27 08:52:25 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-16 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6ed07738
+2026-02-27 08:52:25 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-16 - Start completed.
+2026-02-27 08:52:25 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:52:25 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:52:25 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:52:25 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:52:25 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:52:25 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:52:27 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:52:27 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:52:27 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:52:27 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:52:27 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:52:27 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:52:27 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:52:27 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:52:27 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:52:27 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:52:28 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:52:28 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:52:28 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:52:29 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:52:30 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:52:30 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:52:30 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 7.53 seconds (process running for 54624.308)
+2026-02-27 08:52:30 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:52:30 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:52:30 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:52:30 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:52:30 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:52:30 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:52:30 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:52:30 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:52:47 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 2 deletions, 0 modifications)
+2026-02-27 08:52:47 [Thread-62] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:52:47 [Thread-62] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-16 - Shutdown initiated...
+2026-02-27 08:52:47 [Thread-62] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-16 - Shutdown completed.
+2026-02-27 08:52:47 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:52:47 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:52:48 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:52:48 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 123 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:52:48 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:52:48 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:52:48 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:52:48 [restartedMain] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:52:48 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1368 ms
+2026-02-27 08:52:49 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:52:49 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:52:49 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:52:49 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-17 - Starting...
+2026-02-27 08:52:49 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-17 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5eb53589
+2026-02-27 08:52:49 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-17 - Start completed.
+2026-02-27 08:52:49 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:52:50 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:52:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:52:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:52:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:52:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:52:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:52:50 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:52:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:52:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:52:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:52:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:52:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:52:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:52:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:52:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:52:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:52:51 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:52:51 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:52:52 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:52:52 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:52:52 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:52:52 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 5.41 seconds (process running for 54646.411)
+2026-02-27 08:52:52 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:52:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:52:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:52:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:52:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:52:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:52:52 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:52:52 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 08:53:44 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 2 deletions, 0 modifications)
+2026-02-27 08:53:44 [Thread-66] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:53:44 [Thread-66] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-17 - Shutdown initiated...
+2026-02-27 08:53:44 [Thread-66] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-17 - Shutdown completed.
+2026-02-27 08:53:44 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20024 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 08:53:44 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 08:53:45 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 08:53:45 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 148 ms. Found 17 JPA repository interfaces.
+2026-02-27 08:53:45 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 08:53:45 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 08:53:45 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 08:53:45 [restartedMain] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 08:53:45 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1587 ms
+2026-02-27 08:53:46 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 08:53:46 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 08:53:46 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 08:53:46 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-18 - Starting...
+2026-02-27 08:53:46 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-18 - Added connection com.mysql.cj.jdbc.ConnectionImpl@597634c3
+2026-02-27 08:53:46 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-18 - Start completed.
+2026-02-27 08:53:46 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 08:53:47 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 08:53:47 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 08:53:47 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 08:53:47 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 08:53:47 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 08:53:47 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 08:53:47 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 08:53:47 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 08:53:47 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 08:53:47 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 08:53:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 08:53:48 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 08:53:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 08:53:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 08:53:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 08:53:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 08:53:49 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 08:53:49 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 08:53:51 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 08:53:52 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 08:53:52 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 08:53:52 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 7.96 seconds (process running for 54705.705)
+2026-02-27 08:53:52 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 08:53:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:53:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:53:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:53:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:53:52 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 08:53:52 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 08:53:52 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2026-02-27 09:00:20 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 09:00:20 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-18 - Shutdown initiated...
+2026-02-27 09:00:20 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-18 - Shutdown completed.
+2026-02-27 09:00:26 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Starting MghBackendApplication using Java 21.0.10 with PID 20544 (C:\Users\konem\projets\PrrojetMgh\MghBackend\build\classes\java\main started by konem in C:\Users\konem\projets\PrrojetMgh\MghBackend)
+2026-02-27 09:00:26 [restartedMain] INFO  c.mghbackend.MghBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-02-27 09:00:26 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-02-27 09:00:26 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-02-27 09:00:27 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-27 09:00:28 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 100 ms. Found 17 JPA repository interfaces.
+2026-02-27 09:00:28 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-27 09:00:28 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-27 09:00:28 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-02-27 09:00:28 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-02-27 09:00:28 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1988 ms
+2026-02-27 09:00:29 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-27 09:00:29 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-02-27 09:00:29 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-02-27 09:00:29 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-27 09:00:29 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-02-27 09:00:29 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1aa389c8
+2026-02-27 09:00:29 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-02-27 09:00:29 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-27 09:00:31 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table chambres 
+       modify column description TEXT
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column adresse TEXT
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table clients 
+       modify column notes TEXT
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table commandes_restaurant 
+       modify column notes TEXT
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table factures 
+       modify column notes TEXT
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column adresse TEXT
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table fournisseurs 
+       modify column notes TEXT
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table hotels 
+       modify column address TEXT
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_commande_restaurant 
+       modify column notes TEXT
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table lignes_facture 
+       modify column description TEXT
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table mouvements_stock 
+       modify column motif TEXT
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table paiements 
+       modify column notes TEXT
+2026-02-27 09:00:31 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits 
+       modify column description TEXT
+2026-02-27 09:00:32 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table produits_menu 
+       modify column description TEXT
+2026-02-27 09:00:32 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column demandes_speciales TEXT
+2026-02-27 09:00:32 [restartedMain] DEBUG org.hibernate.SQL - 
+    alter table reservations 
+       modify column notes TEXT
+2026-02-27 09:00:32 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 09:00:32 [restartedMain] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-27 09:00:34 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-27 09:00:35 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2026-02-27 09:00:35 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-02-27 09:00:35 [restartedMain] INFO  c.mghbackend.MghBackendApplication - Started MghBackendApplication in 8.832 seconds (process running for 10.738)
+2026-02-27 09:00:35 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données...
+2026-02-27 09:00:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 09:00:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 09:00:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 09:00:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 09:00:35 [restartedMain] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    limit
+        ?
+2026-02-27 09:00:35 [restartedMain] INFO  c.mghbackend.config.DataInitializer - Initialisation des données terminée
+2026-02-27 09:00:48 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-27 09:00:48 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-02-27 09:00:48 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 4 ms
+2026-02-27 09:00:51 [http-nio-8080-exec-10] INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 2346 ms
+2026-02-27 09:01:05 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        h1_0.id,
+        h1_0.active,
+        h1_0.address,
+        h1_0.created_at,
+        h1_0.email,
+        h1_0.logo_url,
+        h1_0.name,
+        h1_0.password,
+        h1_0.phone,
+        h1_0.subscription_end,
+        h1_0.tax_number,
+        h1_0.updated_at 
+    from
+        hotels h1_0 
+    where
+        h1_0.email=? 
+        and h1_0.active
+2026-02-27 09:01:05 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        h1_0.id,
+        h1_0.active,
+        h1_0.address,
+        h1_0.created_at,
+        h1_0.email,
+        h1_0.logo_url,
+        h1_0.name,
+        h1_0.password,
+        h1_0.phone,
+        h1_0.subscription_end,
+        h1_0.tax_number,
+        h1_0.updated_at 
+    from
+        hotels h1_0 
+    where
+        h1_0.id=?
+2026-02-27 09:01:05 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        cr1_0.id,
+        cr1_0.client_id,
+        cr1_0.created_at,
+        cr1_0.date_commande,
+        cr1_0.date_service,
+        cr1_0.hotel_id,
+        cr1_0.montant_paye,
+        cr1_0.montant_total,
+        cr1_0.nom_client_externe,
+        cr1_0.notes,
+        cr1_0.numero_commande,
+        cr1_0.numero_table,
+        cr1_0.reservation_id,
+        cr1_0.user_id,
+        cr1_0.statut,
+        cr1_0.telephone_client_externe,
+        cr1_0.updated_at 
+    from
+        commandes_restaurant cr1_0 
+    where
+        cr1_0.hotel_id=?
+2026-02-27 09:01:05 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        l1_0.commande_id,
+        l1_0.id,
+        l1_0.created_at,
+        l1_0.notes,
+        l1_0.prix_unitaire,
+        l1_0.produit_id,
+        l1_0.quantite,
+        l1_0.sous_total,
+        l1_0.updated_at 
+    from
+        lignes_commande_restaurant l1_0 
+    where
+        l1_0.commande_id=?
+2026-02-27 09:01:05 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.code,
+        p1_0.created_at,
+        p1_0.description,
+        p1_0.disponible,
+        p1_0.fournisseur_id,
+        p1_0.hotel_id,
+        p1_0.image_url,
+        p1_0.nom,
+        p1_0.prix_unitaire,
+        p1_0.quantite_stock,
+        p1_0.seuil_alerte,
+        p1_0.type_produit,
+        p1_0.unite,
+        p1_0.updated_at 
+    from
+        produits p1_0 
+    where
+        p1_0.id=?
+2026-02-27 09:01:05 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.chambre_id,
+        r1_0.checkin_by,
+        r1_0.checkout_by,
+        r1_0.client_id,
+        r1_0.created_at,
+        r1_0.created_by,
+        r1_0.date_arrivee,
+        r1_0.date_checkin,
+        r1_0.date_checkout,
+        r1_0.date_depart,
+        r1_0.demandes_speciales,
+        r1_0.hotel_id,
+        r1_0.mode_paiement,
+        r1_0.montant_paye,
+        r1_0.montant_restant,
+        r1_0.montant_total,
+        r1_0.nombre_adultes,
+        r1_0.nombre_enfants,
+        r1_0.nombre_nuits,
+        r1_0.notes,
+        r1_0.numero_reservation,
+        r1_0.prix_par_nuit,
+        r1_0.reference_externe,
+        r1_0.statut,
+        r1_0.statut_paiement,
+        r1_0.updated_at 
+    from
+        reservations r1_0 
+    where
+        r1_0.id=?
+2026-02-27 09:01:05 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        l1_0.commande_id,
+        l1_0.id,
+        l1_0.created_at,
+        l1_0.notes,
+        l1_0.prix_unitaire,
+        l1_0.produit_id,
+        l1_0.quantite,
+        l1_0.sous_total,
+        l1_0.updated_at 
+    from
+        lignes_commande_restaurant l1_0 
+    where
+        l1_0.commande_id=?
+2026-02-27 09:01:05 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.code,
+        p1_0.created_at,
+        p1_0.description,
+        p1_0.disponible,
+        p1_0.fournisseur_id,
+        p1_0.hotel_id,
+        p1_0.image_url,
+        p1_0.nom,
+        p1_0.prix_unitaire,
+        p1_0.quantite_stock,
+        p1_0.seuil_alerte,
+        p1_0.type_produit,
+        p1_0.unite,
+        p1_0.updated_at 
+    from
+        produits p1_0 
+    where
+        p1_0.id=?
+2026-02-27 09:01:05 [http-nio-8080-exec-1] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.code,
+        p1_0.created_at,
+        p1_0.description,
+        p1_0.disponible,
+        p1_0.fournisseur_id,
+        p1_0.hotel_id,
+        p1_0.image_url,
+        p1_0.nom,
+        p1_0.prix_unitaire,
+        p1_0.quantite_stock,
+        p1_0.seuil_alerte,
+        p1_0.type_produit,
+        p1_0.unite,
+        p1_0.updated_at 
+    from
+        produits p1_0 
+    where
+        p1_0.id=?
+2026-02-27 09:01:10 [http-nio-8080-exec-3] DEBUG org.hibernate.SQL - 
+    select
+        h1_0.id,
+        h1_0.active,
+        h1_0.address,
+        h1_0.created_at,
+        h1_0.email,
+        h1_0.logo_url,
+        h1_0.name,
+        h1_0.password,
+        h1_0.phone,
+        h1_0.subscription_end,
+        h1_0.tax_number,
+        h1_0.updated_at 
+    from
+        hotels h1_0 
+    where
+        h1_0.email=? 
+        and h1_0.active
+2026-02-27 09:01:10 [http-nio-8080-exec-3] ERROR c.m.exception.GlobalExceptionHandler - Erreur runtime: 
+java.lang.IllegalStateException: Optional long parameter 'id' is present but cannot be translated into a null value due to being declared as a primitive type. Consider declaring it as object wrapper for the corresponding primitive type.
+	at org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver.handleNullValue(AbstractNamedValueMethodArgumentResolver.java:271)
+	at org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver.resolveArgument(AbstractNamedValueMethodArgumentResolver.java:128)
+	at org.springframework.web.method.support.HandlerMethodArgumentResolverComposite.resolveArgument(HandlerMethodArgumentResolverComposite.java:122)
+	at org.springframework.web.method.support.InvocableHandlerMethod.getMethodArgumentValues(InvocableHandlerMethod.java:224)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:178)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:926)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:831)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at com.mghbackend.security.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:50)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:384)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-02-27 09:01:10 [http-nio-8080-exec-3] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [java.lang.IllegalStateException: Optional long parameter 'id' is present but cannot be translated into a null value due to being declared as a primitive type. Consider declaring it as object wrapper for the corresponding primitive type.]
+2026-02-27 09:01:11 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        h1_0.id,
+        h1_0.active,
+        h1_0.address,
+        h1_0.created_at,
+        h1_0.email,
+        h1_0.logo_url,
+        h1_0.name,
+        h1_0.password,
+        h1_0.phone,
+        h1_0.subscription_end,
+        h1_0.tax_number,
+        h1_0.updated_at 
+    from
+        hotels h1_0 
+    where
+        h1_0.email=? 
+        and h1_0.active
+2026-02-27 09:01:11 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        h1_0.id,
+        h1_0.active,
+        h1_0.address,
+        h1_0.created_at,
+        h1_0.email,
+        h1_0.logo_url,
+        h1_0.name,
+        h1_0.password,
+        h1_0.phone,
+        h1_0.subscription_end,
+        h1_0.tax_number,
+        h1_0.updated_at 
+    from
+        hotels h1_0 
+    where
+        h1_0.id=?
+2026-02-27 09:01:11 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        cr1_0.id,
+        cr1_0.client_id,
+        cr1_0.created_at,
+        cr1_0.date_commande,
+        cr1_0.date_service,
+        cr1_0.hotel_id,
+        cr1_0.montant_paye,
+        cr1_0.montant_total,
+        cr1_0.nom_client_externe,
+        cr1_0.notes,
+        cr1_0.numero_commande,
+        cr1_0.numero_table,
+        cr1_0.reservation_id,
+        cr1_0.user_id,
+        cr1_0.statut,
+        cr1_0.telephone_client_externe,
+        cr1_0.updated_at 
+    from
+        commandes_restaurant cr1_0 
+    where
+        cr1_0.hotel_id=?
+2026-02-27 09:01:11 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        l1_0.commande_id,
+        l1_0.id,
+        l1_0.created_at,
+        l1_0.notes,
+        l1_0.prix_unitaire,
+        l1_0.produit_id,
+        l1_0.quantite,
+        l1_0.sous_total,
+        l1_0.updated_at 
+    from
+        lignes_commande_restaurant l1_0 
+    where
+        l1_0.commande_id=?
+2026-02-27 09:01:11 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.code,
+        p1_0.created_at,
+        p1_0.description,
+        p1_0.disponible,
+        p1_0.fournisseur_id,
+        p1_0.hotel_id,
+        p1_0.image_url,
+        p1_0.nom,
+        p1_0.prix_unitaire,
+        p1_0.quantite_stock,
+        p1_0.seuil_alerte,
+        p1_0.type_produit,
+        p1_0.unite,
+        p1_0.updated_at 
+    from
+        produits p1_0 
+    where
+        p1_0.id=?
+2026-02-27 09:01:11 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.chambre_id,
+        r1_0.checkin_by,
+        r1_0.checkout_by,
+        r1_0.client_id,
+        r1_0.created_at,
+        r1_0.created_by,
+        r1_0.date_arrivee,
+        r1_0.date_checkin,
+        r1_0.date_checkout,
+        r1_0.date_depart,
+        r1_0.demandes_speciales,
+        r1_0.hotel_id,
+        r1_0.mode_paiement,
+        r1_0.montant_paye,
+        r1_0.montant_restant,
+        r1_0.montant_total,
+        r1_0.nombre_adultes,
+        r1_0.nombre_enfants,
+        r1_0.nombre_nuits,
+        r1_0.notes,
+        r1_0.numero_reservation,
+        r1_0.prix_par_nuit,
+        r1_0.reference_externe,
+        r1_0.statut,
+        r1_0.statut_paiement,
+        r1_0.updated_at 
+    from
+        reservations r1_0 
+    where
+        r1_0.id=?
+2026-02-27 09:01:11 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        l1_0.commande_id,
+        l1_0.id,
+        l1_0.created_at,
+        l1_0.notes,
+        l1_0.prix_unitaire,
+        l1_0.produit_id,
+        l1_0.quantite,
+        l1_0.sous_total,
+        l1_0.updated_at 
+    from
+        lignes_commande_restaurant l1_0 
+    where
+        l1_0.commande_id=?
+2026-02-27 09:01:11 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.code,
+        p1_0.created_at,
+        p1_0.description,
+        p1_0.disponible,
+        p1_0.fournisseur_id,
+        p1_0.hotel_id,
+        p1_0.image_url,
+        p1_0.nom,
+        p1_0.prix_unitaire,
+        p1_0.quantite_stock,
+        p1_0.seuil_alerte,
+        p1_0.type_produit,
+        p1_0.unite,
+        p1_0.updated_at 
+    from
+        produits p1_0 
+    where
+        p1_0.id=?
+2026-02-27 09:01:11 [http-nio-8080-exec-5] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.code,
+        p1_0.created_at,
+        p1_0.description,
+        p1_0.disponible,
+        p1_0.fournisseur_id,
+        p1_0.hotel_id,
+        p1_0.image_url,
+        p1_0.nom,
+        p1_0.prix_unitaire,
+        p1_0.quantite_stock,
+        p1_0.seuil_alerte,
+        p1_0.type_produit,
+        p1_0.unite,
+        p1_0.updated_at 
+    from
+        produits p1_0 
+    where
+        p1_0.id=?
+2026-02-27 09:01:31 [http-nio-8080-exec-8] DEBUG org.hibernate.SQL - 
+    select
+        h1_0.id,
+        h1_0.active,
+        h1_0.address,
+        h1_0.created_at,
+        h1_0.email,
+        h1_0.logo_url,
+        h1_0.name,
+        h1_0.password,
+        h1_0.phone,
+        h1_0.subscription_end,
+        h1_0.tax_number,
+        h1_0.updated_at 
+    from
+        hotels h1_0 
+    where
+        h1_0.email=? 
+        and h1_0.active
+2026-02-27 09:01:31 [http-nio-8080-exec-8] ERROR c.m.exception.GlobalExceptionHandler - Erreur runtime: 
+java.lang.IllegalStateException: Optional long parameter 'id' is present but cannot be translated into a null value due to being declared as a primitive type. Consider declaring it as object wrapper for the corresponding primitive type.
+	at org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver.handleNullValue(AbstractNamedValueMethodArgumentResolver.java:271)
+	at org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver.resolveArgument(AbstractNamedValueMethodArgumentResolver.java:128)
+	at org.springframework.web.method.support.HandlerMethodArgumentResolverComposite.resolveArgument(HandlerMethodArgumentResolverComposite.java:122)
+	at org.springframework.web.method.support.InvocableHandlerMethod.getMethodArgumentValues(InvocableHandlerMethod.java:224)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:178)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:926)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:831)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at com.mghbackend.security.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:50)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:384)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-02-27 09:01:31 [http-nio-8080-exec-8] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [java.lang.IllegalStateException: Optional long parameter 'id' is present but cannot be translated into a null value due to being declared as a primitive type. Consider declaring it as object wrapper for the corresponding primitive type.]
+2026-02-27 09:01:31 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        h1_0.id,
+        h1_0.active,
+        h1_0.address,
+        h1_0.created_at,
+        h1_0.email,
+        h1_0.logo_url,
+        h1_0.name,
+        h1_0.password,
+        h1_0.phone,
+        h1_0.subscription_end,
+        h1_0.tax_number,
+        h1_0.updated_at 
+    from
+        hotels h1_0 
+    where
+        h1_0.email=? 
+        and h1_0.active
+2026-02-27 09:01:31 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        h1_0.id,
+        h1_0.active,
+        h1_0.address,
+        h1_0.created_at,
+        h1_0.email,
+        h1_0.logo_url,
+        h1_0.name,
+        h1_0.password,
+        h1_0.phone,
+        h1_0.subscription_end,
+        h1_0.tax_number,
+        h1_0.updated_at 
+    from
+        hotels h1_0 
+    where
+        h1_0.id=?
+2026-02-27 09:01:31 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        cr1_0.id,
+        cr1_0.client_id,
+        cr1_0.created_at,
+        cr1_0.date_commande,
+        cr1_0.date_service,
+        cr1_0.hotel_id,
+        cr1_0.montant_paye,
+        cr1_0.montant_total,
+        cr1_0.nom_client_externe,
+        cr1_0.notes,
+        cr1_0.numero_commande,
+        cr1_0.numero_table,
+        cr1_0.reservation_id,
+        cr1_0.user_id,
+        cr1_0.statut,
+        cr1_0.telephone_client_externe,
+        cr1_0.updated_at 
+    from
+        commandes_restaurant cr1_0 
+    where
+        cr1_0.hotel_id=?
+2026-02-27 09:01:31 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        l1_0.commande_id,
+        l1_0.id,
+        l1_0.created_at,
+        l1_0.notes,
+        l1_0.prix_unitaire,
+        l1_0.produit_id,
+        l1_0.quantite,
+        l1_0.sous_total,
+        l1_0.updated_at 
+    from
+        lignes_commande_restaurant l1_0 
+    where
+        l1_0.commande_id=?
+2026-02-27 09:01:31 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.code,
+        p1_0.created_at,
+        p1_0.description,
+        p1_0.disponible,
+        p1_0.fournisseur_id,
+        p1_0.hotel_id,
+        p1_0.image_url,
+        p1_0.nom,
+        p1_0.prix_unitaire,
+        p1_0.quantite_stock,
+        p1_0.seuil_alerte,
+        p1_0.type_produit,
+        p1_0.unite,
+        p1_0.updated_at 
+    from
+        produits p1_0 
+    where
+        p1_0.id=?
+2026-02-27 09:01:31 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.chambre_id,
+        r1_0.checkin_by,
+        r1_0.checkout_by,
+        r1_0.client_id,
+        r1_0.created_at,
+        r1_0.created_by,
+        r1_0.date_arrivee,
+        r1_0.date_checkin,
+        r1_0.date_checkout,
+        r1_0.date_depart,
+        r1_0.demandes_speciales,
+        r1_0.hotel_id,
+        r1_0.mode_paiement,
+        r1_0.montant_paye,
+        r1_0.montant_restant,
+        r1_0.montant_total,
+        r1_0.nombre_adultes,
+        r1_0.nombre_enfants,
+        r1_0.nombre_nuits,
+        r1_0.notes,
+        r1_0.numero_reservation,
+        r1_0.prix_par_nuit,
+        r1_0.reference_externe,
+        r1_0.statut,
+        r1_0.statut_paiement,
+        r1_0.updated_at 
+    from
+        reservations r1_0 
+    where
+        r1_0.id=?
+2026-02-27 09:01:31 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        l1_0.commande_id,
+        l1_0.id,
+        l1_0.created_at,
+        l1_0.notes,
+        l1_0.prix_unitaire,
+        l1_0.produit_id,
+        l1_0.quantite,
+        l1_0.sous_total,
+        l1_0.updated_at 
+    from
+        lignes_commande_restaurant l1_0 
+    where
+        l1_0.commande_id=?
+2026-02-27 09:01:31 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.code,
+        p1_0.created_at,
+        p1_0.description,
+        p1_0.disponible,
+        p1_0.fournisseur_id,
+        p1_0.hotel_id,
+        p1_0.image_url,
+        p1_0.nom,
+        p1_0.prix_unitaire,
+        p1_0.quantite_stock,
+        p1_0.seuil_alerte,
+        p1_0.type_produit,
+        p1_0.unite,
+        p1_0.updated_at 
+    from
+        produits p1_0 
+    where
+        p1_0.id=?
+2026-02-27 09:01:31 [http-nio-8080-exec-10] DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.code,
+        p1_0.created_at,
+        p1_0.description,
+        p1_0.disponible,
+        p1_0.fournisseur_id,
+        p1_0.hotel_id,
+        p1_0.image_url,
+        p1_0.nom,
+        p1_0.prix_unitaire,
+        p1_0.quantite_stock,
+        p1_0.seuil_alerte,
+        p1_0.type_produit,
+        p1_0.unite,
+        p1_0.updated_at 
+    from
+        produits p1_0 
+    where
+        p1_0.id=?
+2026-02-27 09:03:02 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-27 09:03:02 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-02-27 09:03:02 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

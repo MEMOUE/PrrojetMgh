@@ -55,6 +55,13 @@ public class CommandeRestaurantController {
         }
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('HOTEL') or hasAnyAuthority('PERMISSION_VOIR_COMMANDES')")
+    public ResponseEntity<ApiResponse<CommandeRestaurantDto>> getCommande(long id) {
+        CommandeRestaurantDto commandeRestaurant = commandeService.getCommandeById(id);
+        return ResponseEntity.ok(ApiResponse.success(commandeRestaurant));
+    }
+
     @PutMapping("/{id}/statut")
     @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_MODIFIER_COMMANDE')")
     public ResponseEntity<ApiResponse<CommandeRestaurantDto>> updateStatut(

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -267,5 +268,11 @@ public class CommandeRestaurantService {
         dto.setCreatedAt(commande.getCreatedAt());
         dto.setUpdatedAt(commande.getUpdatedAt());
         return dto;
+    }
+
+    public CommandeRestaurantDto getCommandeById(Long id) {
+        CommandeRestaurant commandeRestaurant = commandeRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("Commande introuvable avec id: " + id));
+        return convertToDto(commandeRestaurant);
     }
 }
