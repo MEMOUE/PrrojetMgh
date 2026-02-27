@@ -55,11 +55,18 @@ public class CommandeRestaurantController {
         }
     }
 
+    // ✅ CORRIGÉ : @PathVariable Long (pas long sans annotation)
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('HOTEL') or hasAnyAuthority('PERMISSION_VOIR_COMMANDES')")
-    public ResponseEntity<ApiResponse<CommandeRestaurantDto>> getCommande(long id) {
-        CommandeRestaurantDto commandeRestaurant = commandeService.getCommandeById(id);
-        return ResponseEntity.ok(ApiResponse.success(commandeRestaurant));
+    public ResponseEntity<ApiResponse<CommandeRestaurantDto>> getCommande(
+            @PathVariable Long id) {
+        try {
+            CommandeRestaurantDto commande = commandeService.getCommandeById(id);
+            return ResponseEntity.ok(ApiResponse.success(commande));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
     }
 
     @PutMapping("/{id}/statut")
