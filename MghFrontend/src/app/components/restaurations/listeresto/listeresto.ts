@@ -119,7 +119,6 @@ export class Listeresto implements OnInit {
   applyFilters(): void {
     let filtered = [...this.commandes];
 
-    // Filtre par recherche
     if (this.searchValue.trim()) {
       const search = this.searchValue.toLowerCase().trim();
       filtered = filtered.filter(c =>
@@ -131,7 +130,6 @@ export class Listeresto implements OnInit {
       );
     }
 
-    // Filtre par statut
     if (this.selectedStatut) {
       filtered = filtered.filter(c => c.statut === this.selectedStatut);
     }
@@ -139,13 +137,8 @@ export class Listeresto implements OnInit {
     this.commandesFiltrees = filtered;
   }
 
-  onSearchChange(): void {
-    this.applyFilters();
-  }
-
-  onStatutChange(): void {
-    this.applyFilters();
-  }
+  onSearchChange(): void { this.applyFilters(); }
+  onStatutChange(): void { this.applyFilters(); }
 
   clearFilters(): void {
     this.searchValue = '';
@@ -172,21 +165,12 @@ export class Listeresto implements OnInit {
         this.restaurantService.updateStatut(commande.id!, nouveauStatut).subscribe({
           next: (response) => {
             if (response.success) {
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Succès',
-                detail: 'Statut mis à jour avec succès'
-              });
+              this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Statut mis à jour avec succès' });
               this.loadCommandes();
             }
           },
           error: (error) => {
-            console.error('Erreur lors de la mise à jour du statut:', error);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: error.error?.message || 'Impossible de mettre à jour le statut'
-            });
+            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: error.error?.message || 'Impossible de mettre à jour le statut' });
           }
         });
       }
@@ -203,9 +187,6 @@ export class Listeresto implements OnInit {
 
   ajouterPaiement(commande: CommandeRestaurant): void {
     const montantRestant = commande.montantTotal - (commande.montantPaye || 0);
-
-    // Vous pourriez ouvrir un dialog ici pour saisir le montant
-    // Pour l'instant, on paie le montant restant
     this.confirmationService.confirm({
       message: `Enregistrer un paiement de ${montantRestant.toLocaleString('fr-FR')} FCFA ?`,
       header: 'Paiement',
@@ -216,25 +197,220 @@ export class Listeresto implements OnInit {
         this.restaurantService.addPaiement(commande.id!, montantRestant).subscribe({
           next: (response) => {
             if (response.success) {
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Succès',
-                detail: 'Paiement enregistré avec succès'
-              });
+              this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Paiement enregistré avec succès' });
               this.loadCommandes();
             }
           },
           error: (error) => {
-            console.error('Erreur lors de l\'enregistrement du paiement:', error);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: error.error?.message || 'Impossible d\'enregistrer le paiement'
-            });
+            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: error.error?.message || 'Impossible d\'enregistrer le paiement' });
           }
         });
       }
     });
+  }
+
+  /**
+   * Génère et imprime le reçu d'une commande restaurant (100% frontend, sans appel backend)
+   */
+  imprimerRecu(commande: CommandeRestaurant): void {
+    const client = this.getClientDisplay(commande);
+    const dateCommande = commande.dateCommande
+      ? new Date(commande.dateCommande).toLocaleString('fr-FR')
+      : new Date().toLocaleString('fr-FR');
+    const montantPaye = commande.montantPaye || 0;
+    const montantRestant = this.getMontantRestant(commande);
+    const statut = this.getStatutLabel(commande.statut);
+
+    // Lignes de commande
+    const lignesHTML = (commande.lignes || []).map(ligne => `
+      <tr>
+        <td>${ligne.produitNom || 'Produit'}</td>
+        <td style="text-align:center">${ligne.quantite}</td>
+        <td style="text-align:right">${ligne.prixUnitaire.toLocaleString('fr-FR')} FCFA</td>
+        <td style="text-align:right">${(ligne.sousTotal ?? ligne.quantite * ligne.prixUnitaire).toLocaleString('fr-FR')} FCFA</td>
+      </tr>
+      ${ligne.notes ? `<tr><td colspan="4" style="font-size:11px;color:#666;padding-left:8px;padding-top:0">↳ ${ligne.notes}</td></tr>` : ''}
+    `).join('');
+
+    const html = `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Reçu Commande ${commande.numeroCommande || commande.id}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #111;
+      background: #fff;
+      padding: 20px;
+      max-width: 380px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 2px dashed #333;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+    .header h1 {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .header p { font-size: 12px; color: #444; margin-top: 2px; }
+    .section-title {
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 1px;
+      margin: 10px 0 4px;
+      color: #333;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px 8px;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    .info-grid span:first-child { color: #555; }
+    .info-grid span:last-child { font-weight: 600; text-align: right; }
+    .divider { border-top: 1px dashed #999; margin: 10px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    thead tr th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #333;
+      padding: 4px 2px;
+    }
+    thead tr th:last-child,
+    thead tr th:nth-child(2),
+    thead tr th:nth-child(3) { text-align: right; }
+    tbody tr td { padding: 5px 2px; vertical-align: top; }
+    .totals {
+      margin-top: 10px;
+      border-top: 2px solid #333;
+      padding-top: 8px;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+      font-size: 12px;
+    }
+    .totals-row.total-final {
+      font-size: 16px;
+      font-weight: 900;
+      border-top: 1px dashed #333;
+      margin-top: 6px;
+      padding-top: 6px;
+    }
+    .totals-row.restant { color: #c0392b; font-weight: 700; }
+    .totals-row.paye { color: #27ae60; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid currentColor;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      padding-top: 10px;
+      border-top: 2px dashed #333;
+      font-size: 11px;
+      color: #555;
+    }
+    .footer strong { display: block; font-size: 13px; color: #111; margin-bottom: 4px; }
+    @media print {
+      body { padding: 5px; max-width: 100%; }
+      @page { margin: 10mm; size: 80mm auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🍽 Restaurant</h1>
+    <p>REÇU DE COMMANDE</p>
+    <p style="margin-top:6px;font-size:13px;font-weight:700">${commande.numeroCommande || '#' + commande.id}</p>
+  </div>
+
+  <div class="section-title">Informations</div>
+  <div class="info-grid">
+    <span>Client</span><span>${client}</span>
+    ${commande.numeroTable ? `<span>Table</span><span>${commande.numeroTable}</span>` : ''}
+    ${commande.serveurNom ? `<span>Serveur</span><span>${commande.serveurNom}</span>` : ''}
+    <span>Date</span><span>${dateCommande}</span>
+    <span>Statut</span><span>${statut}</span>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-title">Détail de la commande</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align:left">Article</th>
+        <th style="text-align:center">Qté</th>
+        <th style="text-align:right">P.U.</th>
+        <th style="text-align:right">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${lignesHTML}
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <div class="totals-row total-final">
+      <span>TOTAL</span>
+      <span>${commande.montantTotal.toLocaleString('fr-FR')} FCFA</span>
+    </div>
+    <div class="totals-row paye">
+      <span>Montant payé</span>
+      <span>${montantPaye.toLocaleString('fr-FR')} FCFA</span>
+    </div>
+    ${montantRestant > 0 ? `
+    <div class="totals-row restant">
+      <span>Reste à payer</span>
+      <span>${montantRestant.toLocaleString('fr-FR')} FCFA</span>
+    </div>` : `
+    <div class="totals-row paye">
+      <span>✓ Entièrement payé</span>
+      <span></span>
+    </div>`}
+  </div>
+
+  <div class="footer">
+    <strong>Merci de votre commande !</strong>
+    <p>Imprimé le ${new Date().toLocaleString('fr-FR')}</p>
+  </div>
+
+  <script>
+    window.onload = function() {
+      window.print();
+      setTimeout(function() { window.close(); }, 1000);
+    };
+  </script>
+</body>
+</html>`;
+
+    const fenetre = window.open('', '_blank', 'width=500,height=700');
+    if (fenetre) {
+      fenetre.document.write(html);
+      fenetre.document.close();
+    }
   }
 
   getStatutLabel(statut: StatutCommandeRestaurant): string {
@@ -246,15 +422,9 @@ export class Listeresto implements OnInit {
   }
 
   getClientDisplay(commande: CommandeRestaurant): string {
-    if (commande.clientNom) {
-      return commande.clientNom;
-    }
-    if (commande.nomClientExterne) {
-      return commande.nomClientExterne;
-    }
-    if (commande.reservationNumero) {
-      return `Réservation ${commande.reservationNumero}`;
-    }
+    if (commande.clientNom) return commande.clientNom;
+    if (commande.nomClientExterne) return commande.nomClientExterne;
+    if (commande.reservationNumero) return `Réservation ${commande.reservationNumero}`;
     return 'Client non spécifié';
   }
 

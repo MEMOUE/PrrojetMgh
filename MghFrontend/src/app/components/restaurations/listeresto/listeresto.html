@@ -48,27 +48,27 @@
   <!-- Barre d'outils -->
   <p-toolbar styleClass="mb-4">
     <ng-template pTemplate="left">
-      <button 
-        pButton 
-        label="Nouvelle Commande" 
-        icon="pi pi-plus" 
+      <button
+        pButton
+        label="Nouvelle Commande"
+        icon="pi pi-plus"
         class="p-button-success mr-2"
         (click)="nouvelleCommande()">
       </button>
-      <button 
-        pButton 
-        label="Actualiser" 
-        icon="pi pi-refresh" 
+      <button
+        pButton
+        label="Actualiser"
+        icon="pi pi-refresh"
         class="p-button-secondary"
         (click)="loadCommandes()">
       </button>
     </ng-template>
 
     <ng-template pTemplate="right">
-      <button 
-        pButton 
-        label="Effacer filtres" 
-        icon="pi pi-filter-slash" 
+      <button
+        pButton
+        label="Effacer filtres"
+        icon="pi pi-filter-slash"
         class="p-button-outlined"
         (click)="clearFilters()"
         [disabled]="!searchValue && !selectedStatut">
@@ -81,13 +81,13 @@
     <div class="filters-grid">
       <div class="filter-field">
         <label for="search">Rechercher</label>
-        <input 
-          pInputText 
+        <input
+          pInputText
           id="search"
-          type="text" 
+          type="text"
           [(ngModel)]="searchValue"
           (input)="onSearchChange()"
-          placeholder="N° commande, client, table, serveur..." 
+          placeholder="N° commande, client, table, serveur..."
           class="w-full">
       </div>
 
@@ -109,17 +109,17 @@
 
   <!-- Table des commandes -->
   <p-card>
-    <p-table 
-      [value]="commandesFiltrees" 
+    <p-table
+      [value]="commandesFiltrees"
       [loading]="loading"
-      [paginator]="true" 
-      [rows]="10" 
+      [paginator]="true"
+      [rows]="10"
       [rowsPerPageOptions]="[10, 20, 50]"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} commandes"
       [globalFilterFields]="['numeroCommande', 'clientNom', 'nomClientExterne', 'numeroTable']"
       styleClass="p-datatable-striped">
-      
+
       <ng-template pTemplate="header">
         <tr>
           <th pSortableColumn="numeroCommande">
@@ -140,7 +140,7 @@
           <th pSortableColumn="dateCommande">
             Date <p-sortIcon field="dateCommande"></p-sortIcon>
           </th>
-          <th style="width: 200px">Actions</th>
+          <th style="width: 220px">Actions</th>
         </tr>
       </ng-template>
 
@@ -173,8 +173,8 @@
             </div>
           </td>
           <td>
-            <p-tag 
-              [value]="getStatutLabel(commande.statut)" 
+            <p-tag
+              [value]="getStatutLabel(commande.statut)"
               [severity]="getStatutSeverity(commande.statut)">
             </p-tag>
           </td>
@@ -183,35 +183,44 @@
           </td>
           <td>
             <div class="action-buttons">
-              <button 
-                pButton 
-                icon="pi pi-eye" 
+              <button
+                pButton
+                icon="pi pi-eye"
                 class="p-button-text p-button-sm"
                 pTooltip="Voir détails"
                 (click)="viewCommande(commande)">
               </button>
-              
-              <button 
-                pButton 
-                icon="pi pi-check" 
+
+              <!-- ✅ Bouton Imprimer le reçu -->
+              <button
+                pButton
+                icon="pi pi-print"
+                class="p-button-text p-button-info p-button-sm"
+                pTooltip="Imprimer le reçu"
+                (click)="imprimerRecu(commande)">
+              </button>
+
+              <button
+                pButton
+                icon="pi pi-check"
                 class="p-button-text p-button-success p-button-sm"
                 pTooltip="Marquer comme servie"
                 *ngIf="canMarquerServie(commande)"
                 (click)="marquerCommeServie(commande)">
               </button>
-              
-              <button 
-                pButton 
-                icon="pi pi-money-bill" 
+
+              <button
+                pButton
+                icon="pi pi-money-bill"
                 class="p-button-text p-button-help p-button-sm"
                 pTooltip="Ajouter paiement"
                 *ngIf="canAjouterPaiement(commande)"
                 (click)="ajouterPaiement(commande)">
               </button>
-              
-              <button 
-                pButton 
-                icon="pi pi-check-circle" 
+
+              <button
+                pButton
+                icon="pi pi-check-circle"
                 class="p-button-text p-button-success p-button-sm"
                 pTooltip="Marquer comme payée"
                 *ngIf="canMarquerPayee(commande)"
