@@ -28,7 +28,8 @@ public class CommandeRestaurantService {
     private final HotelRepository hotelRepository;
     private final UserRepository userRepository;
     private final LigneCommandeRepository ligneCommandeRepository;
-    private final ProduitService produitService;              // ← pour décrémenter le stock
+    private final ProduitService produitService;
+    private final TransactionHelper transactionHelper;// ← pour décrémenter le stock
 
     // ─────────────────────────────────────────────────────────────
     // Création d'une commande + décrémentation automatique du stock
@@ -163,7 +164,21 @@ public class CommandeRestaurantService {
             }
         }
 
-        return convertToDto(commandeRepository.save(commande));
+        CommandeRestaurant saved = commandeRepository.save(commande);
+        if (statut == StatutCommandeRestaurant.PAYEE) {
+            BigDecimal resteAPayer = commande.getMontantTotal()
+                    .subtract(commande.getMontantPaye() != null ?
+                            commande.getMontantPaye() : BigDecimal.ZERO);
+            if (resteAPayer.compareTo(BigDecimal.ZERO) > 0) {
+                transactionHelper.enregistrerPaiementRestaurant(
+                        commande.getHotel().getId(),
+                        commande.getId(),
+                        commande.getNumeroCommande(),
+                        resteAPayer
+                );
+            }
+        }
+        return convertToDto(saved);
     }
 
     public CommandeRestaurantDto addPaiement(Long commandeId, BigDecimal montant) {
@@ -177,7 +192,15 @@ public class CommandeRestaurantService {
             commande.setStatut(StatutCommandeRestaurant.PAYEE);
         }
 
-        return convertToDto(commandeRepository.save(commande));
+        CommandeRestaurant saved = commandeRepository.save(commande);
+        transactionHelper.enregistrerPaiementRestaurant(
+                commande.getHotel().getId(),
+                commande.getId(),
+                commande.getNumeroCommande(),
+                montant
+        );
+        return convertToDto(saved);
+
     }
 
     // ─────────────────────────────────────────────────────────────

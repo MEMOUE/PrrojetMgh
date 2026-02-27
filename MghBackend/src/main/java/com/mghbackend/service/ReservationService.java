@@ -28,6 +28,7 @@ public class ReservationService {
     private final HotelRepository hotelRepository;
     private final UserRepository userRepository;
     private final ClientService clientService;
+    private final TransactionHelper transactionHelper;
 
     public ReservationDto createReservation(Long hotelId, CreateReservationRequest request, Long userId) {
         Hotel hotel = hotelRepository.findById(hotelId)
@@ -126,7 +127,22 @@ public class ReservationService {
         chambreRepository.save(chambre);
 
         Reservation savedReservation = reservationRepository.save(reservation);
+        if (request.getMontantPaye() != null &&
+                request.getMontantPaye().compareTo(BigDecimal.ZERO) > 0) {
+
+            transactionHelper.enregistrerPaiementReservation(
+                    hotelId,
+                    savedReservation.getId(),
+                    savedReservation.getNumeroReservation(),
+                    client.getNom() + " " + client.getPrenom(),
+                    request.getMontantPaye(),
+                    request.getModePaiement()
+            );
+        }
         return convertToDto(savedReservation);
+
+
+
     }
 
     @Transactional(readOnly = true)
@@ -343,6 +359,14 @@ public class ReservationService {
         }
 
         Reservation updatedReservation = reservationRepository.save(reservation);
+        transactionHelper.enregistrerPaiementReservation(
+                reservation.getHotel().getId(),
+                reservation.getId(),
+                reservation.getNumeroReservation(),
+                reservation.getClient().getNom() + " " + reservation.getClient().getPrenom(),
+                montant,
+                modePaiement
+        );
         return convertToDto(updatedReservation);
     }
 
