@@ -23,8 +23,10 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 // Services et Models
 import { ReservationService } from '../../../services/reservation.service';
 import { ChambreService } from '../../../services/chambre.service';
+import { ClientService } from '../../../services/client.service';
 import { CreateReservationRequest, Client, ModePaiement } from '../../../models/reservation.model';
 import { Chambre, TYPE_CHAMBRE_LABELS } from '../../../models/hotel.model';
+import { Client as ClientModel } from '../../../models/client.model';
 
 @Component({
   selector: 'app-creatrservation',
@@ -53,7 +55,6 @@ import { Chambre, TYPE_CHAMBRE_LABELS } from '../../../models/hotel.model';
   styleUrl: './creatrservation.css'
 })
 export class Creatrservation implements OnInit {
-  // Exposition de TYPE_CHAMBRE_LABELS pour le template
   readonly TYPE_CHAMBRE_LABELS = TYPE_CHAMBRE_LABELS;
 
   // État du wizard
@@ -71,6 +72,10 @@ export class Creatrservation implements OnInit {
   chambresDisponibles: Chambre[] = [];
   selectedChambre?: Chambre;
   clientType: 'nouveau' | 'existant' = 'nouveau';
+
+  // ✅ NOUVEAU : liste des clients existants pour le Select
+  clientsExistants: { label: string; value: number; telephone: string }[] = [];
+  clientsLoading: boolean = false;
 
   // Options pour les dropdowns
   typePieceOptions = [
@@ -91,7 +96,6 @@ export class Creatrservation implements OnInit {
     { label: '📱 Moov Money', value: 'MOOV_MONEY' }
   ];
 
-  // Items pour le stepper
   items = [
     { label: 'Dates & Chambre' },
     { label: 'Informations Client' },
@@ -107,6 +111,7 @@ export class Creatrservation implements OnInit {
     private fb: FormBuilder,
     private reservationService: ReservationService,
     private chambreService: ChambreService,
+    private clientService: ClientService,        // ✅ NOUVEAU
     private messageService: MessageService,
     private router: Router,
     private route: ActivatedRoute
@@ -184,6 +189,7 @@ export class Creatrservation implements OnInit {
         if (response.success && response.data) {
           const reservation = response.data;
 
+          // ✅ Pré-remplir les dates et la chambre
           this.datesForm.patchValue({
             chambreId: reservation.chambreId,
             dateArrivee: new Date(reservation.dateArrivee),
@@ -192,18 +198,32 @@ export class Creatrservation implements OnInit {
             nombreEnfants: reservation.nombreEnfants
           });
 
+          // ✅ Calculer les nuits et montant
+          this.nombreNuits = reservation.nombreNuits ?? 0;
+          this.montantTotal = reservation.montantTotal ?? 0;
+
+          // ✅ Pré-remplir les infos client (mode existant)
           this.clientType = 'existant';
-          this.clientForm.patchValue({
-            clientId: reservation.clientId
+          this.loadClients(() => {
+            this.clientForm.patchValue({ clientId: reservation.clientId });
+          });
+          this.onClientTypeChange('existant');
+
+          // ✅ Pré-remplir le paiement et les notes
+          this.paiementForm.patchValue({
+            demandesSpeciales: reservation.demandesSpeciales,
+            referenceExterne: reservation.referenceExterne,
+            montantPaye: reservation.montantPaye ?? 0,
+            modePaiement: reservation.modePaiement ?? null
           });
 
-          this.paiementForm.patchValue({
-            demandesSpeciales: reservation.demandesSpeciales
-          });
+          // ✅ En mode édition, aller directement à l'étape 2 (Paiement & Notes)
+          // car les dates/chambre ne sont pas modifiables selon le backend
+          this.activeIndex = 2;
         }
         this.loading = false;
       },
-      error: (error) => {
+      error: () => {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur de chargement',
@@ -211,6 +231,33 @@ export class Creatrservation implements OnInit {
         });
         this.loading = false;
         this.router.navigate(['/reservation']);
+      }
+    });
+  }
+
+  // ✅ NOUVEAU : Charger les clients existants depuis l'API
+  loadClients(callback?: () => void): void {
+    this.clientsLoading = true;
+    this.clientService.getClients().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.clientsExistants = response.data.map((c: ClientModel) => ({
+            label: `${c.prenom} ${c.nom} — ${c.telephone}`,
+            value: c.id!,
+            telephone: c.telephone
+          }));
+        }
+        this.clientsLoading = false;
+        callback?.();
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Attention',
+          detail: 'Impossible de charger la liste des clients'
+        });
+        this.clientsLoading = false;
+        callback?.();
       }
     });
   }
@@ -237,17 +284,12 @@ export class Creatrservation implements OnInit {
 
   private loadChambresDisponibles(dateArrivee: Date, dateDepart: Date): void {
     this.loading = true;
-
     const dateArriveeStr = this.formatDateForAPI(dateArrivee);
     const dateDepartStr = this.formatDateForAPI(dateDepart);
 
-    this.chambreService.getChambresDisponibles(
-      dateArriveeStr,
-      dateDepartStr
-    ).subscribe({
+    this.chambreService.getChambresDisponibles(dateArriveeStr, dateDepartStr).subscribe({
       next: (chambres) => {
         this.chambresDisponibles = chambres;
-
         if (this.chambresDisponibles.length === 0) {
           this.messageService.add({
             severity: 'info',
@@ -257,7 +299,7 @@ export class Creatrservation implements OnInit {
         }
         this.loading = false;
       },
-      error: (error) => {
+      error: () => {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
@@ -285,7 +327,6 @@ export class Creatrservation implements OnInit {
   private calculateNombreNuits(): void {
     const dateArrivee = this.datesForm.get('dateArrivee')?.value;
     const dateDepart = this.datesForm.get('dateDepart')?.value;
-
     if (dateArrivee && dateDepart) {
       const diff = dateDepart.getTime() - dateArrivee.getTime();
       this.nombreNuits = Math.ceil(diff / (1000 * 3600 * 24));
@@ -300,8 +341,16 @@ export class Creatrservation implements OnInit {
   }
 
   nextStep(): void {
-    const currentForm = this.getCurrentForm();
+    // ✅ En mode édition, le wizard commence à l'étape 2
+    // Pas de validation de dates/chambre requise
+    if (this.isEditMode) {
+      if (this.activeIndex < 3) {
+        this.activeIndex++;
+      }
+      return;
+    }
 
+    const currentForm = this.getCurrentForm();
     if (currentForm.valid) {
       if (this.activeIndex === 0 && !this.selectedChambre) {
         this.messageService.add({
@@ -311,7 +360,6 @@ export class Creatrservation implements OnInit {
         });
         return;
       }
-
       this.activeIndex++;
     } else {
       this.markFormGroupTouched(currentForm);
@@ -325,6 +373,8 @@ export class Creatrservation implements OnInit {
 
   prevStep(): void {
     if (this.activeIndex > 0) {
+      // ✅ En mode édition, ne pas remonter avant l'étape 2
+      if (this.isEditMode && this.activeIndex <= 2) return;
       this.activeIndex--;
     }
   }
@@ -350,19 +400,15 @@ export class Creatrservation implements OnInit {
     this.clientType = type;
 
     if (type === 'existant') {
+      // ✅ Charger les clients si pas encore fait
+      if (this.clientsExistants.length === 0) {
+        this.loadClients();
+      }
+
       this.clientForm.patchValue({
-        prenom: '',
-        nom: '',
-        telephone: '',
-        email: '',
-        typePiece: '',
-        pieceIdentite: '',
-        dateNaissance: null,
-        nationalite: '',
-        adresse: '',
-        ville: '',
-        pays: '',
-        notes: ''
+        prenom: '', nom: '', telephone: '', email: '',
+        typePiece: '', pieceIdentite: '', dateNaissance: null,
+        nationalite: '', adresse: '', ville: '', pays: '', notes: ''
       });
 
       Object.keys(this.clientForm.controls).forEach(key => {
@@ -393,7 +439,16 @@ export class Creatrservation implements OnInit {
     }
   }
 
+  // ✅ MODIFIÉ : confirmerReservation gère création ET modification
   confirmerReservation(): void {
+    if (this.isEditMode) {
+      this.updateReservation();
+      return;
+    }
+    this.createReservation();
+  }
+
+  private createReservation(): void {
     if (!this.datesForm.valid || !this.clientForm.valid) {
       this.messageService.add({
         severity: 'error',
@@ -426,7 +481,6 @@ export class Creatrservation implements OnInit {
         this.loading = false;
         return;
       }
-
       (request as any).montantPaye = this.paiementForm.value.montantPaye;
       (request as any).modePaiement = this.paiementForm.value.modePaiement;
     }
@@ -462,10 +516,7 @@ export class Creatrservation implements OnInit {
             summary: 'Réservation créée',
             detail: `Réservation N° ${response.data.numeroReservation} créée avec succès`
           });
-
-          setTimeout(() => {
-            this.router.navigate(['/reservation']);
-          }, 1500);
+          setTimeout(() => this.router.navigate(['/reservation']), 1500);
         }
       },
       error: (error) => {
@@ -473,7 +524,43 @@ export class Creatrservation implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: error.message || 'Une erreur est survenue lors de la création de la réservation'
+          detail: error.message || 'Une erreur est survenue lors de la création'
+        });
+      }
+    });
+  }
+
+  // ✅ NOUVEAU : méthode dédiée à la modification
+  private updateReservation(): void {
+    if (!this.reservationId) return;
+    this.loading = true;
+
+    const updateData: any = {
+      nombreAdultes: this.datesForm.value.nombreAdultes,
+      nombreEnfants: this.datesForm.value.nombreEnfants || 0,
+      notes: this.clientForm.value.notes,
+      demandesSpeciales: this.paiementForm.value.demandesSpeciales,
+      referenceExterne: this.paiementForm.value.referenceExterne
+    };
+
+    this.reservationService.updateReservation(this.reservationId, updateData).subscribe({
+      next: (response) => {
+        this.loading = false;
+        if (response.success) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Réservation modifiée',
+            detail: 'La réservation a été mise à jour avec succès'
+          });
+          setTimeout(() => this.router.navigate(['/reservation/detail', this.reservationId]), 1500);
+        }
+      },
+      error: (error) => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: error.message || 'Une erreur est survenue lors de la modification'
         });
       }
     });
@@ -486,100 +573,54 @@ export class Creatrservation implements OnInit {
   }
 
   // ============================================================================
-  // MÉTHODES HELPER POUR LE TEMPLATE
-  // Ces méthodes aident à gérer les conversions de type et le formatage
+  // MÉTHODES HELPER
   // ============================================================================
 
-  /**
-   * Obtient le label formaté d'un type de chambre de manière type-safe
-   * Résout le problème d'indexation stricte de TypeScript
-   *
-   * Explication du problème :
-   * TYPE_CHAMBRE_LABELS est typé comme Record<TypeChambre, string>
-   * Mais chambre.type vient de l'API comme un simple string
-   * TypeScript refuse d'utiliser un string pour indexer un Record strict
-   *
-   * Solution :
-   * On fait une assertion de type avec 'as keyof typeof'
-   * Cela dit à TypeScript : "Je garantis que ce string est une clé valide"
-   * Le '|| type' fournit une valeur de secours si le type n'est pas trouvé
-   */
   getTypeLabel(type: string): string {
     return this.TYPE_CHAMBRE_LABELS[type as keyof typeof TYPE_CHAMBRE_LABELS] || type;
   }
 
-  /**
-   * Retourne le montant restant à payer
-   * Utilisé pour afficher le solde et déterminer le statut du paiement
-   */
   get montantRestant(): number {
     const montantPaye = this.paiementForm.value.montantPaye || 0;
     return Math.max(0, this.montantTotal - montantPaye);
   }
 
-  /**
-   * Formate le montant total en FCFA avec séparateurs de milliers
-   */
   get formattedMontantTotal(): string {
     return this.montantTotal.toLocaleString('fr-FR') + ' FCFA';
   }
 
-  /**
-   * Formate le montant payé en FCFA
-   */
   get formattedMontantPaye(): string {
     const montant = this.paiementForm.value.montantPaye || 0;
     return montant.toLocaleString('fr-FR') + ' FCFA';
   }
 
-  /**
-   * Formate le montant restant en FCFA
-   */
   get formattedMontantRestant(): string {
     return this.montantRestant.toLocaleString('fr-FR') + ' FCFA';
   }
 
-  /**
-   * Retourne le label complet pour une chambre dans le sélecteur
-   * Utilise getTypeLabel pour gérer le type de manière sécurisée
-   */
   getChambreLabel(chambre: Chambre): string {
     const typeLabel = this.getTypeLabel(chambre.type);
     return `Chambre ${chambre.numero} - ${typeLabel} (${chambre.prixParNuit.toLocaleString('fr-FR')} FCFA/nuit)`;
   }
 
-  /**
-   * Détermine la sévérité du tag de paiement selon le montant restant
-   * PrimeNG 20 utilise 'warn' et non 'warning'
-   */
   getPaymentSeverity(): 'success' | 'warn' | 'danger' {
     if (this.montantRestant === 0) return 'success';
     if (this.montantRestant === this.montantTotal) return 'danger';
     return 'warn';
   }
 
-  /**
-   * Retourne le label approprié pour le statut de paiement
-   */
   getPaymentLabel(): string {
     if (this.montantRestant === 0) return 'Payé intégralement';
     if (this.montantRestant === this.montantTotal) return 'Non payé';
     return 'Acompte versé';
   }
 
-  /**
-   * Retourne le prix formaté de la chambre sélectionnée
-   * Gère le cas où selectedChambre pourrait être undefined
-   */
   getChambrePrixFormate(): string {
     return this.selectedChambre
       ? this.selectedChambre.prixParNuit.toLocaleString('fr-FR') + ' FCFA'
       : '0 FCFA';
   }
 
-  /**
-   * Vérifie si le formulaire actuel contient des erreurs
-   */
   hasErrors(): boolean {
     const form = this.getCurrentForm();
     return form.invalid && form.touched;

@@ -382,4 +382,14 @@ export class DetailReservation implements OnInit {
     return this.reservation?.statut !== StatutReservation.ANNULEE &&
            this.reservation?.statutPaiement !== StatutPaiement.PAYE;
   }
+
+  editReservation(): void {
+    if (!this.reservation?.id) return;
+    this.router.navigate(['/reservation/', this.reservation.id, 'edit']);
+  }
+
+  canEdit(): boolean {
+    return this.reservation?.statut !== StatutReservation.ANNULEE &&
+      this.reservation?.statut !== StatutReservation.TERMINEE;
+  }
 }

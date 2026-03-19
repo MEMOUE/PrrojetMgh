@@ -15,6 +15,13 @@
     <ng-template pTemplate="right">
       <div class="flex gap-2">
         <p-button
+          *ngIf="canEdit()"
+          label="Modifier"
+          icon="pi pi-pencil"
+          severity="secondary"
+          (onClick)="editReservation()">
+        </p-button>
+        <p-button
           *ngIf="canCheckin()"
           label="Check-in"
           icon="pi pi-sign-in"
