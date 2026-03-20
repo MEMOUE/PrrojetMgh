@@ -2,6 +2,7 @@ package com.mghbackend.controller;
 
 import com.mghbackend.dto.reponse.ApiResponse;
 import com.mghbackend.dto.request.CreateReservationRequest;
+import com.mghbackend.dto.request.UpdateReservationRequest;
 import com.mghbackend.dto.ReservationDto;
 import com.mghbackend.enums.StatutReservation;
 import com.mghbackend.security.CustomUserPrincipal;
@@ -25,6 +26,8 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
+    // ─── Création ─────────────────────────────────────────────────────────────
+
     @PostMapping
     @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_CREER_RESERVATION')")
     public ResponseEntity<ApiResponse<ReservationDto>> createReservation(
@@ -32,27 +35,24 @@ public class ReservationController {
             @AuthenticationPrincipal CustomUserPrincipal principal) {
         try {
             ReservationDto reservation = reservationService.createReservation(
-                    principal.getHotelId(),
-                    request,
-                    principal.getAccountType().equals("USER") ? principal.getId() : null
-            );
+                    principal.getHotelId(), request,
+                    principal.getAccountType().equals("USER") ? principal.getId() : null);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(ApiResponse.success("Réservation créée avec succès", reservation));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
+
+    // ─── Lecture ──────────────────────────────────────────────────────────────
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_VOIR_RESERVATIONS')")
     public ResponseEntity<ApiResponse<ReservationDto>> getReservation(@PathVariable Long id) {
         try {
-            ReservationDto reservation = reservationService.getReservationById(id);
-            return ResponseEntity.ok(ApiResponse.success(reservation));
+            return ResponseEntity.ok(ApiResponse.success(reservationService.getReservationById(id)));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -60,11 +60,9 @@ public class ReservationController {
     @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_VOIR_RESERVATIONS')")
     public ResponseEntity<ApiResponse<ReservationDto>> getReservationByNumero(@PathVariable String numero) {
         try {
-            ReservationDto reservation = reservationService.getReservationByNumero(numero);
-            return ResponseEntity.ok(ApiResponse.success(reservation));
+            return ResponseEntity.ok(ApiResponse.success(reservationService.getReservationByNumero(numero)));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -73,11 +71,10 @@ public class ReservationController {
     public ResponseEntity<ApiResponse<List<ReservationDto>>> getReservations(
             @AuthenticationPrincipal CustomUserPrincipal principal) {
         try {
-            List<ReservationDto> reservations = reservationService.getReservationsByHotel(principal.getHotelId());
-            return ResponseEntity.ok(ApiResponse.success(reservations));
+            return ResponseEntity.ok(ApiResponse.success(
+                    reservationService.getReservationsByHotel(principal.getHotelId())));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -87,26 +84,22 @@ public class ReservationController {
             @PathVariable StatutReservation statut,
             @AuthenticationPrincipal CustomUserPrincipal principal) {
         try {
-            List<ReservationDto> reservations = reservationService.getReservationsByHotelAndStatut(
-                    principal.getHotelId(),
-                    statut
-            );
-            return ResponseEntity.ok(ApiResponse.success(reservations));
+            return ResponseEntity.ok(ApiResponse.success(
+                    reservationService.getReservationsByHotelAndStatut(principal.getHotelId(), statut)));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
     @GetMapping("/client/{clientId}")
     @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_VOIR_RESERVATIONS')")
-    public ResponseEntity<ApiResponse<List<ReservationDto>>> getReservationsByClient(@PathVariable Long clientId) {
+    public ResponseEntity<ApiResponse<List<ReservationDto>>> getReservationsByClient(
+            @PathVariable Long clientId) {
         try {
-            List<ReservationDto> reservations = reservationService.getReservationsByClient(clientId);
-            return ResponseEntity.ok(ApiResponse.success(reservations));
+            return ResponseEntity.ok(ApiResponse.success(
+                    reservationService.getReservationsByClient(clientId)));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -115,11 +108,10 @@ public class ReservationController {
     public ResponseEntity<ApiResponse<List<ReservationDto>>> getArriveesAujourdhui(
             @AuthenticationPrincipal CustomUserPrincipal principal) {
         try {
-            List<ReservationDto> reservations = reservationService.getArrivalsForToday(principal.getHotelId());
-            return ResponseEntity.ok(ApiResponse.success(reservations));
+            return ResponseEntity.ok(ApiResponse.success(
+                    reservationService.getArrivalsForToday(principal.getHotelId())));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -128,11 +120,10 @@ public class ReservationController {
     public ResponseEntity<ApiResponse<List<ReservationDto>>> getDepartsAujourdhui(
             @AuthenticationPrincipal CustomUserPrincipal principal) {
         try {
-            List<ReservationDto> reservations = reservationService.getDeparturesForToday(principal.getHotelId());
-            return ResponseEntity.ok(ApiResponse.success(reservations));
+            return ResponseEntity.ok(ApiResponse.success(
+                    reservationService.getDeparturesForToday(principal.getHotelId())));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -141,11 +132,10 @@ public class ReservationController {
     public ResponseEntity<ApiResponse<List<ReservationDto>>> getReservationsEnCours(
             @AuthenticationPrincipal CustomUserPrincipal principal) {
         try {
-            List<ReservationDto> reservations = reservationService.getReservationsEnCours(principal.getHotelId());
-            return ResponseEntity.ok(ApiResponse.success(reservations));
+            return ResponseEntity.ok(ApiResponse.success(
+                    reservationService.getReservationsEnCours(principal.getHotelId())));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -154,11 +144,10 @@ public class ReservationController {
     public ResponseEntity<ApiResponse<List<ReservationDto>>> getReservationsAVenir(
             @AuthenticationPrincipal CustomUserPrincipal principal) {
         try {
-            List<ReservationDto> reservations = reservationService.getReservationsAVenir(principal.getHotelId());
-            return ResponseEntity.ok(ApiResponse.success(reservations));
+            return ResponseEntity.ok(ApiResponse.success(
+                    reservationService.getReservationsAVenir(principal.getHotelId())));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -168,30 +157,35 @@ public class ReservationController {
             @RequestParam String keyword,
             @AuthenticationPrincipal CustomUserPrincipal principal) {
         try {
-            List<ReservationDto> reservations = reservationService.searchReservations(
-                    principal.getHotelId(),
-                    keyword
-            );
-            return ResponseEntity.ok(ApiResponse.success(reservations));
+            return ResponseEntity.ok(ApiResponse.success(
+                    reservationService.searchReservations(principal.getHotelId(), keyword)));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
-    @PutMapping("/{id}")
+    // ─── ✅ NOUVEAU : Modification complète (dates, voyageurs, notes) ──────────
+
+    /**
+     * Modifie une réservation existante : dates (prolongation/réduction), voyageurs, notes.
+     * Le backend vérifie la disponibilité de la chambre pour les nouvelles dates
+     * en excluant la réservation courante du check de conflit.
+     */
+    @PutMapping("/{id}/modifier")
     @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_MODIFIER_RESERVATION')")
-    public ResponseEntity<ApiResponse<ReservationDto>> updateReservation(
+    public ResponseEntity<ApiResponse<ReservationDto>> modifierReservation(
             @PathVariable Long id,
-            @Valid @RequestBody ReservationDto reservationDto) {
+            @Valid @RequestBody UpdateReservationRequest request) {
         try {
-            ReservationDto reservation = reservationService.updateReservation(id, reservationDto);
-            return ResponseEntity.ok(ApiResponse.success("Réservation mise à jour avec succès", reservation));
+            ReservationDto reservation = reservationService.modifierReservation(id, request);
+            return ResponseEntity.ok(ApiResponse.success(
+                    "Réservation modifiée avec succès", reservation));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
+
+    // ─── Actions ──────────────────────────────────────────────────────────────
 
     @PostMapping("/{id}/checkin")
     @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_MODIFIER_RESERVATION')")
@@ -200,13 +194,10 @@ public class ReservationController {
             @AuthenticationPrincipal CustomUserPrincipal principal) {
         try {
             ReservationDto reservation = reservationService.doCheckin(
-                    id,
-                    principal.getAccountType().equals("USER") ? principal.getId() : null
-            );
+                    id, principal.getAccountType().equals("USER") ? principal.getId() : null);
             return ResponseEntity.ok(ApiResponse.success("Check-in effectué avec succès", reservation));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -217,13 +208,10 @@ public class ReservationController {
             @AuthenticationPrincipal CustomUserPrincipal principal) {
         try {
             ReservationDto reservation = reservationService.doCheckout(
-                    id,
-                    principal.getAccountType().equals("USER") ? principal.getId() : null
-            );
+                    id, principal.getAccountType().equals("USER") ? principal.getId() : null);
             return ResponseEntity.ok(ApiResponse.success("Check-out effectué avec succès", reservation));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -234,8 +222,7 @@ public class ReservationController {
             reservationService.cancelReservation(id);
             return ResponseEntity.ok(ApiResponse.success("Réservation annulée avec succès", null));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -249,8 +236,7 @@ public class ReservationController {
             ReservationDto reservation = reservationService.addPaiement(id, montant, modePaiement);
             return ResponseEntity.ok(ApiResponse.success("Paiement enregistré avec succès", reservation));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
 }

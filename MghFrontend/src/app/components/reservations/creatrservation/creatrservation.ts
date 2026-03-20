@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 
-// PrimeNG Imports
 import { StepsModule } from 'primeng/steps';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -20,11 +19,10 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
-// Services et Models
-import { ReservationService } from '../../../services/reservation.service';
+import { ReservationService, ModifierReservationRequest } from '../../../services/reservation.service';
 import { ChambreService } from '../../../services/chambre.service';
 import { ClientService } from '../../../services/client.service';
-import { CreateReservationRequest, Client, ModePaiement } from '../../../models/reservation.model';
+import { CreateReservationRequest, Client, StatutReservation } from '../../../models/reservation.model';
 import { Chambre, TYPE_CHAMBRE_LABELS } from '../../../models/hotel.model';
 import { Client as ClientModel } from '../../../models/client.model';
 
@@ -32,23 +30,11 @@ import { Client as ClientModel } from '../../../models/client.model';
   selector: 'app-creatrservation',
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    StepsModule,
-    CardModule,
-    ButtonModule,
-    InputTextModule,
-    InputNumberModule,
-    DatePickerModule,
-    SelectModule,
-    TextareaModule,
-    RadioButtonModule,
-    DividerModule,
-    ToastModule,
-    ToolbarModule,
-    TagModule,
-    ProgressSpinnerModule
+    CommonModule, ReactiveFormsModule, FormsModule,
+    StepsModule, CardModule, ButtonModule, InputTextModule,
+    InputNumberModule, DatePickerModule, SelectModule, TextareaModule,
+    RadioButtonModule, DividerModule, ToastModule, ToolbarModule,
+    TagModule, ProgressSpinnerModule
   ],
   providers: [MessageService],
   templateUrl: './creatrservation.html',
@@ -56,62 +42,69 @@ import { Client as ClientModel } from '../../../models/client.model';
 })
 export class Creatrservation implements OnInit {
   readonly TYPE_CHAMBRE_LABELS = TYPE_CHAMBRE_LABELS;
+  readonly StatutReservation   = StatutReservation;
 
-  // État du wizard
-  activeIndex: number = 0;
-  loading: boolean = false;
-  isEditMode: boolean = false;
+  activeIndex = 0;
+  loading     = false;
+  isEditMode  = false;
   reservationId?: number;
 
-  // Formulaires
-  datesForm!: FormGroup;
-  clientForm!: FormGroup;
+  datesForm!:   FormGroup;
+  clientForm!:  FormGroup;
   paiementForm!: FormGroup;
 
-  // Données
   chambresDisponibles: Chambre[] = [];
   selectedChambre?: Chambre;
+
+  // Infos chambre en mode édition (lecture seule pour la chambre, modifiable pour les dates)
+  chambreActuelle?: { id: number; numero: string; type: string; prixParNuit: number };
+
   clientType: 'nouveau' | 'existant' = 'nouveau';
-
-  // ✅ NOUVEAU : liste des clients existants pour le Select
   clientsExistants: { label: string; value: number; telephone: string }[] = [];
-  clientsLoading: boolean = false;
+  clientsLoading = false;
 
-  // Options pour les dropdowns
+  // Statut courant de la résa éditée (détermine quels champs sont bloqués)
+  statutEdit?: StatutReservation;
+
+  // Mémorisation des valeurs originales pour calcul de différence
+  ancienMontantTotal = 0;
+  ancienMontantPaye  = 0;
+
   typePieceOptions = [
-    { label: 'Carte d\'identité nationale', value: 'CNI' },
-    { label: 'Passeport', value: 'PASSEPORT' },
-    { label: 'Permis de conduire', value: 'PERMIS' },
-    { label: 'Attestation d\'identité', value: 'ATTESTATION' },
-    { label: 'Autre document', value: 'AUTRE' }
+    { label: "Carte d'identité nationale", value: 'CNI'         },
+    { label: 'Passeport',                  value: 'PASSEPORT'   },
+    { label: 'Permis de conduire',         value: 'PERMIS'      },
+    { label: "Attestation d'identité",     value: 'ATTESTATION' },
+    { label: 'Autre document',             value: 'AUTRE'       }
   ];
 
   modePaiementOptions = [
-    { label: '💵 Espèces', value: 'ESPECES' },
+    { label: '💵 Espèces',        value: 'ESPECES'        },
     { label: '💳 Carte bancaire', value: 'CARTE_BANCAIRE' },
-    { label: '🏦 Virement bancaire', value: 'VIREMENT' },
-    { label: '📱 Orange Money', value: 'ORANGE_MONEY' },
-    { label: '📱 MTN Money', value: 'MTN_MONEY' },
-    { label: '📱 Wave', value: 'WAVE' },
-    { label: '📱 Moov Money', value: 'MOOV_MONEY' }
+    { label: '🏦 Virement',       value: 'VIREMENT'       },
+    { label: '📱 Orange Money',   value: 'ORANGE_MONEY'   },
+    { label: '📱 MTN Money',      value: 'MTN_MONEY'      },
+    { label: '📱 Wave',           value: 'WAVE'           },
+    { label: '📱 Moov Money',     value: 'MOOV_MONEY'     }
   ];
 
   items = [
-    { label: 'Dates & Chambre' },
+    { label: 'Dates & Chambre'     },
     { label: 'Informations Client' },
-    { label: 'Paiement & Notes' },
-    { label: 'Confirmation' }
+    { label: 'Paiement & Notes'    },
+    { label: 'Confirmation'        }
   ];
 
-  minDate: Date = new Date();
-  nombreNuits: number = 0;
-  montantTotal: number = 0;
+  minDate:      Date = new Date();
+  minDateDepart: Date = new Date();
+  nombreNuits  = 0;
+  montantTotal = 0;
 
   constructor(
     private fb: FormBuilder,
     private reservationService: ReservationService,
     private chambreService: ChambreService,
-    private clientService: ClientService,        // ✅ NOUVEAU
+    private clientService: ClientService,
     private messageService: MessageService,
     private router: Router,
     private route: ActivatedRoute
@@ -122,507 +115,389 @@ export class Creatrservation implements OnInit {
     this.checkEditMode();
   }
 
+  // ── Formulaires ───────────────────────────────────────────────────────────
+
   private initForms(): void {
     this.datesForm = this.fb.group({
-      chambreId: [null, Validators.required],
-      dateArrivee: [null, Validators.required],
-      dateDepart: [null, Validators.required],
-      nombreAdultes: [1, [Validators.required, Validators.min(1), Validators.max(10)]],
-      nombreEnfants: [0, [Validators.min(0), Validators.max(10)]]
+      chambreId:     [null, Validators.required],
+      dateArrivee:   [null, Validators.required],
+      dateDepart:    [null, Validators.required],
+      nombreAdultes: [1,   [Validators.required, Validators.min(1), Validators.max(10)]],
+      nombreEnfants: [0,   [Validators.min(0), Validators.max(10)]]
     });
 
     this.clientForm = this.fb.group({
-      clientId: [null],
-      prenom: ['', [Validators.required, Validators.minLength(2)]],
-      nom: ['', [Validators.required, Validators.minLength(2)]],
-      telephone: ['', [Validators.required, Validators.pattern(/^[0-9+\s-()]+$/)]],
-      email: ['', [Validators.email]],
-      typePiece: [''],
-      pieceIdentite: [''],
-      dateNaissance: [null],
-      nationalite: [''],
-      adresse: [''],
-      ville: [''],
-      pays: ['Côte d\'Ivoire'],
-      notes: ['']
+      clientId:      [null],
+      prenom:        ['', [Validators.required, Validators.minLength(2)]],
+      nom:           ['', [Validators.required, Validators.minLength(2)]],
+      telephone:     ['', [Validators.required]],
+      email:         ['', [Validators.email]],
+      typePiece:     [''], pieceIdentite: [''], dateNaissance: [null],
+      nationalite:   [''], adresse: [''], ville: [''],
+      pays:          ["Côte d'Ivoire"], notes: ['']
     });
 
     this.paiementForm = this.fb.group({
-      montantPaye: [0, [Validators.min(0)]],
-      modePaiement: [null],
+      montantPaye:       [0, [Validators.min(0)]],
+      modePaiement:      [null],
       demandesSpeciales: [''],
-      referenceExterne: ['']
+      referenceExterne:  ['']
     });
 
-    this.datesForm.get('dateArrivee')?.valueChanges.subscribe(() => {
-      this.checkDatesAndLoadChambres();
-    });
+    // Recalcul automatique quand les dates changent
+    this.datesForm.get('dateArrivee')?.valueChanges.subscribe(v => { if (v) this.onDatesChange(); });
+    this.datesForm.get('dateDepart')?.valueChanges.subscribe(v  => { if (v) this.onDatesChange(); });
 
-    this.datesForm.get('dateDepart')?.valueChanges.subscribe(() => {
-      this.checkDatesAndLoadChambres();
-    });
-
-    this.paiementForm.get('montantPaye')?.valueChanges.subscribe((montant) => {
-      const modePaiementControl = this.paiementForm.get('modePaiement');
-      if (montant && montant > 0) {
-        modePaiementControl?.setValidators([Validators.required]);
-      } else {
-        modePaiementControl?.clearValidators();
-      }
-      modePaiementControl?.updateValueAndValidity();
+    this.paiementForm.get('montantPaye')?.valueChanges.subscribe(m => {
+      const ctrl = this.paiementForm.get('modePaiement');
+      if (m > 0) ctrl?.setValidators([Validators.required]);
+      else ctrl?.clearValidators();
+      ctrl?.updateValueAndValidity();
     });
   }
+
+  // ── Mode édition ──────────────────────────────────────────────────────────
 
   private checkEditMode(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.isEditMode = true;
+      this.isEditMode    = true;
       this.reservationId = +id;
-      this.loadReservation(this.reservationId);
+      this.loadReservation(+id);
     }
   }
 
   private loadReservation(id: number): void {
     this.loading = true;
     this.reservationService.getReservationById(id).subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          const reservation = response.data;
+      next: ({ success, data }) => {
+        if (success && data) {
+          this.statutEdit         = data.statut;
+          this.ancienMontantTotal = data.montantTotal ?? 0;
+          this.ancienMontantPaye  = data.montantPaye  ?? 0;
+          this.nombreNuits        = data.nombreNuits  ?? 0;
+          this.montantTotal       = data.montantTotal ?? 0;
 
-          // ✅ Pré-remplir les dates et la chambre
+          this.chambreActuelle = {
+            id:          data.chambreId,
+            numero:      data.chambreNumero ?? '',
+            type:        '',
+            prixParNuit: data.prixParNuit   ?? 0
+          };
+
+          const dateArrivee = new Date(data.dateArrivee);
+          const dateDepart  = new Date(data.dateDepart);
+
+          // Mettre à jour minDateDepart
+          this.minDateDepart = new Date(dateArrivee);
+          this.minDateDepart.setDate(this.minDateDepart.getDate() + 1);
+
           this.datesForm.patchValue({
-            chambreId: reservation.chambreId,
-            dateArrivee: new Date(reservation.dateArrivee),
-            dateDepart: new Date(reservation.dateDepart),
-            nombreAdultes: reservation.nombreAdultes,
-            nombreEnfants: reservation.nombreEnfants
+            chambreId:     data.chambreId,
+            dateArrivee,
+            dateDepart,
+            nombreAdultes: data.nombreAdultes,
+            nombreEnfants: data.nombreEnfants ?? 0
           });
 
-          // ✅ Calculer les nuits et montant
-          this.nombreNuits = reservation.nombreNuits ?? 0;
-          this.montantTotal = reservation.montantTotal ?? 0;
+          // Bloquer la date d'arrivée si le client est déjà en cours de séjour
+          if (data.statut === StatutReservation.EN_COURS) {
+            this.datesForm.get('dateArrivee')?.disable();
+          }
 
-          // ✅ Pré-remplir les infos client (mode existant)
+          // Client
           this.clientType = 'existant';
-          this.loadClients(() => {
-            this.clientForm.patchValue({ clientId: reservation.clientId });
-          });
+          this.loadClients(() => this.clientForm.patchValue({ clientId: data.clientId }));
           this.onClientTypeChange('existant');
 
-          // ✅ Pré-remplir le paiement et les notes
+          // Notes / paiement
           this.paiementForm.patchValue({
-            demandesSpeciales: reservation.demandesSpeciales,
-            referenceExterne: reservation.referenceExterne,
-            montantPaye: reservation.montantPaye ?? 0,
-            modePaiement: reservation.modePaiement ?? null
+            demandesSpeciales: data.demandesSpeciales ?? '',
+            referenceExterne:  data.referenceExterne  ?? '',
+            montantPaye:       data.montantPaye       ?? 0,
+            modePaiement:      data.modePaiement      ?? null
           });
-
-          // ✅ En mode édition, aller directement à l'étape 2 (Paiement & Notes)
-          // car les dates/chambre ne sont pas modifiables selon le backend
-          this.activeIndex = 2;
         }
         this.loading = false;
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur de chargement',
-          detail: 'Impossible de charger la réservation pour modification'
-        });
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de charger la réservation' });
         this.loading = false;
         this.router.navigate(['/reservation']);
       }
     });
   }
 
-  // ✅ NOUVEAU : Charger les clients existants depuis l'API
-  loadClients(callback?: () => void): void {
+  // ── Clients ───────────────────────────────────────────────────────────────
+
+  loadClients(cb?: () => void): void {
     this.clientsLoading = true;
     this.clientService.getClients().subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.clientsExistants = response.data.map((c: ClientModel) => ({
+      next: r => {
+        if (r.success) {
+          this.clientsExistants = (r.data as ClientModel[]).map(c => ({
             label: `${c.prenom} ${c.nom} — ${c.telephone}`,
             value: c.id!,
             telephone: c.telephone
           }));
         }
         this.clientsLoading = false;
-        callback?.();
+        cb?.();
       },
-      error: () => {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Attention',
-          detail: 'Impossible de charger la liste des clients'
-        });
-        this.clientsLoading = false;
-        callback?.();
-      }
+      error: () => { this.clientsLoading = false; cb?.(); }
     });
   }
 
-  private checkDatesAndLoadChambres(): void {
-    const dateArrivee = this.datesForm.get('dateArrivee')?.value;
-    const dateDepart = this.datesForm.get('dateDepart')?.value;
+  // ── Dates ─────────────────────────────────────────────────────────────────
 
-    if (dateArrivee && dateDepart) {
-      if (dateDepart <= dateArrivee) {
-        this.datesForm.get('dateDepart')?.setErrors({ invalidDate: true });
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Dates invalides',
-          detail: 'La date de départ doit être après la date d\'arrivée'
-        });
-        return;
-      }
+  private onDatesChange(): void {
+    const a = this.datesForm.get('dateArrivee')?.value as Date;
+    const d = this.datesForm.get('dateDepart')?.value  as Date;
+    if (!a || !d) return;
 
-      this.loadChambresDisponibles(dateArrivee, dateDepart);
-      this.calculateNombreNuits();
-    }
-  }
-
-  private loadChambresDisponibles(dateArrivee: Date, dateDepart: Date): void {
-    this.loading = true;
-    const dateArriveeStr = this.formatDateForAPI(dateArrivee);
-    const dateDepartStr = this.formatDateForAPI(dateDepart);
-
-    this.chambreService.getChambresDisponibles(dateArriveeStr, dateDepartStr).subscribe({
-      next: (chambres) => {
-        this.chambresDisponibles = chambres;
-        if (this.chambresDisponibles.length === 0) {
-          this.messageService.add({
-            severity: 'info',
-            summary: 'Aucune chambre disponible',
-            detail: 'Aucune chambre n\'est disponible pour ces dates'
-          });
-        }
-        this.loading = false;
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Impossible de charger les chambres disponibles'
-        });
-        this.chambresDisponibles = [];
-        this.loading = false;
-      }
-    });
-  }
-
-  private formatDateForAPI(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  onChambreSelect(event: any): void {
-    const chambreId = event.value;
-    this.selectedChambre = this.chambresDisponibles.find(c => c.id === chambreId);
-    this.calculateMontantTotal();
-  }
-
-  private calculateNombreNuits(): void {
-    const dateArrivee = this.datesForm.get('dateArrivee')?.value;
-    const dateDepart = this.datesForm.get('dateDepart')?.value;
-    if (dateArrivee && dateDepart) {
-      const diff = dateDepart.getTime() - dateArrivee.getTime();
-      this.nombreNuits = Math.ceil(diff / (1000 * 3600 * 24));
-      this.calculateMontantTotal();
-    }
-  }
-
-  private calculateMontantTotal(): void {
-    if (this.selectedChambre && this.nombreNuits > 0) {
-      this.montantTotal = this.selectedChambre.prixParNuit * this.nombreNuits;
-    }
-  }
-
-  nextStep(): void {
-    // ✅ En mode édition, le wizard commence à l'étape 2
-    // Pas de validation de dates/chambre requise
-    if (this.isEditMode) {
-      if (this.activeIndex < 3) {
-        this.activeIndex++;
-      }
+    if (d <= a) {
+      this.datesForm.get('dateDepart')?.setErrors({ invalidDate: true });
       return;
     }
 
-    const currentForm = this.getCurrentForm();
-    if (currentForm.valid) {
-      if (this.activeIndex === 0 && !this.selectedChambre) {
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Sélection requise',
-          detail: 'Veuillez sélectionner une chambre'
-        });
+    // Mise à jour de la minDate pour le champ départ
+    this.minDateDepart = new Date(a);
+    this.minDateDepart.setDate(this.minDateDepart.getDate() + 1);
+
+    this.nombreNuits = Math.ceil((d.getTime() - a.getTime()) / 86400000);
+    this.recalcMontant();
+
+    if (!this.isEditMode) this.loadChambresDisponibles(a, d);
+  }
+
+  private recalcMontant(): void {
+    const prix = this.isEditMode
+      ? (this.chambreActuelle?.prixParNuit ?? 0)
+      : (this.selectedChambre?.prixParNuit ?? 0);
+    this.montantTotal = prix * this.nombreNuits;
+  }
+
+  private loadChambresDisponibles(a: Date, d: Date): void {
+    this.loading = true;
+    this.chambreService.getChambresDisponibles(this.fmt(a), this.fmt(d)).subscribe({
+      next: chambres => { this.chambresDisponibles = chambres; this.loading = false; },
+      error: ()      => { this.chambresDisponibles = []; this.loading = false; }
+    });
+  }
+
+  onChambreSelect(evt: any): void {
+    this.selectedChambre = this.chambresDisponibles.find(c => c.id === evt.value);
+    this.recalcMontant();
+  }
+
+  // ── Calculs financiers ────────────────────────────────────────────────────
+
+  get difference(): number     { return this.montantTotal - this.ancienMontantTotal; }
+  get differenceAbs(): number  { return Math.abs(this.difference); }
+  get differenceClass(): string {
+    if (this.difference > 0) return 'text-orange-600 font-bold';
+    if (this.difference < 0) return 'text-green-600 font-bold';
+    return 'text-color-secondary';
+  }
+  get differenceLabel(): string {
+    if (this.difference > 0) return `+${this.differenceAbs.toLocaleString('fr-FR')} FCFA (supplément à payer)`;
+    if (this.difference < 0) return `-${this.differenceAbs.toLocaleString('fr-FR')} FCFA (remboursement possible)`;
+    return 'Aucune différence de montant';
+  }
+
+  get montantRestant(): number {
+    if (this.isEditMode) return Math.max(0, this.montantTotal - this.ancienMontantPaye);
+    return Math.max(0, this.montantTotal - (this.paiementForm.value.montantPaye || 0));
+  }
+  get formattedMontantTotal():   string { return this.montantTotal.toLocaleString('fr-FR') + ' FCFA'; }
+  get formattedAncienTotal():    string { return this.ancienMontantTotal.toLocaleString('fr-FR') + ' FCFA'; }
+  get formattedMontantPaye():    string {
+    const m = this.isEditMode ? this.ancienMontantPaye : (this.paiementForm.value.montantPaye || 0);
+    return m.toLocaleString('fr-FR') + ' FCFA';
+  }
+  get formattedMontantRestant(): string { return this.montantRestant.toLocaleString('fr-FR') + ' FCFA'; }
+
+  get estEnCours(): boolean { return this.statutEdit === StatutReservation.EN_COURS; }
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+
+  nextStep(): void {
+    if (this.activeIndex === 0) {
+      const chambreOk = this.isEditMode
+        ? !!this.datesForm.get('chambreId')?.value
+        : !!this.selectedChambre;
+      if (this.datesForm.invalid) {
+        this.markTouched(this.datesForm);
+        this.messageService.add({ severity: 'warn', summary: 'Champs requis', detail: 'Vérifiez les dates et le nombre de voyageurs' });
         return;
       }
-      this.activeIndex++;
-    } else {
-      this.markFormGroupTouched(currentForm);
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Formulaire incomplet',
-        detail: 'Veuillez remplir tous les champs obligatoires'
-      });
+      if (!chambreOk) {
+        this.messageService.add({ severity: 'warn', summary: 'Chambre requise', detail: 'Veuillez sélectionner une chambre' });
+        return;
+      }
     }
+    if (this.activeIndex === 1 && !this.isEditMode && this.clientForm.invalid) {
+      this.markTouched(this.clientForm);
+      this.messageService.add({ severity: 'warn', summary: 'Champs requis', detail: 'Complétez les informations client' });
+      return;
+    }
+    if (this.activeIndex < 3) this.activeIndex++;
   }
 
   prevStep(): void {
-    if (this.activeIndex > 0) {
-      // ✅ En mode édition, ne pas remonter avant l'étape 2
-      if (this.isEditMode && this.activeIndex <= 2) return;
-      this.activeIndex--;
-    }
+    if (this.activeIndex > 0) this.activeIndex--;
   }
 
-  private getCurrentForm(): FormGroup {
-    switch (this.activeIndex) {
-      case 0: return this.datesForm;
-      case 1: return this.clientForm;
-      case 2: return this.paiementForm;
-      default: return this.datesForm;
-    }
-  }
-
-  private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach(key => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
-      control?.markAsDirty();
-    });
-  }
+  // ── Type client ───────────────────────────────────────────────────────────
 
   onClientTypeChange(type: 'nouveau' | 'existant'): void {
     this.clientType = type;
-
     if (type === 'existant') {
-      // ✅ Charger les clients si pas encore fait
-      if (this.clientsExistants.length === 0) {
-        this.loadClients();
-      }
-
-      this.clientForm.patchValue({
-        prenom: '', nom: '', telephone: '', email: '',
-        typePiece: '', pieceIdentite: '', dateNaissance: null,
-        nationalite: '', adresse: '', ville: '', pays: '', notes: ''
-      });
-
-      Object.keys(this.clientForm.controls).forEach(key => {
-        if (key !== 'clientId') {
-          this.clientForm.get(key)?.disable();
-          this.clientForm.get(key)?.clearValidators();
+      if (!this.clientsExistants.length) this.loadClients();
+      Object.keys(this.clientForm.controls).forEach(k => {
+        if (k === 'clientId') {
+          this.clientForm.get(k)?.setValidators([Validators.required]);
         } else {
-          this.clientForm.get(key)?.setValidators([Validators.required]);
+          this.clientForm.get(k)?.disable();
+          this.clientForm.get(k)?.clearValidators();
         }
-        this.clientForm.get(key)?.updateValueAndValidity();
+        this.clientForm.get(k)?.updateValueAndValidity();
       });
     } else {
-      Object.keys(this.clientForm.controls).forEach(key => {
-        if (key !== 'clientId') {
-          this.clientForm.get(key)?.enable();
-        } else {
-          this.clientForm.get(key)?.clearValidators();
-        }
+      Object.keys(this.clientForm.controls).forEach(k => {
+        if (k !== 'clientId') { this.clientForm.get(k)?.enable(); }
+        else { this.clientForm.get(k)?.clearValidators(); }
       });
-
       this.clientForm.get('prenom')?.setValidators([Validators.required, Validators.minLength(2)]);
       this.clientForm.get('nom')?.setValidators([Validators.required, Validators.minLength(2)]);
       this.clientForm.get('telephone')?.setValidators([Validators.required]);
-
-      Object.keys(this.clientForm.controls).forEach(key => {
-        this.clientForm.get(key)?.updateValueAndValidity();
-      });
+      Object.keys(this.clientForm.controls).forEach(k => this.clientForm.get(k)?.updateValueAndValidity());
     }
   }
 
-  // ✅ MODIFIÉ : confirmerReservation gère création ET modification
+  // ── Confirmation ──────────────────────────────────────────────────────────
+
   confirmerReservation(): void {
-    if (this.isEditMode) {
-      this.updateReservation();
-      return;
-    }
-    this.createReservation();
+    this.isEditMode ? this.saveUpdate() : this.saveCreate();
   }
 
-  private createReservation(): void {
-    if (!this.datesForm.valid || !this.clientForm.valid) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Formulaire invalide',
-        detail: 'Veuillez vérifier toutes les informations saisies'
-      });
+  private saveCreate(): void {
+    if (this.datesForm.invalid || this.clientForm.invalid) {
+      this.messageService.add({ severity: 'error', summary: 'Formulaire invalide', detail: 'Vérifiez les informations' });
       return;
     }
-
     this.loading = true;
-
-    const request: CreateReservationRequest = {
-      chambreId: this.datesForm.value.chambreId,
-      dateArrivee: this.formatDateForAPI(this.datesForm.value.dateArrivee),
-      dateDepart: this.formatDateForAPI(this.datesForm.value.dateDepart),
-      nombreAdultes: this.datesForm.value.nombreAdultes,
-      nombreEnfants: this.datesForm.value.nombreEnfants || 0,
-      notes: this.clientForm.value.notes,
+    const req: CreateReservationRequest = {
+      chambreId:         this.datesForm.value.chambreId,
+      dateArrivee:       this.fmt(this.datesForm.value.dateArrivee),
+      dateDepart:        this.fmt(this.datesForm.value.dateDepart),
+      nombreAdultes:     this.datesForm.value.nombreAdultes,
+      nombreEnfants:     this.datesForm.value.nombreEnfants || 0,
+      notes:             this.clientForm.value.notes,
       demandesSpeciales: this.paiementForm.value.demandesSpeciales,
-      referenceExterne: this.paiementForm.value.referenceExterne
+      referenceExterne:  this.paiementForm.value.referenceExterne
     };
-
-    if (this.paiementForm.value.montantPaye && this.paiementForm.value.montantPaye > 0) {
-      if (this.paiementForm.value.montantPaye > this.montantTotal) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Montant invalide',
-          detail: 'Le montant payé ne peut pas dépasser le montant total'
-        });
-        this.loading = false;
-        return;
-      }
-      (request as any).montantPaye = this.paiementForm.value.montantPaye;
-      (request as any).modePaiement = this.paiementForm.value.modePaiement;
-    }
+    const mp = this.paiementForm.value.montantPaye;
+    if (mp > 0) { (req as any).montantPaye = mp; (req as any).modePaiement = this.paiementForm.value.modePaiement; }
 
     if (this.clientType === 'nouveau') {
-      const newClient: Client = {
-        prenom: this.clientForm.value.prenom,
-        nom: this.clientForm.value.nom,
+      req.newClient = {
+        prenom: this.clientForm.value.prenom, nom: this.clientForm.value.nom,
         telephone: this.clientForm.value.telephone,
         email: this.clientForm.value.email || undefined,
         typePiece: this.clientForm.value.typePiece || undefined,
         pieceIdentite: this.clientForm.value.pieceIdentite || undefined,
-        dateNaissance: this.clientForm.value.dateNaissance
-          ? this.formatDateForAPI(this.clientForm.value.dateNaissance)
-          : undefined,
+        dateNaissance: this.clientForm.value.dateNaissance ? this.fmt(this.clientForm.value.dateNaissance) : undefined,
         nationalite: this.clientForm.value.nationalite || undefined,
         adresse: this.clientForm.value.adresse || undefined,
         ville: this.clientForm.value.ville || undefined,
         pays: this.clientForm.value.pays || undefined,
         notes: this.clientForm.value.notes || undefined
-      };
-      request.newClient = newClient;
+      } as Client;
     } else {
-      request.clientId = this.clientForm.value.clientId;
+      req.clientId = this.clientForm.value.clientId;
     }
 
-    this.reservationService.createReservation(request).subscribe({
-      next: (response) => {
+    this.reservationService.createReservation(req).subscribe({
+      next: r => {
         this.loading = false;
-        if (response.success && response.data) {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Réservation créée',
-            detail: `Réservation N° ${response.data.numeroReservation} créée avec succès`
-          });
+        if (r.success && r.data) {
+          this.messageService.add({ severity: 'success', summary: 'Créée !', detail: `N° ${r.data.numeroReservation}` });
           setTimeout(() => this.router.navigate(['/reservation']), 1500);
         }
       },
-      error: (error) => {
-        this.loading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: error.message || 'Une erreur est survenue lors de la création'
-        });
-      }
+      error: e => { this.loading = false; this.messageService.add({ severity: 'error', summary: 'Erreur', detail: e.message }); }
     });
   }
 
-  // ✅ NOUVEAU : méthode dédiée à la modification
-  private updateReservation(): void {
+  private saveUpdate(): void {
     if (!this.reservationId) return;
     this.loading = true;
 
-    const updateData: any = {
-      nombreAdultes: this.datesForm.value.nombreAdultes,
-      nombreEnfants: this.datesForm.value.nombreEnfants || 0,
-      notes: this.clientForm.value.notes,
+    // getRawValue() = inclut les contrôles disabled (dateArrivee si EN_COURS)
+    const raw = this.datesForm.getRawValue();
+
+    const toDate = (v: any): Date => v instanceof Date ? v : new Date(v);
+
+    const req: ModifierReservationRequest = {
+      dateArrivee:       this.fmt(toDate(raw.dateArrivee)),
+      dateDepart:        this.fmt(toDate(raw.dateDepart)),
+      nombreAdultes:     raw.nombreAdultes,
+      nombreEnfants:     raw.nombreEnfants || 0,
+      notes:             this.clientForm.getRawValue().notes,
       demandesSpeciales: this.paiementForm.value.demandesSpeciales,
-      referenceExterne: this.paiementForm.value.referenceExterne
+      referenceExterne:  this.paiementForm.value.referenceExterne
     };
 
-    this.reservationService.updateReservation(this.reservationId, updateData).subscribe({
-      next: (response) => {
+    this.reservationService.modifierReservation(this.reservationId, req).subscribe({
+      next: r => {
         this.loading = false;
-        if (response.success) {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Réservation modifiée',
-            detail: 'La réservation a été mise à jour avec succès'
-          });
-          setTimeout(() => this.router.navigate(['/reservation/detail', this.reservationId]), 1500);
+        if (r.success) {
+          this.messageService.add({ severity: 'success', summary: 'Modification enregistrée', detail: 'La réservation a été mise à jour' });
+          setTimeout(() => this.router.navigate(['/reservation', this.reservationId]), 1500);
         }
       },
-      error: (error) => {
+      error: e => {
         this.loading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: error.message || 'Une erreur est survenue lors de la modification'
-        });
+        const msg = e.error?.message || e.message || 'Erreur lors de la modification';
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: msg });
       }
     });
   }
 
   annuler(): void {
-    if (confirm('Êtes-vous sûr de vouloir annuler ? Toutes les données saisies seront perdues.')) {
+    if (confirm('Êtes-vous sûr ? Les données non enregistrées seront perdues.')) {
       this.router.navigate(['/reservation']);
     }
   }
 
-  // ============================================================================
-  // MÉTHODES HELPER
-  // ============================================================================
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  private fmt(d: Date): string {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
 
   getTypeLabel(type: string): string {
     return this.TYPE_CHAMBRE_LABELS[type as keyof typeof TYPE_CHAMBRE_LABELS] || type;
   }
-
-  get montantRestant(): number {
-    const montantPaye = this.paiementForm.value.montantPaye || 0;
-    return Math.max(0, this.montantTotal - montantPaye);
+  getChambreLabel(c: Chambre): string {
+    return `Chambre ${c.numero} - ${this.getTypeLabel(c.type)} (${c.prixParNuit.toLocaleString('fr-FR')} FCFA/nuit)`;
   }
-
-  get formattedMontantTotal(): string {
-    return this.montantTotal.toLocaleString('fr-FR') + ' FCFA';
-  }
-
-  get formattedMontantPaye(): string {
-    const montant = this.paiementForm.value.montantPaye || 0;
-    return montant.toLocaleString('fr-FR') + ' FCFA';
-  }
-
-  get formattedMontantRestant(): string {
-    return this.montantRestant.toLocaleString('fr-FR') + ' FCFA';
-  }
-
-  getChambreLabel(chambre: Chambre): string {
-    const typeLabel = this.getTypeLabel(chambre.type);
-    return `Chambre ${chambre.numero} - ${typeLabel} (${chambre.prixParNuit.toLocaleString('fr-FR')} FCFA/nuit)`;
-  }
-
   getPaymentSeverity(): 'success' | 'warn' | 'danger' {
     if (this.montantRestant === 0) return 'success';
     if (this.montantRestant === this.montantTotal) return 'danger';
     return 'warn';
   }
-
   getPaymentLabel(): string {
     if (this.montantRestant === 0) return 'Payé intégralement';
     if (this.montantRestant === this.montantTotal) return 'Non payé';
     return 'Acompte versé';
   }
-
   getChambrePrixFormate(): string {
-    return this.selectedChambre
-      ? this.selectedChambre.prixParNuit.toLocaleString('fr-FR') + ' FCFA'
-      : '0 FCFA';
+    if (this.isEditMode && this.chambreActuelle) return this.chambreActuelle.prixParNuit.toLocaleString('fr-FR') + ' FCFA';
+    return this.selectedChambre ? this.selectedChambre.prixParNuit.toLocaleString('fr-FR') + ' FCFA' : '0 FCFA';
   }
-
-  hasErrors(): boolean {
-    const form = this.getCurrentForm();
-    return form.invalid && form.touched;
+  private markTouched(fg: FormGroup): void {
+    Object.values(fg.controls).forEach(c => { c.markAsTouched(); c.markAsDirty(); });
   }
 }

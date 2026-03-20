@@ -2,6 +2,7 @@ package com.mghbackend.service;
 
 import com.mghbackend.dto.ClientDto;
 import com.mghbackend.dto.request.CreateReservationRequest;
+import com.mghbackend.dto.request.UpdateReservationRequest;
 import com.mghbackend.dto.ReservationDto;
 import com.mghbackend.entity.*;
 import com.mghbackend.enums.*;
@@ -30,6 +31,8 @@ public class ReservationService {
     private final ClientService clientService;
     private final TransactionHelper transactionHelper;
 
+    // ─── Création ─────────────────────────────────────────────────────────────
+
     public ReservationDto createReservation(Long hotelId, CreateReservationRequest request, Long userId) {
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new RuntimeException("Hôtel non trouvé"));
@@ -41,23 +44,17 @@ public class ReservationService {
             throw new RuntimeException("Cette chambre n'appartient pas à cet hôtel");
         }
 
-        // Vérifier les dates
         if (request.getDateArrivee().isAfter(request.getDateDepart())) {
             throw new RuntimeException("La date d'arrivée doit être avant la date de départ");
         }
 
-        // Vérifier la disponibilité de la chambre
         List<Reservation> conflits = reservationRepository.findReservationsByChambreAndPeriode(
-                chambre,
-                request.getDateArrivee(),
-                request.getDateDepart()
-        );
+                chambre, request.getDateArrivee(), request.getDateDepart());
 
         if (!conflits.isEmpty()) {
             throw new RuntimeException("La chambre n'est pas disponible pour cette période");
         }
 
-        // Récupérer ou créer le client
         Client client;
         if (request.getClientId() != null) {
             client = clientRepository.findById(request.getClientId())
@@ -70,11 +67,9 @@ public class ReservationService {
             throw new RuntimeException("Client requis");
         }
 
-        // Calculer le nombre de nuits et le montant
         long nombreNuits = ChronoUnit.DAYS.between(request.getDateArrivee(), request.getDateDepart());
         BigDecimal montantTotal = chambre.getPrixParNuit().multiply(BigDecimal.valueOf(nombreNuits));
 
-        // Créer la réservation
         Reservation reservation = new Reservation();
         reservation.setNumeroReservation(generateNumeroReservation());
         reservation.setHotel(hotel);
@@ -92,71 +87,163 @@ public class ReservationService {
         reservation.setDemandesSpeciales(request.getDemandesSpeciales());
         reservation.setReferenceExterne(request.getReferenceExterne());
 
-        // Gérer le paiement
         if (request.getMontantPaye() != null && request.getMontantPaye().compareTo(BigDecimal.ZERO) > 0) {
             reservation.setMontantPaye(request.getMontantPaye());
             reservation.setMontantRestant(montantTotal.subtract(request.getMontantPaye()));
-
             if (request.getModePaiement() != null) {
                 reservation.setModePaiement(ModePaiement.valueOf(request.getModePaiement()));
             }
-
-            if (reservation.getMontantRestant().compareTo(BigDecimal.ZERO) <= 0) {
-                reservation.setStatutPaiement(StatutPaiement.PAYE);
-            } else {
-                reservation.setStatutPaiement(StatutPaiement.ACOMPTE);
-            }
+            reservation.setStatutPaiement(
+                    reservation.getMontantRestant().compareTo(BigDecimal.ZERO) <= 0
+                            ? StatutPaiement.PAYE
+                            : StatutPaiement.ACOMPTE
+            );
         } else {
             reservation.setMontantPaye(BigDecimal.ZERO);
             reservation.setMontantRestant(montantTotal);
             reservation.setStatutPaiement(StatutPaiement.NON_PAYE);
         }
 
-        // Associer l'employé qui crée la réservation
         if (userId != null) {
-            User user = userRepository.findById(userId).orElse(null);
-            reservation.setCreatedBy(user);
+            userRepository.findById(userId).ifPresent(reservation::setCreatedBy);
         }
 
-        // Mettre à jour le statut de la chambre
-        if (request.getDateArrivee().equals(LocalDate.now())) {
-            chambre.setStatut(StatutChambre.OCCUPEE);
-        } else {
-            chambre.setStatut(StatutChambre.RESERVEE);
-        }
+        chambre.setStatut(request.getDateArrivee().equals(LocalDate.now())
+                ? StatutChambre.OCCUPEE : StatutChambre.RESERVEE);
         chambreRepository.save(chambre);
 
-        Reservation savedReservation = reservationRepository.save(reservation);
-        if (request.getMontantPaye() != null &&
-                request.getMontantPaye().compareTo(BigDecimal.ZERO) > 0) {
+        Reservation saved = reservationRepository.save(reservation);
 
+        if (request.getMontantPaye() != null && request.getMontantPaye().compareTo(BigDecimal.ZERO) > 0) {
             transactionHelper.enregistrerPaiementReservation(
-                    hotelId,
-                    savedReservation.getId(),
-                    savedReservation.getNumeroReservation(),
+                    hotelId, saved.getId(), saved.getNumeroReservation(),
                     client.getNom() + " " + client.getPrenom(),
-                    request.getMontantPaye(),
-                    request.getModePaiement()
-            );
+                    request.getMontantPaye(), request.getModePaiement());
         }
-        return convertToDto(savedReservation);
-
-
-
+        return convertToDto(saved);
     }
+
+    // ─── ✅ NOUVELLE MÉTHODE : Modification complète (dates, voyageurs, notes) ──
+
+    /**
+     * Modification complète d'une réservation :
+     * - Changement des dates (prolongation ou réduction du séjour)
+     * - Changement du nombre de voyageurs
+     * - Mise à jour notes / demandes spéciales
+     *
+     * Logique financière lors d'un changement de dates :
+     * - Prolongation : le montantRestant augmente de la différence
+     * - Réduction    : le montantRestant diminue (sans passer en dessous de 0)
+     *                  Si montantPaye > nouveau montantTotal → remboursement signalé
+     */
+    public ReservationDto modifierReservation(Long id, UpdateReservationRequest request) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Réservation non trouvée"));
+
+        if (reservation.getStatut() == StatutReservation.ANNULEE) {
+            throw new RuntimeException("Impossible de modifier une réservation annulée");
+        }
+        if (reservation.getStatut() == StatutReservation.TERMINEE) {
+            throw new RuntimeException("Impossible de modifier une réservation terminée");
+        }
+
+        // ── Validation des nouvelles dates ──────────────────────────────────
+        if (request.getDateArrivee().isAfter(request.getDateDepart())) {
+            throw new RuntimeException("La date d'arrivée doit être avant la date de départ");
+        }
+
+        // En cours → la date d'arrivée ne peut plus être modifiée
+        if (reservation.getStatut() == StatutReservation.EN_COURS) {
+            if (!request.getDateArrivee().equals(reservation.getDateArrivee())) {
+                throw new RuntimeException(
+                        "Le client est déjà arrivé : la date d'arrivée ne peut plus être modifiée. " +
+                                "Seule la date de départ peut être prolongée ou réduite.");
+            }
+        }
+
+        // ── Vérification disponibilité pour les nouvelles dates ─────────────
+        boolean datesChanged = !request.getDateArrivee().equals(reservation.getDateArrivee())
+                || !request.getDateDepart().equals(reservation.getDateDepart());
+
+        if (datesChanged) {
+            // On exclut la réservation courante du check de conflit
+            List<Reservation> conflits = reservationRepository
+                    .findReservationsByChambreAndPeriodeExcluding(
+                            reservation.getChambre(),
+                            request.getDateArrivee(),
+                            request.getDateDepart(),
+                            id
+                    );
+
+            if (!conflits.isEmpty()) {
+                throw new RuntimeException(
+                        "La chambre n'est pas disponible pour ces nouvelles dates. " +
+                                "Une autre réservation existe sur cette période.");
+            }
+        }
+
+        // ── Recalcul financier ───────────────────────────────────────────────
+        BigDecimal ancienMontantTotal = reservation.getMontantTotal();
+        BigDecimal montantPaye        = reservation.getMontantPaye();
+
+        long nouveauxNuits = ChronoUnit.DAYS.between(request.getDateArrivee(), request.getDateDepart());
+        BigDecimal nouveauMontantTotal = reservation.getPrixParNuit()
+                .multiply(BigDecimal.valueOf(nouveauxNuits));
+
+        // Différence : positif = prolongation (plus à payer), négatif = réduction
+        BigDecimal difference = nouveauMontantTotal.subtract(ancienMontantTotal);
+
+        BigDecimal nouveauMontantRestant;
+        if (difference.compareTo(BigDecimal.ZERO) >= 0) {
+            // Prolongation : montantRestant augmente
+            nouveauMontantRestant = reservation.getMontantRestant().add(difference);
+        } else {
+            // Réduction : montantRestant diminue, mais ≥ 0
+            // Si montantPaye > nouveauMontantTotal → surplus → à rembourser
+            nouveauMontantRestant = nouveauMontantTotal.subtract(montantPaye);
+            if (nouveauMontantRestant.compareTo(BigDecimal.ZERO) < 0) {
+                nouveauMontantRestant = BigDecimal.ZERO; // surplus → remboursement à gérer manuellement
+            }
+        }
+
+        // Recalcul du statut de paiement
+        StatutPaiement nouveauStatutPaiement;
+        if (nouveauMontantRestant.compareTo(BigDecimal.ZERO) <= 0) {
+            nouveauStatutPaiement = StatutPaiement.PAYE;
+        } else if (montantPaye.compareTo(BigDecimal.ZERO) > 0) {
+            nouveauStatutPaiement = StatutPaiement.ACOMPTE;
+        } else {
+            nouveauStatutPaiement = StatutPaiement.NON_PAYE;
+        }
+
+        // ── Mise à jour de la réservation ────────────────────────────────────
+        reservation.setDateArrivee(request.getDateArrivee());
+        reservation.setDateDepart(request.getDateDepart());
+        reservation.setNombreNuits((int) nouveauxNuits);
+        reservation.setNombreAdultes(request.getNombreAdultes());
+        reservation.setNombreEnfants(request.getNombreEnfants() != null ? request.getNombreEnfants() : 0);
+        reservation.setMontantTotal(nouveauMontantTotal);
+        reservation.setMontantRestant(nouveauMontantRestant);
+        reservation.setStatutPaiement(nouveauStatutPaiement);
+        reservation.setNotes(request.getNotes());
+        reservation.setDemandesSpeciales(request.getDemandesSpeciales());
+        reservation.setReferenceExterne(request.getReferenceExterne());
+
+        return convertToDto(reservationRepository.save(reservation));
+    }
+
+    // ─── Lecture ──────────────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
     public ReservationDto getReservationById(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Réservation non trouvée"));
-        return convertToDto(reservation);
+        return convertToDto(reservationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Réservation non trouvée")));
     }
 
     @Transactional(readOnly = true)
     public ReservationDto getReservationByNumero(String numeroReservation) {
-        Reservation reservation = reservationRepository.findByNumeroReservation(numeroReservation)
-                .orElseThrow(() -> new RuntimeException("Réservation non trouvée"));
-        return convertToDto(reservation);
+        return convertToDto(reservationRepository.findByNumeroReservation(numeroReservation)
+                .orElseThrow(() -> new RuntimeException("Réservation non trouvée")));
     }
 
     @Transactional(readOnly = true)
@@ -164,8 +251,7 @@ public class ReservationService {
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new RuntimeException("Hôtel non trouvé"));
         return reservationRepository.findByHotel(hotel).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .map(this::convertToDto).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -173,8 +259,7 @@ public class ReservationService {
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new RuntimeException("Hôtel non trouvé"));
         return reservationRepository.findByHotelAndStatut(hotel, statut).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .map(this::convertToDto).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -182,8 +267,7 @@ public class ReservationService {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new RuntimeException("Client non trouvé"));
         return reservationRepository.findByClient(client).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .map(this::convertToDto).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -191,8 +275,7 @@ public class ReservationService {
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new RuntimeException("Hôtel non trouvé"));
         return reservationRepository.findArrivalsForToday(hotel, LocalDate.now()).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .map(this::convertToDto).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -200,8 +283,7 @@ public class ReservationService {
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new RuntimeException("Hôtel non trouvé"));
         return reservationRepository.findDeparturesForToday(hotel, LocalDate.now()).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .map(this::convertToDto).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -209,8 +291,7 @@ public class ReservationService {
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new RuntimeException("Hôtel non trouvé"));
         return reservationRepository.findReservationsEnCours(hotel).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .map(this::convertToDto).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -218,8 +299,7 @@ public class ReservationService {
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new RuntimeException("Hôtel non trouvé"));
         return reservationRepository.findReservationsAVenir(hotel, LocalDate.now()).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .map(this::convertToDto).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -227,36 +307,10 @@ public class ReservationService {
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new RuntimeException("Hôtel non trouvé"));
         return reservationRepository.searchByHotelAndKeyword(hotel, keyword).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .map(this::convertToDto).collect(Collectors.toList());
     }
 
-    public ReservationDto updateReservation(Long id, ReservationDto reservationDto) {
-        Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Réservation non trouvée"));
-
-        if (reservation.getStatut() == StatutReservation.ANNULEE) {
-            throw new RuntimeException("Impossible de modifier une réservation annulée");
-        }
-
-        if (reservation.getStatut() == StatutReservation.TERMINEE) {
-            throw new RuntimeException("Impossible de modifier une réservation terminée");
-        }
-
-        // Mettre à jour les informations modifiables
-        reservation.setNotes(reservationDto.getNotes());
-        reservation.setDemandesSpeciales(reservationDto.getDemandesSpeciales());
-
-        if (reservationDto.getNombreAdultes() != null) {
-            reservation.setNombreAdultes(reservationDto.getNombreAdultes());
-        }
-        if (reservationDto.getNombreEnfants() != null) {
-            reservation.setNombreEnfants(reservationDto.getNombreEnfants());
-        }
-
-        Reservation updatedReservation = reservationRepository.save(reservation);
-        return convertToDto(updatedReservation);
-    }
+    // ─── Actions ──────────────────────────────────────────────────────────────
 
     public ReservationDto doCheckin(Long id, Long userId) {
         Reservation reservation = reservationRepository.findById(id)
@@ -268,19 +322,13 @@ public class ReservationService {
 
         reservation.setStatut(StatutReservation.EN_COURS);
         reservation.setDateCheckin(java.time.LocalDateTime.now());
+        if (userId != null) userRepository.findById(userId).ifPresent(reservation::setCheckinBy);
 
-        if (userId != null) {
-            User user = userRepository.findById(userId).orElse(null);
-            reservation.setCheckinBy(user);
-        }
-
-        // Mettre à jour le statut de la chambre
         Chambre chambre = reservation.getChambre();
         chambre.setStatut(StatutChambre.OCCUPEE);
         chambreRepository.save(chambre);
 
-        Reservation updatedReservation = reservationRepository.save(reservation);
-        return convertToDto(updatedReservation);
+        return convertToDto(reservationRepository.save(reservation));
     }
 
     public ReservationDto doCheckout(Long id, Long userId) {
@@ -293,19 +341,13 @@ public class ReservationService {
 
         reservation.setStatut(StatutReservation.TERMINEE);
         reservation.setDateCheckout(java.time.LocalDateTime.now());
+        if (userId != null) userRepository.findById(userId).ifPresent(reservation::setCheckoutBy);
 
-        if (userId != null) {
-            User user = userRepository.findById(userId).orElse(null);
-            reservation.setCheckoutBy(user);
-        }
-
-        // Mettre à jour le statut de la chambre
         Chambre chambre = reservation.getChambre();
         chambre.setStatut(StatutChambre.EN_NETTOYAGE);
         chambreRepository.save(chambre);
 
-        Reservation updatedReservation = reservationRepository.save(reservation);
-        return convertToDto(updatedReservation);
+        return convertToDto(reservationRepository.save(reservation));
     }
 
     public void cancelReservation(Long id) {
@@ -315,18 +357,14 @@ public class ReservationService {
         if (reservation.getStatut() == StatutReservation.TERMINEE) {
             throw new RuntimeException("Impossible d'annuler une réservation terminée");
         }
-
         if (reservation.getStatut() == StatutReservation.EN_COURS) {
             throw new RuntimeException("Impossible d'annuler une réservation en cours. Effectuez d'abord un check-out.");
         }
 
         reservation.setStatut(StatutReservation.ANNULEE);
-
-        // Libérer la chambre
         Chambre chambre = reservation.getChambre();
         chambre.setStatut(StatutChambre.DISPONIBLE);
         chambreRepository.save(chambre);
-
         reservationRepository.save(reservation);
     }
 
@@ -338,7 +376,7 @@ public class ReservationService {
             throw new RuntimeException("Le montant doit être supérieur à 0");
         }
 
-        BigDecimal nouveauMontantPaye = reservation.getMontantPaye().add(montant);
+        BigDecimal nouveauMontantPaye    = reservation.getMontantPaye().add(montant);
         BigDecimal nouveauMontantRestant = reservation.getMontantTotal().subtract(nouveauMontantPaye);
 
         if (nouveauMontantRestant.compareTo(BigDecimal.ZERO) < 0) {
@@ -347,28 +385,20 @@ public class ReservationService {
 
         reservation.setMontantPaye(nouveauMontantPaye);
         reservation.setMontantRestant(nouveauMontantRestant);
+        if (modePaiement != null) reservation.setModePaiement(ModePaiement.valueOf(modePaiement));
+        reservation.setStatutPaiement(nouveauMontantRestant.compareTo(BigDecimal.ZERO) <= 0
+                ? StatutPaiement.PAYE : StatutPaiement.ACOMPTE);
 
-        if (modePaiement != null) {
-            reservation.setModePaiement(ModePaiement.valueOf(modePaiement));
-        }
-
-        if (nouveauMontantRestant.compareTo(BigDecimal.ZERO) <= 0) {
-            reservation.setStatutPaiement(StatutPaiement.PAYE);
-        } else {
-            reservation.setStatutPaiement(StatutPaiement.ACOMPTE);
-        }
-
-        Reservation updatedReservation = reservationRepository.save(reservation);
+        Reservation updated = reservationRepository.save(reservation);
         transactionHelper.enregistrerPaiementReservation(
-                reservation.getHotel().getId(),
-                reservation.getId(),
+                reservation.getHotel().getId(), reservation.getId(),
                 reservation.getNumeroReservation(),
                 reservation.getClient().getNom() + " " + reservation.getClient().getPrenom(),
-                montant,
-                modePaiement
-        );
-        return convertToDto(updatedReservation);
+                montant, modePaiement);
+        return convertToDto(updated);
     }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private String generateNumeroReservation() {
         String numero;
@@ -411,17 +441,14 @@ public class ReservationService {
             dto.setCreatedById(reservation.getCreatedBy().getId());
             dto.setCreatedByName(reservation.getCreatedBy().getFirstName() + " " + reservation.getCreatedBy().getLastName());
         }
-
         if (reservation.getCheckinBy() != null) {
             dto.setCheckinById(reservation.getCheckinBy().getId());
             dto.setCheckinByName(reservation.getCheckinBy().getFirstName() + " " + reservation.getCheckinBy().getLastName());
         }
-
         if (reservation.getCheckoutBy() != null) {
             dto.setCheckoutById(reservation.getCheckoutBy().getId());
             dto.setCheckoutByName(reservation.getCheckoutBy().getFirstName() + " " + reservation.getCheckoutBy().getLastName());
         }
-
         dto.setCreatedAt(reservation.getCreatedAt());
         dto.setUpdatedAt(reservation.getUpdatedAt());
 

@@ -9,33 +9,31 @@
       </h2>
     </ng-template>
     <ng-template pTemplate="end">
-      <p-button
-        label="Annuler"
-        icon="pi pi-times"
-        severity="secondary"
-        [outlined]="true"
-        (onClick)="annuler()"
-        [disabled]="loading">
+      <p-button label="Annuler" icon="pi pi-times" severity="secondary"
+                [outlined]="true" (onClick)="annuler()" [disabled]="loading">
       </p-button>
     </ng-template>
   </p-toolbar>
 
-  <!-- ✅ Bandeau d'information en mode édition -->
-  <div *ngIf="isEditMode" class="p-3 mt-3 bg-blue-50 border-blue-200 border-1 border-round flex align-items-center gap-2">
-    <i class="pi pi-info-circle text-blue-600 text-xl"></i>
-    <span class="text-blue-800">
-      <strong>Mode modification :</strong>
-      vous pouvez mettre à jour le nombre de voyageurs, les demandes spéciales et les notes.
-      Les dates et la chambre ne sont pas modifiables après création.
+  <!-- Bandeau mode édition -->
+  <div *ngIf="isEditMode" class="p-3 mt-3 border-round border-1"
+       [ngClass]="estEnCours ? 'bg-orange-50 border-orange-300' : 'bg-blue-50 border-blue-200'">
+    <i class="mr-2 text-xl" [ngClass]="estEnCours ? 'pi pi-exclamation-triangle text-orange-600' : 'pi pi-info-circle text-blue-600'"></i>
+    <span [ngClass]="estEnCours ? 'text-orange-800' : 'text-blue-800'">
+      <strong *ngIf="estEnCours">Client en séjour :</strong>
+      <strong *ngIf="!estEnCours">Mode modification :</strong>
+      <ng-container *ngIf="estEnCours">
+        la date d'arrivée est verrouillée. Vous pouvez uniquement modifier la <strong>date de départ</strong>
+        (prolongation / réduction du séjour), le nombre de voyageurs et les notes.
+      </ng-container>
+      <ng-container *ngIf="!estEnCours">
+        vous pouvez modifier les dates, le nombre de voyageurs, les notes et les demandes spéciales.
+      </ng-container>
     </span>
   </div>
 
   <div class="steps-container mt-4">
-    <p-steps
-      [model]="items"
-      [(activeIndex)]="activeIndex"
-      [readonly]="true">
-    </p-steps>
+    <p-steps [model]="items" [(activeIndex)]="activeIndex" [readonly]="true"></p-steps>
   </div>
 
   <div *ngIf="loading" class="flex justify-center items-center my-8">
@@ -44,20 +42,39 @@
 
   <div *ngIf="!loading" class="step-content">
 
-    <!-- ====================================================================
-         ÉTAPE 1 : DATES & CHAMBRE (désactivée en mode édition)
-         ==================================================================== -->
+    <!-- =====================================================================
+         ÉTAPE 0 — DATES & CHAMBRE
+         ===================================================================== -->
     <div *ngIf="activeIndex === 0">
       <h3 class="step-title">
         <i class="pi pi-calendar mr-2"></i>
-        Sélection des dates et de la chambre
+        {{ isEditMode ? 'Modifier les dates du séjour' : 'Sélection des dates et de la chambre' }}
       </h3>
+
+      <!-- Info chambre actuelle en mode édition -->
+      <div *ngIf="isEditMode && chambreActuelle" class="mb-4 p-3 bg-surface-50 border-1 border-surface-200 border-round flex align-items-center gap-3">
+        <i class="pi pi-home text-2xl text-primary"></i>
+        <div>
+          <div class="font-semibold">Chambre N° {{ chambreActuelle.numero }}</div>
+          <div class="text-color-secondary text-sm">
+            {{ chambreActuelle.prixParNuit.toLocaleString('fr-FR') }} FCFA / nuit
+            <span class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 border-round">
+              Chambre non modifiable — pour changer de chambre, annulez et créez une nouvelle réservation
+            </span>
+          </div>
+        </div>
+      </div>
 
       <form [formGroup]="datesForm">
         <p-card>
           <div class="grid">
+
+            <!-- Date arrivée -->
             <div class="col-12 md:col-6">
-              <label for="dateArrivee" class="block mb-2 required">Date d'arrivée</label>
+              <label for="dateArrivee" class="block mb-2"
+                     [ngClass]="{'required': !estEnCours, 'text-color-secondary': estEnCours}">
+                Date d'arrivée {{ estEnCours ? '(verrouillée — client présent)' : '' }}
+              </label>
               <p-datepicker
                 inputId="dateArrivee"
                 formControlName="dateArrivee"
@@ -66,20 +83,27 @@
                 dateFormat="dd/mm/yy"
                 placeholder="Sélectionnez une date"
                 styleClass="w-full"
+                [disabled]="estEnCours"
                 [ngClass]="{'ng-invalid ng-dirty': datesForm.get('dateArrivee')?.invalid && datesForm.get('dateArrivee')?.touched}">
               </p-datepicker>
+              <small *ngIf="estEnCours" class="text-orange-600">
+                <i class="pi pi-lock mr-1"></i>Non modifiable (séjour en cours)
+              </small>
               <small *ngIf="datesForm.get('dateArrivee')?.invalid && datesForm.get('dateArrivee')?.touched" class="p-error">
                 La date d'arrivée est obligatoire
               </small>
             </div>
 
+            <!-- Date départ -->
             <div class="col-12 md:col-6">
-              <label for="dateDepart" class="block mb-2 required">Date de départ</label>
+              <label for="dateDepart" class="block mb-2 required">
+                Date de départ {{ estEnCours ? '(prolongation / réduction possible)' : '' }}
+              </label>
               <p-datepicker
                 inputId="dateDepart"
                 formControlName="dateDepart"
                 [showIcon]="true"
-                [minDate]="minDate"
+                [minDate]="estEnCours ? minDateDepart : minDate"
                 dateFormat="dd/mm/yy"
                 placeholder="Sélectionnez une date"
                 styleClass="w-full"
@@ -93,128 +117,161 @@
               </small>
             </div>
 
+            <!-- Nombre adultes -->
             <div class="col-12 md:col-6">
               <label for="nombreAdultes" class="block mb-2 required">Nombre d'adultes</label>
-              <p-inputnumber
-                inputId="nombreAdultes"
-                formControlName="nombreAdultes"
-                [showButtons]="true"
-                [min]="1"
-                [max]="10"
-                styleClass="w-full">
+              <p-inputnumber inputId="nombreAdultes" formControlName="nombreAdultes"
+                             [showButtons]="true" [min]="1" [max]="10" styleClass="w-full">
               </p-inputnumber>
             </div>
 
+            <!-- Nombre enfants -->
             <div class="col-12 md:col-6">
               <label for="nombreEnfants" class="block mb-2">Nombre d'enfants</label>
-              <p-inputnumber
-                inputId="nombreEnfants"
-                formControlName="nombreEnfants"
-                [showButtons]="true"
-                [min]="0"
-                [max]="10"
-                styleClass="w-full">
+              <p-inputnumber inputId="nombreEnfants" formControlName="nombreEnfants"
+                             [showButtons]="true" [min]="0" [max]="10" styleClass="w-full">
               </p-inputnumber>
             </div>
 
-            <div class="col-12" *ngIf="chambresDisponibles.length > 0">
+            <!-- Sélection chambre (création uniquement) -->
+            <div class="col-12" *ngIf="!isEditMode && chambresDisponibles.length > 0">
               <p-divider></p-divider>
-              <label for="chambreId" class="block mb-2 required">Chambre</label>
-              <p-select
-                inputId="chambreId"
-                formControlName="chambreId"
-                [options]="chambresDisponibles"
-                optionLabel="numero"
-                optionValue="id"
-                placeholder="Sélectionnez une chambre"
-                (onChange)="onChambreSelect($event)"
-                styleClass="w-full">
-                <ng-template pTemplate="selectedItem" let-chambre>
-                  <div *ngIf="chambre">{{ getChambreLabel(chambre) }}</div>
+              <label for="chambreId" class="block mb-2 required">Chambre disponible</label>
+              <p-select inputId="chambreId" formControlName="chambreId"
+                        [options]="chambresDisponibles" optionLabel="numero" optionValue="id"
+                        placeholder="Sélectionnez une chambre"
+                        (onChange)="onChambreSelect($event)" styleClass="w-full">
+                <ng-template pTemplate="selectedItem" let-c>
+                  <div *ngIf="c">{{ getChambreLabel(c) }}</div>
                 </ng-template>
-                <ng-template pTemplate="item" let-chambre>
-                  <div class="flex align-items-center gap-2">
-                    <div>
-                      <div class="font-semibold">Chambre {{ chambre.numero }}</div>
-                      <div class="text-sm text-color-secondary">
-                        {{ getTypeLabel(chambre.type) }} —
-                        Capacité : {{ chambre.capacite }} pers. —
-                        {{ chambre.prixParNuit.toLocaleString('fr-FR') }} FCFA/nuit
-                      </div>
+                <ng-template pTemplate="item" let-c>
+                  <div>
+                    <div class="font-semibold">Chambre {{ c.numero }}</div>
+                    <div class="text-sm text-color-secondary">
+                      {{ getTypeLabel(c.type) }} — Capacité : {{ c.capacite }} pers. —
+                      {{ c.prixParNuit.toLocaleString('fr-FR') }} FCFA/nuit
                     </div>
                   </div>
                 </ng-template>
               </p-select>
-              <small *ngIf="datesForm.get('chambreId')?.invalid && datesForm.get('chambreId')?.touched" class="p-error">
-                Veuillez sélectionner une chambre
-              </small>
             </div>
 
+            <!-- Aucune chambre dispo (création) -->
             <div class="col-12"
-                 *ngIf="datesForm.get('dateArrivee')?.value && datesForm.get('dateDepart')?.value && chambresDisponibles.length === 0 && !loading">
+                 *ngIf="!isEditMode && datesForm.get('dateArrivee')?.value && datesForm.get('dateDepart')?.value && chambresDisponibles.length === 0">
               <div class="p-3 bg-yellow-50 border-yellow-200 border-1 border-round">
                 <i class="pi pi-exclamation-triangle text-yellow-600 mr-2"></i>
-                <span class="text-yellow-800">Aucune chambre n'est disponible pour ces dates.</span>
+                <span class="text-yellow-800">Aucune chambre disponible pour ces dates.</span>
               </div>
             </div>
           </div>
 
-          <div *ngIf="selectedChambre && nombreNuits > 0" class="summary-box mt-4">
-            <h4>Résumé</h4>
-            <div class="summary-item">
-              <span>Chambre</span>
-              <span>{{ selectedChambre.numero }} ({{ getTypeLabel(selectedChambre.type) }})</span>
-            </div>
-            <div class="summary-item">
-              <span>Nuits</span>
-              <span>{{ nombreNuits }} nuit{{ nombreNuits > 1 ? 's' : '' }}</span>
-            </div>
-            <div class="summary-item">
-              <span>Prix / nuit</span>
-              <span>{{ selectedChambre.prixParNuit.toLocaleString('fr-FR') }} FCFA</span>
-            </div>
-            <p-divider></p-divider>
-            <div class="summary-item total">
-              <span>Total</span>
-              <span>{{ formattedMontantTotal }}</span>
-            </div>
+          <!-- ── Résumé / Différence ── -->
+          <div *ngIf="nombreNuits > 0" class="summary-box mt-4">
+            <h4>{{ isEditMode ? 'Impact de la modification' : 'Résumé' }}</h4>
+
+            <!-- Création : résumé simple -->
+            <ng-container *ngIf="!isEditMode && selectedChambre">
+              <div class="summary-item">
+                <span>Chambre</span>
+                <span>{{ selectedChambre.numero }} ({{ getTypeLabel(selectedChambre.type) }})</span>
+              </div>
+              <div class="summary-item">
+                <span>Durée</span>
+                <span>{{ nombreNuits }} nuit{{ nombreNuits > 1 ? 's' : '' }}</span>
+              </div>
+              <div class="summary-item">
+                <span>Prix / nuit</span>
+                <span>{{ selectedChambre.prixParNuit.toLocaleString('fr-FR') }} FCFA</span>
+              </div>
+              <p-divider></p-divider>
+              <div class="summary-item total">
+                <span>Total</span><span>{{ formattedMontantTotal }}</span>
+              </div>
+            </ng-container>
+
+            <!-- Édition : comparaison avant / après -->
+            <ng-container *ngIf="isEditMode">
+              <div class="summary-item">
+                <span>Durée</span>
+                <span>{{ nombreNuits }} nuit{{ nombreNuits > 1 ? 's' : '' }}</span>
+              </div>
+              <div class="summary-item">
+                <span>Prix / nuit</span>
+                <span>{{ getChambrePrixFormate() }}</span>
+              </div>
+              <p-divider></p-divider>
+              <div class="summary-item">
+                <span class="text-color-secondary">Montant initial</span>
+                <span class="line-through text-color-secondary">{{ formattedAncienTotal }}</span>
+              </div>
+              <div class="summary-item total">
+                <span>Nouveau total</span>
+                <span>{{ formattedMontantTotal }}</span>
+              </div>
+
+              <!-- Différence -->
+              <div *ngIf="difference !== 0" class="mt-3 p-3 border-round border-1"
+                   [ngClass]="difference > 0 ? 'bg-orange-50 border-orange-300' : 'bg-green-50 border-green-300'">
+                <div class="flex align-items-center gap-2">
+                  <i class="text-xl" [ngClass]="difference > 0 ? 'pi pi-arrow-up text-orange-600' : 'pi pi-arrow-down text-green-600'"></i>
+                  <div>
+                    <div class="font-semibold" [ngClass]="differenceClass">{{ differenceLabel }}</div>
+                    <div class="text-sm text-color-secondary mt-1" *ngIf="difference > 0">
+                      Le client devra régler ce supplément. Montant déjà payé : {{ formattedMontantPaye }}.
+                    </div>
+                    <div class="text-sm text-color-secondary mt-1" *ngIf="difference < 0">
+                      Un remboursement peut être nécessaire si le client a trop payé.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="summary-item mt-2">
+                <span>Déjà payé</span>
+                <span class="text-green-600">{{ formattedMontantPaye }}</span>
+              </div>
+              <div class="summary-item">
+                <span>Nouveau reste à payer</span>
+                <span [ngClass]="montantRestant > 0 ? 'text-orange-600 font-bold' : 'text-green-600 font-bold'">
+                  {{ formattedMontantRestant }}
+                </span>
+              </div>
+            </ng-container>
           </div>
         </p-card>
       </form>
     </div>
 
-    <!-- ====================================================================
-         ÉTAPE 2 : CLIENT
-         ==================================================================== -->
+    <!-- =====================================================================
+         ÉTAPE 1 — CLIENT
+         ===================================================================== -->
     <div *ngIf="activeIndex === 1">
       <h3 class="step-title">
         <i class="pi pi-user mr-2"></i>
         Informations du client
       </h3>
 
-      <!-- ✅ Sélecteur type client désactivé en mode édition -->
-      <div class="client-type-selector mb-4" [style.opacity]="isEditMode ? '0.5' : '1'" [style.pointer-events]="isEditMode ? 'none' : 'auto'">
+      <!-- En mode édition : client non modifiable -->
+      <div *ngIf="isEditMode" class="mb-4 p-3 bg-surface-50 border-1 border-surface-200 border-round">
+        <i class="pi pi-info-circle text-primary mr-2"></i>
+        <span class="text-color-secondary">Le client associé à la réservation ne peut pas être changé après création.</span>
+      </div>
+
+      <div *ngIf="!isEditMode" class="client-type-selector mb-4">
         <div class="grid">
           <div class="col-12 md:col-6">
             <div class="flex align-items-center">
-              <p-radiobutton
-                inputId="clientNouveau"
-                name="clientType"
-                value="nouveau"
-                [(ngModel)]="clientType"
-                (onClick)="onClientTypeChange('nouveau')">
+              <p-radiobutton inputId="clientNouveau" name="clientType" value="nouveau"
+                             [(ngModel)]="clientType" (onClick)="onClientTypeChange('nouveau')">
               </p-radiobutton>
               <label for="clientNouveau" class="ml-2">Nouveau client</label>
             </div>
           </div>
           <div class="col-12 md:col-6">
             <div class="flex align-items-center">
-              <p-radiobutton
-                inputId="clientExistant"
-                name="clientType"
-                value="existant"
-                [(ngModel)]="clientType"
-                (onClick)="onClientTypeChange('existant')">
+              <p-radiobutton inputId="clientExistant" name="clientType" value="existant"
+                             [(ngModel)]="clientType" (onClick)="onClientTypeChange('existant')">
               </p-radiobutton>
               <label for="clientExistant" class="ml-2">Client existant</label>
             </div>
@@ -225,192 +282,112 @@
       <form [formGroup]="clientForm">
         <p-card>
 
-          <!-- ✅ Section client EXISTANT — avec chargement réel depuis l'API -->
+          <!-- Client existant -->
           <div *ngIf="clientType === 'existant'" class="grid">
             <div class="col-12">
-              <label for="clientId" class="block mb-2 required">Rechercher un client</label>
-
-              <!-- Spinner pendant le chargement des clients -->
+              <label for="clientId" class="block mb-2" [ngClass]="{'required': !isEditMode}">
+                {{ isEditMode ? 'Client de la réservation' : 'Rechercher un client' }}
+              </label>
               <div *ngIf="clientsLoading" class="flex align-items-center gap-2 mb-2">
                 <p-progressSpinner styleClass="w-2rem h-2rem"></p-progressSpinner>
-                <span class="text-color-secondary text-sm">Chargement des clients...</span>
+                <span class="text-sm text-color-secondary">Chargement...</span>
               </div>
-
-              <p-select
-                *ngIf="!clientsLoading"
-                inputId="clientId"
-                formControlName="clientId"
-                [options]="clientsExistants"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Recherchez par nom ou téléphone..."
-                [filter]="true"
-                filterBy="label"
-                [showClear]="true"
-                styleClass="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': clientForm.get('clientId')?.invalid && clientForm.get('clientId')?.touched}">
-
-                <!-- Template item : affiche nom + téléphone clairement -->
-                <ng-template pTemplate="item" let-client>
+              <p-select *ngIf="!clientsLoading"
+                        inputId="clientId" formControlName="clientId"
+                        [options]="clientsExistants" optionLabel="label" optionValue="value"
+                        placeholder="Recherchez par nom ou téléphone..."
+                        [filter]="true" filterBy="label" [showClear]="!isEditMode"
+                        styleClass="w-full"
+                        [disabled]="isEditMode">
+                <ng-template pTemplate="item" let-c>
                   <div class="flex align-items-center gap-2">
                     <i class="pi pi-user text-color-secondary"></i>
                     <div>
-                      <div class="font-semibold">{{ client.label.split('—')[0].trim() }}</div>
-                      <div class="text-sm text-color-secondary">
-                        <i class="pi pi-phone mr-1"></i>{{ client.telephone }}
-                      </div>
+                      <div class="font-semibold">{{ c.label.split('—')[0].trim() }}</div>
+                      <div class="text-sm text-color-secondary"><i class="pi pi-phone mr-1"></i>{{ c.telephone }}</div>
                     </div>
                   </div>
                 </ng-template>
-
-                <!-- Template quand aucun résultat -->
-                <ng-template pTemplate="emptyfilter">
-                  <div class="p-3 text-center text-color-secondary">
-                    <i class="pi pi-search mr-2"></i>Aucun client trouvé
-                  </div>
-                </ng-template>
               </p-select>
-
-              <small class="p-error" *ngIf="clientForm.get('clientId')?.invalid && clientForm.get('clientId')?.touched">
-                Veuillez sélectionner un client
-              </small>
-
-              <!-- Lien rapide pour rafraîchir la liste -->
-              <div class="flex align-items-center justify-content-between mt-2">
-                <small class="text-color-secondary">
-                  <i class="pi pi-info-circle mr-1"></i>
-                  {{ clientsExistants.length }} client(s) disponible(s)
-                </small>
-                <p-button
-                  label="Rafraîchir"
-                  icon="pi pi-refresh"
-                  [text]="true"
-                  size="small"
-                  (onClick)="loadClients()">
-                </p-button>
+              <div *ngIf="!isEditMode" class="flex align-items-center justify-content-between mt-2">
+                <small class="text-color-secondary">{{ clientsExistants.length }} client(s)</small>
+                <p-button label="Rafraîchir" icon="pi pi-refresh" [text]="true" size="small" (onClick)="loadClients()"></p-button>
               </div>
             </div>
           </div>
 
-          <!-- Section client NOUVEAU -->
+          <!-- Nouveau client (création uniquement) -->
           <div *ngIf="clientType === 'nouveau'" class="grid">
             <div class="col-12 md:col-6">
-              <label for="prenom" class="block mb-2 required">Prénom</label>
-              <input pInputText id="prenom" formControlName="prenom"
-                     placeholder="Entrez le prénom" class="w-full"
-                     [ngClass]="{'ng-invalid ng-dirty': clientForm.get('prenom')?.invalid && clientForm.get('prenom')?.touched}" />
-              <small class="p-error" *ngIf="clientForm.get('prenom')?.invalid && clientForm.get('prenom')?.touched">
-                Le prénom est obligatoire (min. 2 caractères)
-              </small>
+              <label class="block mb-2 required">Prénom</label>
+              <input pInputText formControlName="prenom" placeholder="Prénom" class="w-full" />
+              <small class="p-error" *ngIf="clientForm.get('prenom')?.invalid && clientForm.get('prenom')?.touched">Obligatoire (min. 2 car.)</small>
             </div>
-
             <div class="col-12 md:col-6">
-              <label for="nom" class="block mb-2 required">Nom</label>
-              <input pInputText id="nom" formControlName="nom"
-                     placeholder="Entrez le nom" class="w-full"
-                     [ngClass]="{'ng-invalid ng-dirty': clientForm.get('nom')?.invalid && clientForm.get('nom')?.touched}" />
-              <small class="p-error" *ngIf="clientForm.get('nom')?.invalid && clientForm.get('nom')?.touched">
-                Le nom est obligatoire (min. 2 caractères)
-              </small>
+              <label class="block mb-2 required">Nom</label>
+              <input pInputText formControlName="nom" placeholder="Nom" class="w-full" />
+              <small class="p-error" *ngIf="clientForm.get('nom')?.invalid && clientForm.get('nom')?.touched">Obligatoire (min. 2 car.)</small>
             </div>
-
             <div class="col-12 md:col-6">
-              <label for="telephone" class="block mb-2 required">Téléphone</label>
-              <input pInputText id="telephone" formControlName="telephone"
-                     placeholder="+225 XX XX XX XX XX" class="w-full"
-                     [ngClass]="{'ng-invalid ng-dirty': clientForm.get('telephone')?.invalid && clientForm.get('telephone')?.touched}" />
-              <small class="p-error" *ngIf="clientForm.get('telephone')?.invalid && clientForm.get('telephone')?.touched">
-                Le téléphone est obligatoire
-              </small>
+              <label class="block mb-2 required">Téléphone</label>
+              <input pInputText formControlName="telephone" placeholder="+225 XX XX XX XX XX" class="w-full" />
+              <small class="p-error" *ngIf="clientForm.get('telephone')?.invalid && clientForm.get('telephone')?.touched">Obligatoire</small>
             </div>
-
             <div class="col-12 md:col-6">
-              <label for="email" class="block mb-2">Email</label>
-              <input pInputText id="email" type="email" formControlName="email"
-                     placeholder="email@exemple.com" class="w-full" />
-              <small class="p-error" *ngIf="clientForm.get('email')?.hasError('email') && clientForm.get('email')?.touched">
-                L'email n'est pas valide
-              </small>
+              <label class="block mb-2">Email</label>
+              <input pInputText type="email" formControlName="email" placeholder="email@exemple.com" class="w-full" />
             </div>
-
-            <div class="col-12">
-              <p-divider></p-divider>
-              <h4>Pièce d'identité (optionnel)</h4>
-            </div>
-
+            <div class="col-12"><p-divider></p-divider><h4>Pièce d'identité (optionnel)</h4></div>
             <div class="col-12 md:col-6">
-              <label for="typePiece" class="block mb-2">Type de pièce</label>
-              <p-select inputId="typePiece" formControlName="typePiece"
-                        [options]="typePieceOptions" placeholder="Sélectionnez un type"
-                        styleClass="w-full">
-              </p-select>
+              <label class="block mb-2">Type de pièce</label>
+              <p-select formControlName="typePiece" [options]="typePieceOptions" placeholder="Sélectionnez" styleClass="w-full"></p-select>
             </div>
-
             <div class="col-12 md:col-6">
-              <label for="pieceIdentite" class="block mb-2">Numéro de pièce</label>
-              <input pInputText id="pieceIdentite" formControlName="pieceIdentite"
-                     placeholder="Numéro de la pièce" class="w-full" />
+              <label class="block mb-2">Numéro de pièce</label>
+              <input pInputText formControlName="pieceIdentite" placeholder="Numéro" class="w-full" />
             </div>
-
             <div class="col-12 md:col-4">
-              <label for="dateNaissance" class="block mb-2">Date de naissance</label>
-              <p-datepicker inputId="dateNaissance" formControlName="dateNaissance"
-                            [showIcon]="true" dateFormat="dd/mm/yy" placeholder="JJ/MM/AAAA"
-                            styleClass="w-full" [maxDate]="minDate">
-              </p-datepicker>
+              <label class="block mb-2">Date de naissance</label>
+              <p-datepicker formControlName="dateNaissance" [showIcon]="true" dateFormat="dd/mm/yy" styleClass="w-full" [maxDate]="minDate"></p-datepicker>
             </div>
-
             <div class="col-12 md:col-4">
-              <label for="nationalite" class="block mb-2">Nationalité</label>
-              <input pInputText id="nationalite" formControlName="nationalite"
-                     placeholder="Nationalité" class="w-full" />
+              <label class="block mb-2">Nationalité</label>
+              <input pInputText formControlName="nationalite" placeholder="Nationalité" class="w-full" />
             </div>
-
             <div class="col-12 md:col-4">
-              <label for="pays" class="block mb-2">Pays</label>
-              <input pInputText id="pays" formControlName="pays"
-                     placeholder="Pays de résidence" class="w-full" />
+              <label class="block mb-2">Pays</label>
+              <input pInputText formControlName="pays" placeholder="Pays" class="w-full" />
             </div>
-
             <div class="col-12 md:col-8">
-              <label for="adresse" class="block mb-2">Adresse</label>
-              <input pInputText id="adresse" formControlName="adresse"
-                     placeholder="Adresse complète" class="w-full" />
+              <label class="block mb-2">Adresse</label>
+              <input pInputText formControlName="adresse" placeholder="Adresse complète" class="w-full" />
             </div>
-
             <div class="col-12 md:col-4">
-              <label for="ville" class="block mb-2">Ville</label>
-              <input pInputText id="ville" formControlName="ville"
-                     placeholder="Ville" class="w-full" />
+              <label class="block mb-2">Ville</label>
+              <input pInputText formControlName="ville" placeholder="Ville" class="w-full" />
             </div>
-
             <div class="col-12">
-              <label for="notes" class="block mb-2">Notes</label>
-              <textarea pTextarea id="notes" formControlName="notes" rows="3"
-                        placeholder="Notes ou remarques sur le client..." class="w-full">
-              </textarea>
+              <label class="block mb-2">Notes</label>
+              <textarea pTextarea formControlName="notes" rows="3" placeholder="Notes..." class="w-full"></textarea>
             </div>
           </div>
         </p-card>
       </form>
     </div>
 
-    <!-- ====================================================================
-         ÉTAPE 3 : PAIEMENT & NOTES
-         ==================================================================== -->
+    <!-- =====================================================================
+         ÉTAPE 2 — PAIEMENT & NOTES
+         ===================================================================== -->
     <div *ngIf="activeIndex === 2">
       <h3 class="step-title">
         <i class="pi pi-money-bill mr-2"></i>
         Paiement et demandes spéciales
       </h3>
 
-      <!-- ✅ En mode édition : rappel de ce qui est modifiable -->
       <div *ngIf="isEditMode" class="p-3 mb-3 bg-orange-50 border-orange-200 border-1 border-round">
-        <i class="pi pi-pencil text-orange-600 mr-2"></i>
+        <i class="pi pi-info-circle text-orange-600 mr-2"></i>
         <span class="text-orange-800">
-          En mode modification, seules les <strong>demandes spéciales</strong>,
-          la <strong>référence externe</strong> et le <strong>nombre de voyageurs</strong> peuvent être mis à jour.
-          Pour ajouter un paiement, utilisez le bouton "Ajouter un paiement" sur la fiche détail.
+          Pour ajouter un paiement, utilisez le bouton <strong>"Ajouter un paiement"</strong> sur la fiche détail de la réservation.
         </span>
       </div>
 
@@ -419,68 +396,59 @@
           <div class="col-12 lg:col-8">
             <p-card header="Informations de paiement">
               <div class="grid">
+                <!-- Montant total -->
                 <div class="col-12">
                   <div class="p-3 bg-blue-50 border-blue-200 border-1 border-round">
-                    <div class="flex justify-between items-center">
-                      <span class="font-semibold">Montant total de la réservation</span>
+                    <div class="flex justify-between align-items-center">
+                      <span class="font-semibold">Montant total</span>
                       <span class="text-2xl font-bold text-blue-600">{{ formattedMontantTotal }}</span>
+                    </div>
+                    <div *ngIf="isEditMode && difference !== 0" class="mt-2 flex align-items-center gap-2">
+                      <span class="text-sm text-color-secondary line-through">Ancien total : {{ formattedAncienTotal }}</span>
+                      <span class="text-sm font-semibold" [ngClass]="differenceClass">{{ differenceLabel }}</span>
                     </div>
                   </div>
                 </div>
 
                 <div class="col-12"><p-divider></p-divider></div>
 
-                <!-- Montant payé : lecture seule en mode édition -->
+                <!-- Montant payé (lecture seule en édition) -->
                 <div class="col-12 md:col-6">
-                  <label for="montantPaye" class="block mb-2">
-                    {{ isEditMode ? 'Montant payé (lecture seule)' : 'Montant payé maintenant' }}
+                  <label class="block mb-2">
+                    {{ isEditMode ? 'Montant payé (non modifiable ici)' : 'Montant payé maintenant' }}
                   </label>
-                  <p-inputnumber
-                    inputId="montantPaye"
-                    formControlName="montantPaye"
-                    mode="currency"
-                    currency="XOF"
-                    locale="fr-FR"
-                    [min]="0"
-                    [max]="montantTotal"
-                    [readonly]="isEditMode"
-                    styleClass="w-full">
+                  <p-inputnumber formControlName="montantPaye" mode="currency" currency="XOF" locale="fr-FR"
+                                 [min]="0" [max]="montantTotal" [readonly]="isEditMode" styleClass="w-full">
                   </p-inputnumber>
                   <small class="block mt-1 text-color-secondary">
                     {{ isEditMode ? 'Utilisez "Ajouter un paiement" sur la fiche détail' : 'Laissez à 0 pour paiement ultérieur' }}
                   </small>
                 </div>
 
+                <!-- Mode paiement -->
                 <div class="col-12 md:col-6">
-                  <label for="modePaiement" class="block mb-2"
+                  <label class="block mb-2"
                          [ngClass]="{'required': !isEditMode && paiementForm.get('montantPaye')?.value > 0}">
                     Mode de paiement
                   </label>
-                  <p-select
-                    inputId="modePaiement"
-                    formControlName="modePaiement"
-                    [options]="modePaiementOptions"
-                    placeholder="Sélectionnez un mode"
-                    styleClass="w-full"
-                    [disabled]="isEditMode"
-                    [ngClass]="{'ng-invalid ng-dirty': paiementForm.get('modePaiement')?.invalid && paiementForm.get('modePaiement')?.touched}">
+                  <p-select formControlName="modePaiement" [options]="modePaiementOptions"
+                            placeholder="Sélectionnez un mode" styleClass="w-full"
+                            [disabled]="isEditMode">
                   </p-select>
-                  <small class="p-error" *ngIf="paiementForm.get('modePaiement')?.invalid && paiementForm.get('modePaiement')?.touched">
-                    Le mode de paiement est obligatoire si un montant est saisi
-                  </small>
                 </div>
 
+                <!-- Référence externe -->
                 <div class="col-12">
-                  <label for="referenceExterne" class="block mb-2">Référence externe</label>
-                  <input pInputText id="referenceExterne" formControlName="referenceExterne"
+                  <label class="block mb-2">Référence externe</label>
+                  <input pInputText formControlName="referenceExterne"
                          placeholder="Ex: réservation Booking.com, Airbnb, etc." class="w-full" />
                 </div>
 
+                <!-- Demandes spéciales -->
                 <div class="col-12">
-                  <label for="demandesSpeciales" class="block mb-2">Demandes spéciales</label>
-                  <textarea pTextarea id="demandesSpeciales" formControlName="demandesSpeciales"
-                            rows="4"
-                            placeholder="Lit bébé, vue préférée, allergies alimentaires, accessibilité..."
+                  <label class="block mb-2">Demandes spéciales</label>
+                  <textarea pTextarea formControlName="demandesSpeciales" rows="4"
+                            placeholder="Lit bébé, vue préférée, allergies, accessibilité..."
                             class="w-full">
                   </textarea>
                 </div>
@@ -488,11 +456,16 @@
             </p-card>
           </div>
 
+          <!-- Résumé financier -->
           <div class="col-12 lg:col-4">
             <p-card header="Résumé financier">
               <div class="financial-summary">
+                <div class="summary-item" *ngIf="isEditMode && difference !== 0">
+                  <span>Ancien total</span>
+                  <span class="line-through text-color-secondary">{{ formattedAncienTotal }}</span>
+                </div>
                 <div class="summary-item">
-                  <span>Montant total</span>
+                  <span>{{ isEditMode && difference !== 0 ? 'Nouveau total' : 'Montant total' }}</span>
                   <span>{{ formattedMontantTotal }}</span>
                 </div>
                 <div class="summary-item">
@@ -507,6 +480,14 @@
                   </span>
                 </div>
               </div>
+
+              <!-- Badge différence (édition) -->
+              <div *ngIf="isEditMode && difference !== 0" class="mt-3 p-2 border-round border-1"
+                   [ngClass]="difference > 0 ? 'bg-orange-50 border-orange-200' : 'bg-green-50 border-green-200'">
+                <i class="mr-1" [ngClass]="difference > 0 ? 'pi pi-arrow-up text-orange-600' : 'pi pi-arrow-down text-green-600'"></i>
+                <span class="text-sm font-semibold" [ngClass]="differenceClass">{{ differenceLabel }}</span>
+              </div>
+
               <div class="mt-4">
                 <p-tag [value]="getPaymentLabel()" [severity]="getPaymentSeverity()"></p-tag>
               </div>
@@ -516,9 +497,9 @@
       </form>
     </div>
 
-    <!-- ====================================================================
-         ÉTAPE 4 : CONFIRMATION
-         ==================================================================== -->
+    <!-- =====================================================================
+         ÉTAPE 3 — CONFIRMATION
+         ===================================================================== -->
     <div *ngIf="activeIndex === 3">
       <h3 class="step-title">
         <i class="pi pi-check-circle mr-2"></i>
@@ -528,40 +509,41 @@
       <div class="confirmation-content">
         <div class="alert alert-info mb-4">
           <i class="pi pi-info-circle mr-2"></i>
-          <span>
-            {{ isEditMode
-            ? 'Vérifiez les modifications ci-dessous avant de confirmer.'
-            : 'Vérifiez attentivement les informations ci-dessous avant de confirmer la réservation.' }}
-          </span>
+          <span>{{ isEditMode ? 'Vérifiez les modifications avant de confirmer.' : 'Vérifiez les informations avant de confirmer.' }}</span>
         </div>
 
         <div class="grid">
+
           <!-- Dates & Chambre -->
           <div class="col-12 md:col-6">
             <p-card header="📅 Dates et Chambre">
               <div class="info-grid">
                 <div class="info-row">
                   <span class="label">Date d'arrivée</span>
-                  <span class="value">{{ datesForm.get('dateArrivee')?.value | date:'fullDate':'':'fr' }}</span>
+                  <span class="value">{{ datesForm.getRawValue().dateArrivee | date:'fullDate':'':'fr' }}</span>
                 </div>
                 <div class="info-row">
                   <span class="label">Date de départ</span>
-                  <span class="value">{{ datesForm.get('dateDepart')?.value | date:'fullDate':'':'fr' }}</span>
+                  <span class="value">{{ datesForm.getRawValue().dateDepart | date:'fullDate':'':'fr' }}</span>
                 </div>
                 <div class="info-row">
-                  <span class="label">Nombre de nuits</span>
+                  <span class="label">Durée</span>
                   <span class="value">{{ nombreNuits }} nuit{{ nombreNuits > 1 ? 's' : '' }}</span>
                 </div>
-                <div class="info-row" *ngIf="selectedChambre">
+                <div class="info-row" *ngIf="isEditMode && chambreActuelle">
                   <span class="label">Chambre</span>
-                  <span class="value">N° {{ selectedChambre.numero }} - {{ getTypeLabel(selectedChambre.type) }}</span>
+                  <span class="value">N° {{ chambreActuelle.numero }}</span>
+                </div>
+                <div class="info-row" *ngIf="!isEditMode && selectedChambre">
+                  <span class="label">Chambre</span>
+                  <span class="value">N° {{ selectedChambre.numero }} — {{ getTypeLabel(selectedChambre.type) }}</span>
                 </div>
                 <div class="info-row">
                   <span class="label">Voyageurs</span>
                   <span class="value">
-                    {{ datesForm.get('nombreAdultes')?.value }} adulte{{ datesForm.get('nombreAdultes')?.value > 1 ? 's' : '' }}
-                    <span *ngIf="datesForm.get('nombreEnfants')?.value > 0">
-                      , {{ datesForm.get('nombreEnfants')?.value }} enfant{{ datesForm.get('nombreEnfants')?.value > 1 ? 's' : '' }}
+                    {{ datesForm.getRawValue().nombreAdultes }} adulte{{ datesForm.getRawValue().nombreAdultes > 1 ? 's' : '' }}
+                    <span *ngIf="datesForm.getRawValue().nombreEnfants > 0">
+                      + {{ datesForm.getRawValue().nombreEnfants }} enfant{{ datesForm.getRawValue().nombreEnfants > 1 ? 's' : '' }}
                     </span>
                   </span>
                 </div>
@@ -569,21 +551,17 @@
             </p-card>
           </div>
 
-          <!-- Infos client -->
+          <!-- Client -->
           <div class="col-12 md:col-6">
-            <p-card header="👤 Informations Client">
+            <p-card header="👤 Client">
               <div class="info-grid" *ngIf="clientType === 'nouveau'">
                 <div class="info-row">
-                  <span class="label">Nom complet</span>
-                  <span class="value">{{ clientForm.get('prenom')?.value }} {{ clientForm.get('nom')?.value }}</span>
+                  <span class="label">Nom</span>
+                  <span class="value">{{ clientForm.value.prenom }} {{ clientForm.value.nom }}</span>
                 </div>
                 <div class="info-row">
                   <span class="label">Téléphone</span>
-                  <span class="value">{{ clientForm.get('telephone')?.value }}</span>
-                </div>
-                <div class="info-row" *ngIf="clientForm.get('email')?.value">
-                  <span class="label">Email</span>
-                  <span class="value">{{ clientForm.get('email')?.value }}</span>
+                  <span class="value">{{ clientForm.value.telephone }}</span>
                 </div>
               </div>
               <div class="info-grid" *ngIf="clientType === 'existant'">
@@ -604,28 +582,38 @@
             <p-card header="💰 Résumé Financier">
               <div class="financial-summary">
                 <div class="summary-item">
-                  <span>Prix par nuit</span>
-                  <span>{{ getChambrePrixFormate() }}</span>
+                  <span>Prix / nuit</span><span>{{ getChambrePrixFormate() }}</span>
                 </div>
                 <div class="summary-item">
-                  <span>Nombre de nuits</span>
-                  <span>{{ nombreNuits }}</span>
+                  <span>Nuits</span><span>{{ nombreNuits }}</span>
                 </div>
                 <p-divider></p-divider>
+
+                <!-- Comparaison avant/après en mode édition -->
+                <div *ngIf="isEditMode && difference !== 0" class="summary-item">
+                  <span class="text-color-secondary">Ancien total</span>
+                  <span class="line-through text-color-secondary">{{ formattedAncienTotal }}</span>
+                </div>
+
                 <div class="summary-item total">
-                  <span>Montant total</span>
+                  <span>{{ isEditMode && difference !== 0 ? 'Nouveau total' : 'Total' }}</span>
                   <span>{{ formattedMontantTotal }}</span>
                 </div>
                 <div class="summary-item">
-                  <span>Montant payé</span>
+                  <span>Déjà payé</span>
                   <span class="text-green-600">{{ formattedMontantPaye }}</span>
                 </div>
                 <div class="summary-item">
                   <span>Reste à payer</span>
-                  <span [ngClass]="montantRestant > 0 ? 'text-orange-600' : 'text-green-600'">
-                    {{ formattedMontantRestant }}
-                  </span>
+                  <span [ngClass]="montantRestant > 0 ? 'text-orange-600' : 'text-green-600'">{{ formattedMontantRestant }}</span>
                 </div>
+              </div>
+
+              <!-- Alerte différence -->
+              <div *ngIf="isEditMode && difference !== 0" class="mt-3 p-3 border-round border-1"
+                   [ngClass]="difference > 0 ? 'bg-orange-50 border-orange-300' : 'bg-green-50 border-green-300'">
+                <i class="mr-2" [ngClass]="difference > 0 ? 'pi pi-exclamation-triangle text-orange-600' : 'pi pi-info-circle text-green-600'"></i>
+                <span class="font-semibold" [ngClass]="differenceClass">{{ differenceLabel }}</span>
               </div>
             </p-card>
           </div>
@@ -635,60 +623,33 @@
               <p class="m-0">{{ paiementForm.get('demandesSpeciales')?.value }}</p>
             </p-card>
           </div>
-
-          <div class="col-12" *ngIf="paiementForm.get('referenceExterne')?.value">
-            <p-card header="🔗 Référence Externe">
-              <p class="m-0">{{ paiementForm.get('referenceExterne')?.value }}</p>
-            </p-card>
-          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ====================================================================
-       NAVIGATION
-       ==================================================================== -->
+  <!-- Navigation -->
   <div class="step-actions" *ngIf="!loading">
     <div>
-      <!-- Précédent : masqué en mode édition car on commence à l'étape 2 -->
-      <p-button
-        *ngIf="activeIndex > 0 && activeIndex < 3 && !isEditMode"
-        label="Précédent"
-        icon="pi pi-arrow-left"
-        severity="secondary"
-        [outlined]="true"
-        (onClick)="prevStep()">
+      <p-button *ngIf="activeIndex > 0 && activeIndex < 3"
+                label="Précédent" icon="pi pi-arrow-left" severity="secondary"
+                [outlined]="true" (onClick)="prevStep()">
       </p-button>
     </div>
-
     <div>
-      <!-- Suivant : étapes 0 et 1 (création), ou étape 2 en mode édition -->
-      <p-button
-        *ngIf="activeIndex < 2"
-        label="Suivant"
-        icon="pi pi-arrow-right"
-        iconPos="right"
-        (onClick)="nextStep()">
+      <p-button *ngIf="activeIndex < 2"
+                label="Suivant" icon="pi pi-arrow-right" iconPos="right"
+                (onClick)="nextStep()">
       </p-button>
-
-      <!-- Valider : étape 2 -->
-      <p-button
-        *ngIf="activeIndex === 2"
-        [label]="isEditMode ? 'Vérifier les modifications' : 'Valider et Confirmer'"
-        icon="pi pi-check"
-        iconPos="right"
-        (onClick)="nextStep()">
+      <p-button *ngIf="activeIndex === 2"
+                [label]="isEditMode ? 'Vérifier les modifications' : 'Valider et Confirmer'"
+                icon="pi pi-check" iconPos="right" (onClick)="nextStep()">
       </p-button>
-
-      <!-- Confirmer final : étape 3 -->
-      <p-button
-        *ngIf="activeIndex === 3"
-        [label]="isEditMode ? 'Enregistrer les modifications' : 'Confirmer la réservation'"
-        [icon]="isEditMode ? 'pi pi-save' : 'pi pi-check-circle'"
-        [severity]="isEditMode ? 'warn' : 'success'"
-        (onClick)="confirmerReservation()"
-        [loading]="loading">
+      <p-button *ngIf="activeIndex === 3"
+                [label]="isEditMode ? 'Enregistrer les modifications' : 'Confirmer la réservation'"
+                [icon]="isEditMode ? 'pi pi-save' : 'pi pi-check-circle'"
+                [severity]="isEditMode ? 'warn' : 'success'"
+                (onClick)="confirmerReservation()" [loading]="loading">
       </p-button>
     </div>
   </div>

@@ -18,18 +18,15 @@ import java.util.Optional;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
     List<Reservation> findByHotel(Hotel hotel);
-
     List<Reservation> findByHotelAndStatut(Hotel hotel, StatutReservation statut);
-
     List<Reservation> findByClient(Client client);
-
     List<Reservation> findByChambre(Chambre chambre);
-
     Optional<Reservation> findByNumeroReservation(String numeroReservation);
-
     boolean existsByNumeroReservation(String numeroReservation);
 
-    // Réservations pour une chambre sur une période donnée
+    // ─── Disponibilité ────────────────────────────────────────────────────────
+
+    /** Conflits de disponibilité pour une chambre sur une période (création) */
     @Query("SELECT r FROM Reservation r WHERE r.chambre = :chambre AND " +
             "r.statut NOT IN ('ANNULEE', 'TERMINEE') AND " +
             "(r.dateArrivee <= :dateDepart AND r.dateDepart >= :dateArrivee)")
@@ -39,32 +36,46 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("dateDepart") LocalDate dateDepart
     );
 
-    // Réservations d'aujourd'hui pour un hôtel
+    /**
+     * ✅ NOUVEAU : Conflits de disponibilité en EXCLUANT la réservation en cours de modification.
+     * Utilisé pour la prolongation/réduction : la réservation elle-même ne doit pas être
+     * considérée comme un conflit avec ses propres nouvelles dates.
+     */
+    @Query("SELECT r FROM Reservation r WHERE r.chambre = :chambre AND " +
+            "r.id != :excludeId AND " +
+            "r.statut NOT IN ('ANNULEE', 'TERMINEE') AND " +
+            "(r.dateArrivee <= :dateDepart AND r.dateDepart >= :dateArrivee)")
+    List<Reservation> findReservationsByChambreAndPeriodeExcluding(
+            @Param("chambre") Chambre chambre,
+            @Param("dateArrivee") LocalDate dateArrivee,
+            @Param("dateDepart") LocalDate dateDepart,
+            @Param("excludeId") Long excludeId
+    );
+
+    // ─── Requêtes par date ────────────────────────────────────────────────────
+
     @Query("SELECT r FROM Reservation r WHERE r.hotel = :hotel AND r.dateArrivee = :date")
     List<Reservation> findArrivalsForToday(@Param("hotel") Hotel hotel, @Param("date") LocalDate date);
 
     @Query("SELECT r FROM Reservation r WHERE r.hotel = :hotel AND r.dateDepart = :date")
     List<Reservation> findDeparturesForToday(@Param("hotel") Hotel hotel, @Param("date") LocalDate date);
 
-    // Réservations en cours
     @Query("SELECT r FROM Reservation r WHERE r.hotel = :hotel AND r.statut = 'EN_COURS'")
     List<Reservation> findReservationsEnCours(@Param("hotel") Hotel hotel);
 
-    // Réservations à venir
     @Query("SELECT r FROM Reservation r WHERE r.hotel = :hotel AND " +
             "r.statut = 'CONFIRMEE' AND r.dateArrivee > :date")
     List<Reservation> findReservationsAVenir(@Param("hotel") Hotel hotel, @Param("date") LocalDate date);
 
-    // Recherche par mots-clés
     @Query("SELECT r FROM Reservation r WHERE r.hotel = :hotel AND " +
             "(r.numeroReservation LIKE %:keyword% OR " +
             "r.client.nom LIKE %:keyword% OR r.client.prenom LIKE %:keyword% OR " +
             "r.chambre.numero LIKE %:keyword%)")
     List<Reservation> searchByHotelAndKeyword(@Param("hotel") Hotel hotel, @Param("keyword") String keyword);
 
-    // Statistiques
-    long countByHotel(Hotel hotel);
+    // ─── Statistiques ─────────────────────────────────────────────────────────
 
+    long countByHotel(Hotel hotel);
     long countByHotelAndStatut(Hotel hotel, StatutReservation statut);
 
     @Query("SELECT COUNT(r) FROM Reservation r WHERE r.hotel = :hotel AND " +
