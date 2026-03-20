@@ -2,15 +2,21 @@
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
 
-  <!-- En-tête avec statistiques -->
+  <!-- ══════════════════════════════════════════════════════════════════
+       CARTES STATISTIQUES — se recalculent après chaque filtre
+       ══════════════════════════════════════════════════════════════════ -->
   <div class="statistics-grid">
+
     <div class="stat-card">
       <div class="stat-icon">
         <i class="pi pi-shopping-cart"></i>
       </div>
       <div class="stat-content">
         <div class="stat-value">{{ totalCommandes }}</div>
-        <div class="stat-label">Total Commandes</div>
+        <div class="stat-label">
+          Total Commandes
+          <span *ngIf="hasActiveFilters" class="stat-filter-hint">(filtrées)</span>
+        </div>
       </div>
     </div>
 
@@ -20,7 +26,10 @@
       </div>
       <div class="stat-content">
         <div class="stat-value">{{ commandesEnAttente }}</div>
-        <div class="stat-label">En Attente</div>
+        <div class="stat-label">
+          En Attente
+          <span *ngIf="hasActiveFilters" class="stat-filter-hint">(filtrées)</span>
+        </div>
       </div>
     </div>
 
@@ -30,7 +39,10 @@
       </div>
       <div class="stat-content">
         <div class="stat-value">{{ commandesEnCours }}</div>
-        <div class="stat-label">En Préparation</div>
+        <div class="stat-label">
+          En Préparation
+          <span *ngIf="hasActiveFilters" class="stat-filter-hint">(filtrées)</span>
+        </div>
       </div>
     </div>
 
@@ -39,75 +51,133 @@
         <i class="pi pi-money-bill"></i>
       </div>
       <div class="stat-content">
-        <div class="stat-value">{{ montantTotal.toLocaleString('fr-FR') }} FCFA</div>
-        <div class="stat-label">Chiffre d'Affaires</div>
+        <div class="stat-value">{{ chiffreAffaires.toLocaleString('fr-FR') }} FCFA</div>
+        <div class="stat-label">
+          Chiffre d'Affaires
+          <span *ngIf="hasActiveFilters" class="stat-filter-hint">(filtrées)</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Barre d'outils -->
+  <!-- ══════════════════════════════════════════════════════════════════
+       BARRE D'OUTILS
+       ══════════════════════════════════════════════════════════════════ -->
   <p-toolbar styleClass="mb-4">
     <ng-template pTemplate="left">
-      <button
-        pButton
-        label="Nouvelle Commande"
-        icon="pi pi-plus"
-        class="p-button-success mr-2"
-        (click)="nouvelleCommande()">
-      </button>
-      <button
-        pButton
-        label="Actualiser"
-        icon="pi pi-refresh"
-        class="p-button-secondary"
-        (click)="loadCommandes()">
-      </button>
+      <p-button label="Nouvelle Commande" icon="pi pi-plus"
+                severity="success" styleClass="mr-2"
+                (onClick)="nouvelleCommande()">
+      </p-button>
+      <p-button label="Actualiser" icon="pi pi-refresh"
+                severity="secondary"
+                (onClick)="loadCommandes()">
+      </p-button>
     </ng-template>
-
     <ng-template pTemplate="right">
-      <button
-        pButton
-        label="Effacer filtres"
+      <p-button
+        label="Réinitialiser les filtres"
         icon="pi pi-filter-slash"
-        class="p-button-outlined"
-        (click)="clearFilters()"
-        [disabled]="!searchValue && !selectedStatut">
-      </button>
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="clearFilters()"
+        [disabled]="!hasActiveFilters">
+      </p-button>
     </ng-template>
   </p-toolbar>
 
-  <!-- Filtres -->
-  <p-card class="mb-4">
+  <!-- ══════════════════════════════════════════════════════════════════
+       BLOC FILTRES
+       ══════════════════════════════════════════════════════════════════ -->
+  <p-card styleClass="mb-4">
+
+    <!-- Première ligne : recherche + statut -->
     <div class="filters-grid">
+
       <div class="filter-field">
         <label for="search">Rechercher</label>
-        <input
-          pInputText
-          id="search"
-          type="text"
-          [(ngModel)]="searchValue"
-          (input)="onSearchChange()"
-          placeholder="N° commande, client, table, serveur..."
-          class="w-full">
+        <input pInputText id="search" type="text"
+               [(ngModel)]="searchValue"
+               (input)="onSearchChange()"
+               placeholder="N° commande, client, table, serveur..."
+               class="w-full">
       </div>
 
       <div class="filter-field">
         <label for="statut">Statut</label>
-        <p-select
-          id="statut"
-          [(ngModel)]="selectedStatut"
-          [options]="statutOptions"
-          optionLabel="label"
-          optionValue="value"
-          (onChange)="onStatutChange()"
-          placeholder="Tous les statuts"
-          class="w-full">
+        <p-select id="statut"
+                  [(ngModel)]="selectedStatut"
+                  [options]="statutOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  (onChange)="onStatutChange()"
+                  placeholder="Tous les statuts"
+                  class="w-full">
         </p-select>
       </div>
     </div>
+
+    <!-- Deuxième ligne : filtres de date -->
+    <div class="filters-grid mt-3">
+
+      <div class="filter-field">
+        <label for="dateDebut">
+          <i class="pi pi-calendar mr-1"></i>Date de début
+        </label>
+        <p-datepicker
+          id="dateDebut"
+          [(ngModel)]="dateDebut"
+          (onSelect)="onDateChange()"
+          (onClearClick)="onDateChange()"
+          dateFormat="dd/mm/yy"
+          placeholder="Sélectionnez une date"
+          [showIcon]="true"
+          [showClear]="true"
+          class="w-full">
+        </p-datepicker>
+      </div>
+
+      <div class="filter-field">
+        <label for="dateFin">
+          <i class="pi pi-calendar mr-1"></i>Date de fin
+        </label>
+        <p-datepicker
+          id="dateFin"
+          [(ngModel)]="dateFin"
+          (onSelect)="onDateChange()"
+          (onClearClick)="onDateChange()"
+          dateFormat="dd/mm/yy"
+          placeholder="Sélectionnez une date"
+          [showIcon]="true"
+          [showClear]="true"
+          [minDate]="dateDebut ?? undefined"
+          class="w-full">
+        </p-datepicker>
+      </div>
+    </div>
+
+    <!-- Bandeau récapitulatif des filtres actifs -->
+    <div *ngIf="hasActiveFilters"
+         class="mt-3 p-2 border-round border-1 border-primary-200 bg-primary-50 flex align-items-center gap-2">
+      <i class="pi pi-filter text-primary"></i>
+      <span class="text-primary text-sm">
+        Filtres actifs —
+        <strong>{{ commandesFiltrees.length }}</strong>
+        commande{{ commandesFiltrees.length !== 1 ? 's' : '' }} affichée{{ commandesFiltrees.length !== 1 ? 's' : '' }}
+        sur {{ commandes.length }}
+        <span *ngIf="dateDebut || dateFin">
+          · Période :
+          <strong>{{ dateDebut ? (dateDebut | date:'dd/MM/yyyy') : '…' }}</strong>
+          →
+          <strong>{{ dateFin ? (dateFin | date:'dd/MM/yyyy') : '…' }}</strong>
+        </span>
+      </span>
+    </div>
   </p-card>
 
-  <!-- Table des commandes -->
+  <!-- ══════════════════════════════════════════════════════════════════
+       TABLE DES COMMANDES
+       ══════════════════════════════════════════════════════════════════ -->
   <p-card>
     <p-table
       [value]="commandesFiltrees"
@@ -117,7 +187,6 @@
       [rowsPerPageOptions]="[10, 20, 50]"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} commandes"
-      [globalFilterFields]="['numeroCommande', 'clientNom', 'nomClientExterne', 'numeroTable']"
       styleClass="p-datatable-striped">
 
       <ng-template pTemplate="header">
@@ -146,86 +215,80 @@
 
       <ng-template pTemplate="body" let-commande>
         <tr>
-          <td>
-            <strong>{{ commande.numeroCommande }}</strong>
-          </td>
+          <td><strong>{{ commande.numeroCommande }}</strong></td>
+
           <td>
             {{ getClientDisplay(commande) }}
             <div *ngIf="commande.telephoneClientExterne" class="text-sm text-muted">
               {{ commande.telephoneClientExterne }}
             </div>
           </td>
+
           <td>
             <span *ngIf="commande.numeroTable">Table {{ commande.numeroTable }}</span>
             <span *ngIf="!commande.numeroTable" class="text-muted">-</span>
           </td>
+
           <td>
             <span *ngIf="commande.serveurNom">{{ commande.serveurNom }}</span>
             <span *ngIf="!commande.serveurNom" class="text-muted">-</span>
           </td>
-          <td>
-            <strong>{{ commande.montantTotal.toLocaleString('fr-FR') }} FCFA</strong>
-          </td>
+
+          <td><strong>{{ commande.montantTotal.toLocaleString('fr-FR') }} FCFA</strong></td>
+
           <td>
             <div>{{ (commande.montantPaye || 0).toLocaleString('fr-FR') }} FCFA</div>
             <div class="text-sm" [class.text-danger]="getMontantRestant(commande) > 0">
-              Reste: {{ getMontantRestant(commande).toLocaleString('fr-FR') }} FCFA
+              Reste : {{ getMontantRestant(commande).toLocaleString('fr-FR') }} FCFA
             </div>
           </td>
+
           <td>
-            <p-tag
-              [value]="getStatutLabel(commande.statut)"
-              [severity]="getStatutSeverity(commande.statut)">
+            <p-tag [value]="getStatutLabel(commande.statut)"
+                   [severity]="getStatutSeverity(commande.statut)">
             </p-tag>
           </td>
+
           <td>
-            {{ commande.dateCommande | date: 'dd/MM/yyyy HH:mm' }}
+            <div>{{ commande.dateCommande | date:'dd/MM/yyyy' }}</div>
+            <div class="text-sm text-muted">{{ commande.dateCommande | date:'HH:mm' }}</div>
           </td>
+
           <td>
             <div class="action-buttons">
-              <button
-                pButton
-                icon="pi pi-eye"
-                class="p-button-text p-button-sm"
-                pTooltip="Voir détails"
-                (click)="viewCommande(commande)">
-              </button>
 
-              <!-- ✅ Bouton Imprimer le reçu -->
-              <button
-                pButton
-                icon="pi pi-print"
-                class="p-button-text p-button-info p-button-sm"
-                pTooltip="Imprimer le reçu"
-                (click)="imprimerRecu(commande)">
-              </button>
+              <p-button icon="pi pi-eye"
+                        severity="info" [text]="true" [rounded]="true"
+                        pTooltip="Voir les détails"
+                        (onClick)="viewCommande(commande)">
+              </p-button>
 
-              <button
-                pButton
-                icon="pi pi-check"
-                class="p-button-text p-button-success p-button-sm"
-                pTooltip="Marquer comme servie"
-                *ngIf="canMarquerServie(commande)"
-                (click)="marquerCommeServie(commande)">
-              </button>
+              <p-button icon="pi pi-print"
+                        severity="secondary" [text]="true" [rounded]="true"
+                        pTooltip="Imprimer le reçu"
+                        (onClick)="imprimerRecu(commande)">
+              </p-button>
 
-              <button
-                pButton
-                icon="pi pi-money-bill"
-                class="p-button-text p-button-help p-button-sm"
-                pTooltip="Ajouter paiement"
-                *ngIf="canAjouterPaiement(commande)"
-                (click)="ajouterPaiement(commande)">
-              </button>
+              <p-button icon="pi pi-check"
+                        severity="success" [text]="true" [rounded]="true"
+                        pTooltip="Marquer comme servie"
+                        *ngIf="canMarquerServie(commande)"
+                        (onClick)="marquerCommeServie(commande)">
+              </p-button>
 
-              <button
-                pButton
-                icon="pi pi-check-circle"
-                class="p-button-text p-button-success p-button-sm"
-                pTooltip="Marquer comme payée"
-                *ngIf="canMarquerPayee(commande)"
-                (click)="marquerCommePayee(commande)">
-              </button>
+              <p-button icon="pi pi-money-bill"
+                        severity="help" [text]="true" [rounded]="true"
+                        pTooltip="Ajouter paiement"
+                        *ngIf="canAjouterPaiement(commande)"
+                        (onClick)="ajouterPaiement(commande)">
+              </p-button>
+
+              <p-button icon="pi pi-check-circle"
+                        severity="success" [text]="true" [rounded]="true"
+                        pTooltip="Marquer comme payée"
+                        *ngIf="canMarquerPayee(commande)"
+                        (onClick)="marquerCommePayee(commande)">
+              </p-button>
             </div>
           </td>
         </tr>
@@ -235,8 +298,15 @@
         <tr>
           <td colspan="9" class="text-center">
             <div class="empty-message">
-              <i class="pi pi-inbox" style="font-size: 3rem"></i>
-              <p>Aucune commande trouvée</p>
+              <i class="pi pi-inbox" style="font-size:3rem"></i>
+              <p>{{ hasActiveFilters ? 'Aucune commande ne correspond aux filtres sélectionnés' : 'Aucune commande trouvée' }}</p>
+              <p-button *ngIf="hasActiveFilters"
+                        label="Réinitialiser les filtres"
+                        icon="pi pi-filter-slash"
+                        severity="secondary" [outlined]="true"
+                        styleClass="mt-3"
+                        (onClick)="clearFilters()">
+              </p-button>
             </div>
           </td>
         </tr>

@@ -12,7 +12,9 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
 import { TooltipModule } from 'primeng/tooltip';
+import { DividerModule } from 'primeng/divider';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 import { RestaurantService } from '../../../services/restaurant.service';
@@ -28,29 +30,39 @@ type Severity = "success" | "info" | "warn" | "danger" | "secondary" | "contrast
   selector: 'app-listeresto',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule,
-    TagModule, CardModule, ToolbarModule, ToastModule, ConfirmDialogModule,
-    SelectModule, TooltipModule
+    CommonModule, FormsModule,
+    TableModule, ButtonModule, InputTextModule,
+    TagModule, CardModule, ToolbarModule, ToastModule,
+    ConfirmDialogModule, SelectModule, DatePickerModule,
+    TooltipModule, DividerModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './listeresto.html',
   styleUrl: './listeresto.css'
 })
 export class Listeresto implements OnInit {
+
+  // ── Données ──────────────────────────────────────────────────────────────────
   commandes: CommandeRestaurant[] = [];
   commandesFiltrees: CommandeRestaurant[] = [];
   loading = false;
-  searchValue   = '';
+
+  // ── Filtres ───────────────────────────────────────────────────────────────────
+  searchValue    = '';
   selectedStatut = '';
+  dateDebut: Date | null = null;
+  dateFin:   Date | null = null;
 
-  totalCommandes      = 0;
-  commandesEnAttente  = 0;
-  commandesEnCours    = 0;
-  montantTotal        = 0;
+  // ── Stats — calculées sur les commandes FILTRÉES ──────────────────────────────
+  totalCommandes     = 0;
+  commandesEnAttente = 0;
+  commandesEnCours   = 0;
+  chiffreAffaires    = 0;
 
-  // ✅ Profil hôtel
+  // ── Profil hôtel ──────────────────────────────────────────────────────────────
   hotelProfile: HotelProfile | null = null;
 
+  // ── Options ───────────────────────────────────────────────────────────────────
   statutOptions = [
     { label: 'Tous les statuts',  value: '' },
     { label: 'En attente',        value: StatutCommandeRestaurant.EN_ATTENTE },
@@ -70,14 +82,14 @@ export class Listeresto implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // ✅ Charger le profil hôtel
     this.hotelProfileService.getProfile().subscribe({
       next: r => { if (r.success) this.hotelProfile = r.data; },
       error: () => {}
     });
-
     this.loadCommandes();
   }
+
+  // ── Chargement ────────────────────────────────────────────────────────────────
 
   loadCommandes(): void {
     this.loading = true;
@@ -85,8 +97,6 @@ export class Listeresto implements OnInit {
       next: (response) => {
         if (response.success) {
           this.commandes = response.data;
-          this.commandesFiltrees = [...this.commandes];
-          this.calculerStatistiques();
           this.applyFilters();
         }
         this.loading = false;
@@ -98,87 +108,128 @@ export class Listeresto implements OnInit {
     });
   }
 
-  calculerStatistiques(): void {
-    this.totalCommandes    = this.commandes.length;
-    this.commandesEnAttente = this.commandes.filter(c => c.statut === StatutCommandeRestaurant.EN_ATTENTE).length;
-    this.commandesEnCours  = this.commandes.filter(c => c.statut === StatutCommandeRestaurant.EN_PREPARATION).length;
-    this.montantTotal      = this.commandes
+  // ── Filtrage + stats dynamiques ───────────────────────────────────────────────
+
+  applyFilters(): void {
+    let filtered = [...this.commandes];
+
+    // Filtre texte
+    if (this.searchValue.trim()) {
+      const s = this.searchValue.toLowerCase().trim();
+      filtered = filtered.filter(c =>
+        c.numeroCommande?.toLowerCase().includes(s) ||
+        c.clientNom?.toLowerCase().includes(s) ||
+        c.nomClientExterne?.toLowerCase().includes(s) ||
+        c.numeroTable?.toLowerCase().includes(s) ||
+        c.serveurNom?.toLowerCase().includes(s)
+      );
+    }
+
+    // Filtre statut
+    if (this.selectedStatut) {
+      filtered = filtered.filter(c => c.statut === this.selectedStatut);
+    }
+
+    // Filtre date début
+    if (this.dateDebut) {
+      const debut = new Date(this.dateDebut);
+      debut.setHours(0, 0, 0, 0);
+      filtered = filtered.filter(c => c.dateCommande && new Date(c.dateCommande) >= debut);
+    }
+
+    // Filtre date fin
+    if (this.dateFin) {
+      const fin = new Date(this.dateFin);
+      fin.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(c => c.dateCommande && new Date(c.dateCommande) <= fin);
+    }
+
+    this.commandesFiltrees = filtered;
+    this.recalculerStats();
+  }
+
+  /** Les 4 cartes reflètent toujours les résultats après filtrage */
+  private recalculerStats(): void {
+    const f = this.commandesFiltrees;
+    this.totalCommandes     = f.length;
+    this.commandesEnAttente = f.filter(c => c.statut === StatutCommandeRestaurant.EN_ATTENTE).length;
+    this.commandesEnCours   = f.filter(c => c.statut === StatutCommandeRestaurant.EN_PREPARATION).length;
+    this.chiffreAffaires    = f
       .filter(c => c.statut !== StatutCommandeRestaurant.ANNULEE)
       .reduce((sum, c) => sum + c.montantTotal, 0);
   }
 
-  applyFilters(): void {
-    let filtered = [...this.commandes];
-    if (this.searchValue.trim()) {
-      const search = this.searchValue.toLowerCase().trim();
-      filtered = filtered.filter(c =>
-        c.numeroCommande?.toLowerCase().includes(search) ||
-        c.clientNom?.toLowerCase().includes(search) ||
-        c.nomClientExterne?.toLowerCase().includes(search) ||
-        c.numeroTable?.toLowerCase().includes(search) ||
-        c.serveurNom?.toLowerCase().includes(search)
-      );
-    }
-    if (this.selectedStatut) filtered = filtered.filter(c => c.statut === this.selectedStatut);
-    this.commandesFiltrees = filtered;
-  }
-
   onSearchChange(): void { this.applyFilters(); }
   onStatutChange(): void { this.applyFilters(); }
-  clearFilters(): void   { this.searchValue = ''; this.selectedStatut = ''; this.applyFilters(); }
+  onDateChange():   void { this.applyFilters(); }
+
+  clearFilters(): void {
+    this.searchValue    = '';
+    this.selectedStatut = '';
+    this.dateDebut      = null;
+    this.dateFin        = null;
+    this.applyFilters();
+  }
+
+  get hasActiveFilters(): boolean {
+    return !!(this.searchValue || this.selectedStatut || this.dateDebut || this.dateFin);
+  }
+
+  // ── Navigation ────────────────────────────────────────────────────────────────
+
   nouvelleCommande(): void { this.router.navigate(['/restauration/create']); }
 
   viewCommande(commande: CommandeRestaurant): void {
-    if (!commande.id) {
-      this.messageService.add({ severity: 'warn', summary: 'Attention', detail: 'Identifiant de commande introuvable' });
-      return;
-    }
+    if (!commande.id) return;
     this.router.navigate(['/restauration', commande.id]);
   }
 
-  changerStatut(commande: CommandeRestaurant, nouveauStatut: StatutCommandeRestaurant): void {
+  // ── Actions ───────────────────────────────────────────────────────────────────
+
+  changerStatut(commande: CommandeRestaurant, statut: StatutCommandeRestaurant): void {
     this.confirmationService.confirm({
-      message: `Voulez-vous vraiment passer cette commande à "${STATUT_COMMANDE_LABELS[nouveauStatut]}" ?`,
+      message: `Passer la commande à "${STATUT_COMMANDE_LABELS[statut]}" ?`,
       header: 'Confirmation', icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Oui', rejectLabel: 'Non',
       accept: () => {
-        this.restaurantService.updateStatut(commande.id!, nouveauStatut).subscribe({
-          next: (r) => {
+        this.restaurantService.updateStatut(commande.id!, statut).subscribe({
+          next: r => {
             if (r.success) {
               this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Statut mis à jour' });
               this.loadCommandes();
             }
           },
-          error: (e) => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: e.error?.message || 'Impossible de mettre à jour' })
+          error: e => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: e.error?.message || 'Impossible de mettre à jour' })
         });
       }
     });
   }
 
-  marquerCommeServie(commande: CommandeRestaurant): void { this.changerStatut(commande, StatutCommandeRestaurant.SERVIE); }
-  marquerCommePayee(commande: CommandeRestaurant):  void { this.changerStatut(commande, StatutCommandeRestaurant.PAYEE);  }
+  marquerCommeServie(c: CommandeRestaurant): void { this.changerStatut(c, StatutCommandeRestaurant.SERVIE); }
+  marquerCommePayee(c: CommandeRestaurant):  void { this.changerStatut(c, StatutCommandeRestaurant.PAYEE);  }
 
   ajouterPaiement(commande: CommandeRestaurant): void {
-    const montantRestant = this.getMontantRestant(commande);
+    const restant = this.getMontantRestant(commande);
     this.confirmationService.confirm({
-      message: `Enregistrer un paiement de ${montantRestant.toLocaleString('fr-FR')} FCFA ?`,
+      message: `Enregistrer un paiement de ${restant.toLocaleString('fr-FR')} FCFA ?`,
       header: 'Paiement', icon: 'pi pi-money-bill',
       acceptLabel: 'Oui', rejectLabel: 'Non',
       accept: () => {
-        this.restaurantService.addPaiement(commande.id!, montantRestant).subscribe({
-          next: (r) => {
+        this.restaurantService.addPaiement(commande.id!, restant).subscribe({
+          next: r => {
             if (r.success) {
               this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Paiement enregistré' });
               this.loadCommandes();
             }
           },
-          error: (e) => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: e.error?.message || "Erreur paiement" })
+          error: e => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: e.error?.message || 'Erreur paiement' })
         });
       }
     });
   }
 
-  // ✅ imprimerRecu() avec vraies infos hôtel
+  // ── Impression ────────────────────────────────────────────────────────────────
+
   imprimerRecu(commande: CommandeRestaurant): void {
     const hotel     = this.hotelProfile;
     const hotelNom  = hotel?.name    || 'Hôtel';
@@ -186,22 +237,21 @@ export class Listeresto implements OnInit {
     const hotelAdr  = hotel?.address ? hotel.address              : '';
     const hotelMail = hotel?.email   ? `Email : ${hotel.email}`   : '';
 
-    const client         = this.getClientDisplay(commande);
-    const dateCommande   = commande.dateCommande
+    const client      = this.getClientDisplay(commande);
+    const dateCmd     = commande.dateCommande
       ? new Date(commande.dateCommande).toLocaleString('fr-FR')
       : new Date().toLocaleString('fr-FR');
-    const montantPaye    = commande.montantPaye || 0;
-    const montantRestant = this.getMontantRestant(commande);
-    const statut         = this.getStatutLabel(commande.statut);
+    const montantPaye = commande.montantPaye || 0;
+    const restant     = this.getMontantRestant(commande);
 
-    const lignesHTML = (commande.lignes || []).map(ligne => `
+    const lignesHTML = (commande.lignes || []).map(l => `
       <tr>
-        <td>${ligne.produitNom || 'Produit'}</td>
-        <td style="text-align:center">${ligne.quantite}</td>
-        <td style="text-align:right">${ligne.prixUnitaire.toLocaleString('fr-FR')} FCFA</td>
-        <td style="text-align:right">${(ligne.sousTotal ?? ligne.quantite * ligne.prixUnitaire).toLocaleString('fr-FR')} FCFA</td>
+        <td>${l.produitNom || 'Produit'}</td>
+        <td style="text-align:center">${l.quantite}</td>
+        <td style="text-align:right">${l.prixUnitaire.toLocaleString('fr-FR')} FCFA</td>
+        <td style="text-align:right">${(l.sousTotal ?? l.quantite * l.prixUnitaire).toLocaleString('fr-FR')} FCFA</td>
       </tr>
-      ${ligne.notes ? `<tr><td colspan="4" style="font-size:11px;color:#666;padding-left:8px;padding-top:0">↳ ${ligne.notes}</td></tr>` : ''}
+      ${l.notes ? `<tr><td colspan="4" style="font-size:11px;color:#666;padding-left:8px;padding-top:0">↳ ${l.notes}</td></tr>` : ''}
     `).join('');
 
     const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
@@ -235,7 +285,7 @@ tbody tr td{padding:5px 2px;vertical-align:top}
     ${hotelMail ? hotelMail           : ''}
   </div>
   <div style="margin-top:8px;font-weight:700;font-size:13px">
-    REÇU DE COMMANDE – ${commande.numeroCommande || '#' + commande.id}
+    REÇU – ${commande.numeroCommande || '#' + commande.id}
   </div>
 </div>
 <div class="section-title">Informations</div>
@@ -243,11 +293,11 @@ tbody tr td{padding:5px 2px;vertical-align:top}
   <span>Client</span><span>${client}</span>
   ${commande.numeroTable ? `<span>Table</span><span>${commande.numeroTable}</span>` : ''}
   ${commande.serveurNom  ? `<span>Serveur</span><span>${commande.serveurNom}</span>`  : ''}
-  <span>Date</span><span>${dateCommande}</span>
-  <span>Statut</span><span>${statut}</span>
+  <span>Date</span><span>${dateCmd}</span>
+  <span>Statut</span><span>${this.getStatutLabel(commande.statut)}</span>
 </div>
 <div class="divider"></div>
-<div class="section-title">Détail de la commande</div>
+<div class="section-title">Détail</div>
 <table>
   <thead><tr>
     <th style="text-align:left">Article</th>
@@ -258,16 +308,10 @@ tbody tr td{padding:5px 2px;vertical-align:top}
   <tbody>${lignesHTML}</tbody>
 </table>
 <div class="totals">
-  <div class="totals-row total-final">
-    <span>TOTAL</span>
-    <span>${commande.montantTotal.toLocaleString('fr-FR')} FCFA</span>
-  </div>
-  <div class="totals-row paye">
-    <span>Montant payé</span>
-    <span>${montantPaye.toLocaleString('fr-FR')} FCFA</span>
-  </div>
-  ${montantRestant > 0
-      ? `<div class="totals-row restant"><span>Reste à payer</span><span>${montantRestant.toLocaleString('fr-FR')} FCFA</span></div>`
+  <div class="totals-row total-final"><span>TOTAL</span><span>${commande.montantTotal.toLocaleString('fr-FR')} FCFA</span></div>
+  <div class="totals-row paye"><span>Montant payé</span><span>${montantPaye.toLocaleString('fr-FR')} FCFA</span></div>
+  ${restant > 0
+      ? `<div class="totals-row restant"><span>Reste à payer</span><span>${restant.toLocaleString('fr-FR')} FCFA</span></div>`
       : `<div class="totals-row paye"><span>✓ Entièrement payé</span><span></span></div>`}
 </div>
 <div class="footer">
@@ -278,24 +322,29 @@ tbody tr td{padding:5px 2px;vertical-align:top}
 <script>window.onload=function(){window.print();setTimeout(function(){window.close()},1000)}</script>
 </body></html>`;
 
-    const fenetre = window.open('', '_blank', 'width=500,height=700');
-    if (fenetre) { fenetre.document.write(html); fenetre.document.close(); }
+    const w = window.open('', '_blank', 'width=500,height=700');
+    if (w) { w.document.write(html); w.document.close(); }
   }
 
-  getStatutLabel(statut: StatutCommandeRestaurant): string { return STATUT_COMMANDE_LABELS[statut] || statut; }
-  getStatutSeverity(statut: StatutCommandeRestaurant): Severity { return (STATUT_COMMANDE_COLORS[statut] || 'info') as Severity; }
-  getClientDisplay(commande: CommandeRestaurant): string {
-    if (commande.clientNom)         return commande.clientNom;
-    if (commande.nomClientExterne)  return commande.nomClientExterne;
-    if (commande.reservationNumero) return `Réservation ${commande.reservationNumero}`;
+  // ── Helpers ───────────────────────────────────────────────────────────────────
+
+  getStatutLabel(s: StatutCommandeRestaurant): string { return STATUT_COMMANDE_LABELS[s] || s; }
+  getStatutSeverity(s: StatutCommandeRestaurant): Severity { return (STATUT_COMMANDE_COLORS[s] || 'info') as Severity; }
+
+  getClientDisplay(c: CommandeRestaurant): string {
+    if (c.clientNom)         return c.clientNom;
+    if (c.nomClientExterne)  return c.nomClientExterne;
+    if (c.reservationNumero) return `Réservation ${c.reservationNumero}`;
     return 'Client non spécifié';
   }
-  canMarquerServie(commande: CommandeRestaurant): boolean { return commande.statut === StatutCommandeRestaurant.PRETE; }
-  canMarquerPayee(commande: CommandeRestaurant):  boolean { return commande.statut === StatutCommandeRestaurant.SERVIE; }
-  canAjouterPaiement(commande: CommandeRestaurant): boolean {
-    return this.getMontantRestant(commande) > 0 && commande.statut !== StatutCommandeRestaurant.ANNULEE;
+
+  getMontantRestant(c: CommandeRestaurant): number {
+    return c.montantTotal - (c.montantPaye || 0);
   }
-  getMontantRestant(commande: CommandeRestaurant): number {
-    return commande.montantTotal - (commande.montantPaye || 0);
+
+  canMarquerServie(c: CommandeRestaurant):   boolean { return c.statut === StatutCommandeRestaurant.PRETE;  }
+  canMarquerPayee(c: CommandeRestaurant):    boolean { return c.statut === StatutCommandeRestaurant.SERVIE; }
+  canAjouterPaiement(c: CommandeRestaurant): boolean {
+    return this.getMontantRestant(c) > 0 && c.statut !== StatutCommandeRestaurant.ANNULEE;
   }
 }
