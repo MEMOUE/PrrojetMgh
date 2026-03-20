@@ -16,22 +16,26 @@
   font-weight: 600;
 }
 
-/* Statistiques */
+/* ── Statistiques ─────────────────────────────────────────────────────────── */
 .statistics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.5rem;
   margin-bottom: 1.5rem;
 }
 
 .stat-card {
-  border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  transition: transform .2s, box-shadow .2s;
 }
 
-.stat-card ::ng-deep .p-card-body {
-  padding: 1.5rem;
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.12) !important;
 }
+
+.stat-card ::ng-deep .p-card-body { padding: 1.5rem; }
 
 .stat-content {
   display: flex;
@@ -40,224 +44,131 @@
 }
 
 .stat-icon {
-  width: 60px;
-  height: 60px;
+  width: 56px;
+  height: 56px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   flex-shrink: 0;
-}
-
-.solde-card .stat-icon {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
 
-.revenus-card .stat-icon {
-  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-  color: white;
-}
+.solde-card   .stat-icon { background: linear-gradient(135deg,#667eea,#764ba2); }
+.revenus-card .stat-icon { background: linear-gradient(135deg,#4caf50,#45a049); }
+.depenses-card .stat-icon { background: linear-gradient(135deg,#f44336,#e91e63); }
+.resultat-card .stat-icon { background: linear-gradient(135deg,#2196f3,#1976d2); }
 
-.depenses-card .stat-icon {
-  background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
-  color: white;
-}
-
-.resultat-card .stat-icon {
-  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
-  color: white;
-}
-
-.stat-details {
-  flex: 1;
-}
+.stat-details { flex: 1; min-width: 0; }
 
 .stat-label {
-  font-size: 0.875rem;
+  font-size: .875rem;
   color: #6c757d;
-  margin-bottom: 0.5rem;
   font-weight: 500;
+  margin-bottom: .4rem;
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  flex-wrap: wrap;
+}
+
+/** ✅ Indicateur "(filtrées)" sur les cartes */
+.stat-filter-hint {
+  font-size: .72rem;
+  color: #6366f1;
+  font-style: italic;
 }
 
 .stat-value {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.stat-value.success {
-  color: #4caf50;
-}
-
-.stat-value.danger {
-  color: #f44336;
-}
+.stat-value.success { color: #4caf50; }
+.stat-value.danger  { color: #f44336; }
 
 .stat-subtext {
-  font-size: 0.75rem;
+  font-size: .75rem;
   color: #95a5a6;
+  margin-top: .2rem;
 }
 
-/* Filtres */
-.filters-card {
-  margin-bottom: 1.5rem;
-}
+/* ── Filtres ─────────────────────────────────────────────────────────────── */
+.filters-card ::ng-deep .p-card-body { padding: 1.25rem; }
 
-.filters-card ::ng-deep .p-card-body {
-  padding: 1rem;
-}
-
-.filters-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1rem;
-  flex-wrap: wrap;
 }
 
-.filter-row {
+.filter-field {
   display: flex;
-  gap: 1rem;
-  flex: 1;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.filter-field label {
+  font-size: .875rem;
+  font-weight: 600;
+  color: #2c3e50;
+  display: flex;
   align-items: center;
 }
 
-.search-field {
-  min-width: 250px;
-  flex: 1;
-}
+/* ── Table ────────────────────────────────────────────────────────────────── */
+.table-card ::ng-deep .p-card-body { padding: 0; }
 
-.filter-select,
-.filter-date {
-  min-width: 150px;
-}
-
-.export-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* Table */
-.table-card {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.table-card ::ng-deep .p-card-body {
-  padding: 0;
-}
-
-::ng-deep .p-datatable {
-  .p-datatable-thead > tr > th {
-    background: #f8f9fa;
-    color: #495057;
-    font-weight: 600;
-    border-bottom: 2px solid #dee2e6;
-    padding: 1rem;
-  }
-
-  .p-datatable-tbody > tr {
-    transition: background-color 0.2s;
-    
-    &:hover {
-      background-color: #f8f9fa;
-    }
-
-    > td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid #dee2e6;
-    }
-  }
-}
-
-.description-cell {
-  max-width: 300px;
-}
-
+.description-cell { max-width: 280px; }
 .description-cell .relations {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
+  gap: .5rem;
+  margin-top: .2rem;
+  flex-wrap: wrap;
 }
-
 .description-cell .relations small {
   color: #6c757d;
-  font-size: 0.75rem;
-}
-
-.description-cell .relations small i {
-  margin-right: 0.25rem;
-}
-
-.text-right {
-  text-align: right !important;
-}
-
-.text-center {
-  text-align: center !important;
-}
-
-.success-text {
-  color: #4caf50 !important;
-}
-
-.danger-text {
-  color: #f44336 !important;
+  font-size: .75rem;
 }
 
 .action-buttons {
   display: flex;
-  gap: 0.25rem;
+  gap: .25rem;
   justify-content: center;
-  align-items: center;
+  flex-wrap: wrap;
 }
 
+.text-right  { text-align: right !important; }
+.text-center { text-align: center !important; }
+.success-text { color: #4caf50 !important; font-weight: 700; }
+.danger-text  { color: #f44336 !important; font-weight: 700; }
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
 .empty-state {
   padding: 3rem;
   text-align: center;
+  color: #95a5a6;
 }
-
 .empty-state i {
   font-size: 4rem;
   color: #dee2e6;
   margin-bottom: 1rem;
   display: block;
 }
+.empty-state p { font-size: 1rem; margin: 0; }
 
-.empty-state p {
-  color: #6c757d;
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-/* Responsive */
+/* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 992px) {
-  .statistics-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .filters-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .filter-row {
-    width: 100%;
-  }
-
-  .export-buttons {
-    width: 100%;
-    justify-content: flex-end;
-  }
+  .statistics-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 576px) {
-  .finance-container {
-    padding: 1rem;
-  }
+  .finance-container { padding: 1rem; }
 
   .finance-header {
     flex-direction: column;
@@ -265,46 +176,9 @@
     gap: 1rem;
   }
 
-  .statistics-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
+  .statistics-grid { grid-template-columns: 1fr; gap: 1rem; }
 
-  .stat-content {
-    gap: 0.75rem;
-  }
+  .filters-grid { grid-template-columns: 1fr; }
 
-  .stat-icon {
-    width: 50px;
-    height: 50px;
-    font-size: 1.5rem;
-  }
-
-  .stat-value {
-    font-size: 1.25rem;
-  }
-
-  .filter-row {
-    flex-direction: column;
-  }
-
-  .search-field,
-  .filter-select,
-  .filter-date {
-    width: 100%;
-    min-width: 100%;
-  }
-
-  ::ng-deep .p-datatable {
-    font-size: 0.875rem;
-
-    .p-datatable-thead > tr > th,
-    .p-datatable-tbody > tr > td {
-      padding: 0.5rem;
-    }
-  }
-
-  .action-buttons {
-    flex-direction: column;
-  }
+  .stat-value { font-size: 1.2rem; }
 }
