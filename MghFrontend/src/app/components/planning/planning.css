@@ -179,7 +179,7 @@
 /* ─── GRILLE ──────────────────────────────────────────────────────── */
 .grid-scroll-container {
   flex: 1;
-  overflow: auto;
+  overflow: auto;      /* scroll vertical ET horizontal */
   position: relative;
 }
 
@@ -189,14 +189,31 @@
   min-width: max-content;
 }
 
-/* Colonne chambre (sticky) */
+/* ══════════════════════════════════════════════════════════════════
+   ✅ EN-TÊTE DES DATES — STICKY VERTICAL (reste visible au scroll ↓)
+   ══════════════════════════════════════════════════════════════════ */
+thead tr {
+  position: sticky;
+  top: 0;
+  z-index: 20;   /* au-dessus de la colonne chambre (z-index: 10) */
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ✅ COLONNE CHAMBRE — STICKY HORIZONTAL (reste visible au scroll →)
+      La cellule .th-room est à la fois sticky-top ET sticky-left
+   ══════════════════════════════════════════════════════════════════ */
 .sticky-col {
   position: sticky;
   left: 0;
   z-index: 10;
 }
 
-/* En-tête */
+/* La cellule coin (chambre × en-tête) doit être au-dessus de tout */
+thead .sticky-col {
+  z-index: 30;   /* coin supérieur gauche : sticky-top + sticky-left */
+}
+
+/* ─── En-tête ─────────────────────────────────────────────────────── */
 .th-room {
   background: #1a1a2e;
   color: #fff;
@@ -220,6 +237,8 @@
   border-right: 1px solid #ddd;
   border-bottom: 2px solid #ccc;
   position: relative;
+  /* Garantit que le fond couvre les cellules derrière */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 }
 
 .th-date.today-col {
@@ -250,7 +269,7 @@
 .today-col .day-name { color: #b8860b; }
 .today-col .day-num  { color: #b8860b; }
 
-/* Cellule chambre */
+/* ─── Cellule chambre ─────────────────────────────────────────────── */
 .td-room {
   background: #fff;
   border-right: 2px solid #b8860b;
@@ -276,7 +295,7 @@
   margin-top: 1px;
 }
 
-/* Cellule jour */
+/* ─── Cellule jour ────────────────────────────────────────────────── */
 .td-cell {
   border-right: 1px solid #e5e5e5;
   border-bottom: 1px solid #e5e5e5;
@@ -325,7 +344,7 @@
   text-shadow: 0 1px 0 rgba(255,255,255,0.6);
 }
 
-/* Ligne de chambre */
+/* Ligne de chambre (alternance) */
 .chambre-row:nth-child(even) .td-room {
   background: #fafafa;
 }
