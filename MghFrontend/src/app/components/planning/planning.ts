@@ -26,7 +26,6 @@ export class Planning implements OnInit {
   loading = true;
   error = '';
 
-  // ✅ Profil hôtel chargé au démarrage
   hotelProfile: HotelProfile | null = null;
 
   startDate: Date = new Date();
@@ -47,13 +46,50 @@ export class Planning implements OnInit {
     { value: 'VIREMENT',       label: 'Virement' },
   ];
 
+  // ✅ Couleurs fortes et contrastées — chaque statut est visuellement distinct
   statutConfig: Record<string, { label: string; color: string; bg: string; border: string }> = {
-    EN_ATTENTE: { label: 'En attente', color: '#92400e', bg: '#fef3c7', border: '#f59e0b' },
-    CONFIRMEE:  { label: 'Confirmée',  color: '#1e40af', bg: '#dbeafe', border: '#3b82f6' },
-    EN_COURS:   { label: 'En cours',   color: '#065f46', bg: '#d1fae5', border: '#10b981' },
-    TERMINEE:   { label: 'Terminée',   color: '#374151', bg: '#f3f4f6', border: '#9ca3af' },
-    ANNULEE:    { label: 'Annulée',    color: '#991b1b', bg: '#fee2e2', border: '#ef4444' },
-    NO_SHOW:    { label: 'No-show',    color: '#7c2d12', bg: '#ffedd5', border: '#f97316' },
+    // 🟡 Jaune vif — en attente, visible mais pas urgent
+    EN_ATTENTE: {
+      label : 'En attente',
+      color : '#78350f',   // texte marron foncé lisible
+      bg    : '#fbbf24',   // fond jaune vif
+      border: '#b45309',   // bordure ambre foncée
+    },
+    // 🔵 Bleu roi — confirmée, prête à démarrer
+    CONFIRMEE: {
+      label : 'Confirmée',
+      color : '#eff6ff',   // texte blanc-bleu
+      bg    : '#1d4ed8',   // fond bleu roi profond
+      border: '#1e3a8a',   // bordure bleu marine
+    },
+    // 🟢 Vert franc — client en séjour actif
+    EN_COURS: {
+      label : 'En cours',
+      color : '#f0fdf4',   // texte blanc-vert
+      bg    : '#16a34a',   // fond vert vif
+      border: '#14532d',   // bordure vert sombre
+    },
+    // 🟣 Violet — séjour terminé, archivé
+    TERMINEE: {
+      label : 'Terminée',
+      color : '#fdf4ff',   // texte blanc-violet
+      bg    : '#7c3aed',   // fond violet intense
+      border: '#4c1d95',   // bordure violet nuit
+    },
+    // 🔴 Rouge franc — annulée
+    ANNULEE: {
+      label : 'Annulée',
+      color : '#fff1f2',   // texte blanc-rose
+      bg    : '#dc2626',   // fond rouge vif
+      border: '#7f1d1d',   // bordure rouge nuit
+    },
+    // 🟠 Orange brûlé — no-show
+    NO_SHOW: {
+      label : 'No-show',
+      color : '#fff7ed',   // texte blanc-orangé
+      bg    : '#ea580c',   // fond orange brûlé
+      border: '#7c2d12',   // bordure brun-orange
+    },
   };
 
   constructor(
@@ -73,11 +109,10 @@ export class Planning implements OnInit {
     this.loadData();
   }
 
-  // ✅ Charger le profil de l'hôtel connecté
   loadHotelProfile(): void {
     this.hotelProfileService.getProfile().subscribe({
       next: (r) => { if (r.success) this.hotelProfile = r.data; },
-      error: () => {} // non bloquant
+      error: () => {}
     });
   }
 
@@ -159,12 +194,18 @@ export class Planning implements OnInit {
 
   getCellStyle(res: Reservation | null): Record<string, string> {
     if (!res) return {};
-    const cfg = this.statutConfig[res.statut || ''] || { bg: '#e5e7eb', border: '#d1d5db', color: '#374151' };
-    return { 'background-color': cfg.bg, 'border-left': `3px solid ${cfg.border}` };
+    const cfg = this.statutConfig[res.statut || ''] || { bg: '#6b7280', border: '#4b5563', color: '#fff' };
+    return {
+      'background-color': cfg.bg,
+      // Bordure gauche épaisse = délimitation nette entre blocs de réservation
+      'border-left': `4px solid ${cfg.border}`,
+    };
   }
 
   getStatutCfg(statut?: string) {
-    return this.statutConfig[statut || ''] || { label: statut || '', color: '#374151', bg: '#f3f4f6', border: '#9ca3af' };
+    return this.statutConfig[statut || ''] || {
+      label: statut || '', color: '#fff', bg: '#6b7280', border: '#4b5563'
+    };
   }
 
   onCellClick(chambreId: number, date: Date): void {
@@ -237,21 +278,20 @@ export class Planning implements OnInit {
     });
   }
 
-  // ✅ printFacture() utilise maintenant this.hotelProfile
   printFacture(): void {
     const res = this.selectedReservation;
     if (!res) return;
 
-    const hotel    = this.hotelProfile;
-    const hotelNom = hotel?.name    || 'Hôtel';
-    const hotelTel = hotel?.phone   ? `Tél : ${hotel.phone}`     : '';
-    const hotelAdr = hotel?.address ? hotel.address               : '';
-    const hotelMail= hotel?.email   ? `Email : ${hotel.email}`    : '';
+    const hotel     = this.hotelProfile;
+    const hotelNom  = hotel?.name    || 'Hôtel';
+    const hotelTel  = hotel?.phone   ? `Tél : ${hotel.phone}`   : '';
+    const hotelAdr  = hotel?.address ? hotel.address              : '';
+    const hotelMail = hotel?.email   ? `Email : ${hotel.email}`   : '';
 
-    const cfg      = this.getStatutCfg(res.statut);
-    const dateArr  = res.dateArrivee ? new Date(res.dateArrivee).toLocaleDateString('fr-FR') : '-';
-    const dateDep  = res.dateDepart  ? new Date(res.dateDepart).toLocaleDateString('fr-FR')  : '-';
-    const now      = new Date().toLocaleDateString('fr-FR');
+    const cfg     = this.getStatutCfg(res.statut);
+    const dateArr = res.dateArrivee ? new Date(res.dateArrivee).toLocaleDateString('fr-FR') : '-';
+    const dateDep = res.dateDepart  ? new Date(res.dateDepart).toLocaleDateString('fr-FR')  : '-';
+    const now     = new Date().toLocaleDateString('fr-FR');
 
     const html = `<!DOCTYPE html>
 <html lang="fr">
@@ -405,6 +445,6 @@ export class Planning implements OnInit {
     return Array.from(months).join(' – ');
   }
 
-  trackDate(_i: number, d: Date): string    { return d.toISOString(); }
+  trackDate(_i: number, d: Date): string      { return d.toISOString(); }
   trackChambre(_i: number, c: Chambre): number { return c.id!; }
 }
