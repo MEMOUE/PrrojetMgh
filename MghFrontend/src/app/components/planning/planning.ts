@@ -4,14 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { ReservationService } from '../../services/reservation.service';
 import { ChambreService, Chambre } from '../../services/chambre.service';
-import { Reservation, StatutReservation, ModePaiement } from '../../models/reservation.model';
-
-interface CellInfo {
-  reservation: Reservation | null;
-  isStart: boolean;
-  isEnd: boolean;
-  colspan: number;
-}
+import { HotelProfileService, HotelProfile } from '../../services/hotel-profile.service';
+import { AuthService } from '../../services/auth.service';
+import { Reservation, StatutReservation } from '../../models/reservation.model';
 
 @Component({
   selector: 'app-planning',
@@ -24,7 +19,6 @@ export class Planning implements OnInit {
   reservations: Reservation[] = [];
   dates: Date[] = [];
 
-  // grid[chambreId][dateKey] = reservation | null
   grid: Map<number, Map<string, Reservation>> = new Map();
 
   selectedReservation: Reservation | null = null;
@@ -32,24 +26,25 @@ export class Planning implements OnInit {
   loading = true;
   error = '';
 
-  // Date range
+  // ✅ Profil hôtel chargé au démarrage
+  hotelProfile: HotelProfile | null = null;
+
   startDate: Date = new Date();
   endDate: Date = new Date();
   daysCount = 30;
 
-  // Paiement form
   showPaiementForm = false;
   paiementMontant = 0;
   paiementMode = 'ESPECES';
 
   modesPaiement = [
-    { value: 'ESPECES', label: 'Espèces' },
+    { value: 'ESPECES',        label: 'Espèces' },
     { value: 'CARTE_BANCAIRE', label: 'Carte bancaire' },
-    { value: 'ORANGE_MONEY', label: 'Orange Money' },
-    { value: 'MTN_MONEY', label: 'MTN Money' },
-    { value: 'WAVE', label: 'Wave' },
-    { value: 'MOBILE_MONEY', label: 'Mobile Money' },
-    { value: 'VIREMENT', label: 'Virement' },
+    { value: 'ORANGE_MONEY',   label: 'Orange Money' },
+    { value: 'MTN_MONEY',      label: 'MTN Money' },
+    { value: 'WAVE',           label: 'Wave' },
+    { value: 'MOBILE_MONEY',   label: 'Mobile Money' },
+    { value: 'VIREMENT',       label: 'Virement' },
   ];
 
   statutConfig: Record<string, { label: string; color: string; bg: string; border: string }> = {
@@ -63,7 +58,9 @@ export class Planning implements OnInit {
 
   constructor(
     private reservationService: ReservationService,
-    private chambreService: ChambreService
+    private chambreService: ChambreService,
+    private hotelProfileService: HotelProfileService,
+    private authService: AuthService
   ) {
     this.startDate = new Date();
     this.startDate.setDate(this.startDate.getDate() - 3);
@@ -72,7 +69,16 @@ export class Planning implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadHotelProfile();
     this.loadData();
+  }
+
+  // ✅ Charger le profil de l'hôtel connecté
+  loadHotelProfile(): void {
+    this.hotelProfileService.getProfile().subscribe({
+      next: (r) => { if (r.success) this.hotelProfile = r.data; },
+      error: () => {} // non bloquant
+    });
   }
 
   loadData(): void {
@@ -114,27 +120,18 @@ export class Planning implements OnInit {
 
   buildGrid(): void {
     this.grid = new Map();
-    for (const c of this.chambres) {
-      this.grid.set(c.id!, new Map());
-    }
+    for (const c of this.chambres) this.grid.set(c.id!, new Map());
     for (const res of this.reservations) {
       const map = this.grid.get(res.chambreId);
       if (!map) continue;
-      const arr = new Date(res.dateArrivee);
-      const dep = new Date(res.dateDepart);
-      arr.setHours(0, 0, 0, 0);
-      dep.setHours(0, 0, 0, 0);
+      const arr = new Date(res.dateArrivee); arr.setHours(0,0,0,0);
+      const dep = new Date(res.dateDepart);  dep.setHours(0,0,0,0);
       const cur = new Date(arr);
-      while (cur < dep) {
-        map.set(this.dk(cur), res);
-        cur.setDate(cur.getDate() + 1);
-      }
+      while (cur < dep) { map.set(this.dk(cur), res); cur.setDate(cur.getDate() + 1); }
     }
   }
 
-  dk(d: Date): string {
-    return d.toISOString().split('T')[0];
-  }
+  dk(d: Date): string { return d.toISOString().split('T')[0]; }
 
   getRes(chambreId: number, date: Date): Reservation | null {
     return this.grid.get(chambreId)?.get(this.dk(date)) ?? null;
@@ -143,43 +140,27 @@ export class Planning implements OnInit {
   isStartDate(chambreId: number, date: Date): boolean {
     const res = this.getRes(chambreId, date);
     if (!res) return false;
-    const arr = new Date(res.dateArrivee);
-    arr.setHours(0, 0, 0, 0);
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
+    const arr = new Date(res.dateArrivee); arr.setHours(0,0,0,0);
+    const d   = new Date(date);            d.setHours(0,0,0,0);
     return arr.getTime() === d.getTime();
   }
 
   isEndDate(chambreId: number, date: Date): boolean {
     const res = this.getRes(chambreId, date);
     if (!res) return false;
-    const dep = new Date(res.dateDepart);
-    dep.setHours(0, 0, 0, 0);
-    const next = new Date(date);
-    next.setDate(next.getDate() + 1);
-    next.setHours(0, 0, 0, 0);
+    const dep  = new Date(res.dateDepart); dep.setHours(0,0,0,0);
+    const next = new Date(date); next.setDate(next.getDate() + 1); next.setHours(0,0,0,0);
     return dep.getTime() === next.getTime();
   }
 
-  isToday(date: Date): boolean {
-    return this.dk(date) === this.dk(new Date());
-  }
-
-  isSunday(date: Date): boolean {
-    return date.getDay() === 0;
-  }
-
-  isSaturday(date: Date): boolean {
-    return date.getDay() === 6;
-  }
+  isToday(date: Date): boolean    { return this.dk(date) === this.dk(new Date()); }
+  isSunday(date: Date): boolean   { return date.getDay() === 0; }
+  isSaturday(date: Date): boolean { return date.getDay() === 6; }
 
   getCellStyle(res: Reservation | null): Record<string, string> {
     if (!res) return {};
     const cfg = this.statutConfig[res.statut || ''] || { bg: '#e5e7eb', border: '#d1d5db', color: '#374151' };
-    return {
-      'background-color': cfg.bg,
-      'border-left': `3px solid ${cfg.border}`,
-    };
+    return { 'background-color': cfg.bg, 'border-left': `3px solid ${cfg.border}` };
   }
 
   getStatutCfg(statut?: string) {
@@ -202,56 +183,40 @@ export class Planning implements OnInit {
     this.showPaiementForm = false;
   }
 
-  canCheckin(): boolean {
-    return this.selectedReservation?.statut === StatutReservation.CONFIRMEE;
-  }
-
-  canCheckout(): boolean {
-    return this.selectedReservation?.statut === StatutReservation.EN_COURS;
-  }
-
-  canCancel(): boolean {
+  canCheckin():  boolean { return this.selectedReservation?.statut === StatutReservation.CONFIRMEE; }
+  canCheckout(): boolean { return this.selectedReservation?.statut === StatutReservation.EN_COURS;  }
+  canCancel():   boolean {
     const s = this.selectedReservation?.statut;
     return s === StatutReservation.EN_ATTENTE || s === StatutReservation.CONFIRMEE;
   }
-
   canPay(): boolean {
     const s = this.selectedReservation?.statut;
-    return s !== StatutReservation.ANNULEE && s !== StatutReservation.TERMINEE && s !== StatutReservation.NO_SHOW;
+    return s !== StatutReservation.ANNULEE &&
+      s !== StatutReservation.TERMINEE &&
+      s !== StatutReservation.NO_SHOW;
   }
 
   doCheckin(): void {
     if (!this.selectedReservation?.id) return;
     this.reservationService.doCheckin(this.selectedReservation.id).subscribe({
-      next: (resp) => {
-        const updated = (resp as any)?.data ?? resp;
-        this.selectedReservation = updated;
-        this.loadData();
-      },
-      error: (e) => alert('Erreur check-in : ' + (e?.error?.message || e.message)),
+      next: (resp) => { this.selectedReservation = (resp as any)?.data ?? resp; this.loadData(); },
+      error: (e)   => alert('Erreur check-in : ' + (e?.error?.message || e.message)),
     });
   }
 
   doCheckout(): void {
     if (!this.selectedReservation?.id) return;
     this.reservationService.doCheckout(this.selectedReservation.id).subscribe({
-      next: (resp) => {
-        const updated = (resp as any)?.data ?? resp;
-        this.selectedReservation = updated;
-        this.loadData();
-      },
-      error: (e) => alert('Erreur check-out : ' + (e?.error?.message || e.message)),
+      next: (resp) => { this.selectedReservation = (resp as any)?.data ?? resp; this.loadData(); },
+      error: (e)   => alert('Erreur check-out : ' + (e?.error?.message || e.message)),
     });
   }
 
   doCancel(): void {
     if (!this.selectedReservation?.id) return;
-    if (!confirm('Confirmer l\'annulation de cette réservation ?')) return;
+    if (!confirm("Confirmer l'annulation de cette réservation ?")) return;
     this.reservationService.cancelReservation(this.selectedReservation.id).subscribe({
-      next: () => {
-        this.closeModal();
-        this.loadData();
-      },
+      next: () => { this.closeModal(); this.loadData(); },
       error: (e) => alert('Erreur annulation : ' + (e?.error?.message || e.message)),
     });
   }
@@ -263,23 +228,30 @@ export class Planning implements OnInit {
       modePaiement: this.paiementMode,
     }).subscribe({
       next: (resp) => {
-        const updated = (resp as any)?.data ?? resp;
-        this.selectedReservation = updated;
+        this.selectedReservation = (resp as any)?.data ?? resp;
         this.showPaiementForm = false;
-        this.paiementMontant = 0;
+        this.paiementMontant  = 0;
         this.loadData();
       },
       error: (e) => alert('Erreur paiement : ' + (e?.error?.message || e.message)),
     });
   }
 
+  // ✅ printFacture() utilise maintenant this.hotelProfile
   printFacture(): void {
     const res = this.selectedReservation;
     if (!res) return;
-    const cfg = this.getStatutCfg(res.statut);
-    const dateArr = res.dateArrivee ? new Date(res.dateArrivee).toLocaleDateString('fr-FR') : '-';
-    const dateDep = res.dateDepart ? new Date(res.dateDepart).toLocaleDateString('fr-FR') : '-';
-    const now = new Date().toLocaleDateString('fr-FR');
+
+    const hotel    = this.hotelProfile;
+    const hotelNom = hotel?.name    || 'Hôtel';
+    const hotelTel = hotel?.phone   ? `Tél : ${hotel.phone}`     : '';
+    const hotelAdr = hotel?.address ? hotel.address               : '';
+    const hotelMail= hotel?.email   ? `Email : ${hotel.email}`    : '';
+
+    const cfg      = this.getStatutCfg(res.statut);
+    const dateArr  = res.dateArrivee ? new Date(res.dateArrivee).toLocaleDateString('fr-FR') : '-';
+    const dateDep  = res.dateDepart  ? new Date(res.dateDepart).toLocaleDateString('fr-FR')  : '-';
+    const now      = new Date().toLocaleDateString('fr-FR');
 
     const html = `<!DOCTYPE html>
 <html lang="fr">
@@ -287,36 +259,43 @@ export class Planning implements OnInit {
   <meta charset="UTF-8">
   <title>Facture – ${res.numeroReservation}</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Georgia', serif; color: #1a1a2e; background: #fff; padding: 40px; }
-    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #1a1a2e; padding-bottom: 24px; margin-bottom: 32px; }
-    .logo { font-size: 28px; font-weight: bold; letter-spacing: 2px; }
-    .logo span { color: #b8860b; }
-    .invoice-meta { text-align: right; }
-    .invoice-meta h2 { font-size: 20px; text-transform: uppercase; letter-spacing: 3px; }
-    .invoice-meta p { color: #555; font-size: 13px; margin-top: 4px; }
-    .parties { display: flex; gap: 40px; margin-bottom: 32px; }
-    .party { flex: 1; }
-    .party h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #888; border-bottom: 1px solid #ddd; padding-bottom: 6px; margin-bottom: 12px; }
-    .party p { font-size: 14px; line-height: 1.8; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-    th { background: #1a1a2e; color: #fff; padding: 10px 14px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
-    td { padding: 12px 14px; border-bottom: 1px solid #eee; font-size: 14px; }
-    tr:nth-child(even) td { background: #f9f9f9; }
-    .totals { display: flex; justify-content: flex-end; }
-    .totals-box { width: 300px; border: 1px solid #ddd; }
-    .totals-row { display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #eee; font-size: 14px; }
-    .totals-row.total { background: #1a1a2e; color: #fff; font-weight: bold; font-size: 16px; }
-    .totals-row.paye { background: #d1fae5; color: #065f46; font-weight: bold; }
-    .totals-row.reste { background: #fee2e2; color: #991b1b; font-weight: bold; }
-    .statut-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; background: ${cfg.bg}; color: ${cfg.color}; border: 1px solid ${cfg.border}; }
-    .footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; font-size: 12px; color: #888; }
-    @media print { body { padding: 20px; } }
+    * { margin:0;padding:0;box-sizing:border-box }
+    body { font-family:'Georgia',serif;color:#1a1a2e;background:#fff;padding:40px }
+    .header { display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1a1a2e;padding-bottom:24px;margin-bottom:32px }
+    .hotel-info .name { font-size:26px;font-weight:900;letter-spacing:1px;text-transform:uppercase }
+    .hotel-info .details { font-size:12px;color:#555;margin-top:6px;line-height:1.8 }
+    .invoice-meta { text-align:right }
+    .invoice-meta h2 { font-size:18px;text-transform:uppercase;letter-spacing:3px }
+    .invoice-meta p  { color:#555;font-size:13px;margin-top:4px }
+    .parties { display:flex;gap:40px;margin-bottom:32px }
+    .party { flex:1 }
+    .party h3 { font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#888;border-bottom:1px solid #ddd;padding-bottom:6px;margin-bottom:12px }
+    .party p  { font-size:14px;line-height:1.8 }
+    table { width:100%;border-collapse:collapse;margin-bottom:24px }
+    th { background:#1a1a2e;color:#fff;padding:10px 14px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:1px }
+    td { padding:12px 14px;border-bottom:1px solid #eee;font-size:14px }
+    tr:nth-child(even) td { background:#f9f9f9 }
+    .totals { display:flex;justify-content:flex-end }
+    .totals-box { width:300px;border:1px solid #ddd }
+    .totals-row { display:flex;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #eee;font-size:14px }
+    .totals-row.total { background:#1a1a2e;color:#fff;font-weight:bold;font-size:16px }
+    .totals-row.paye  { background:#d1fae5;color:#065f46;font-weight:bold }
+    .totals-row.reste { background:#fee2e2;color:#991b1b;font-weight:bold }
+    .statut-badge { display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:bold;background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border} }
+    .footer { margin-top:48px;padding-top:20px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:12px;color:#888 }
+    @media print { body { padding:20px } @page { margin:10mm } }
   </style>
 </head>
 <body>
   <div class="header">
-    <div class="logo">MA<span>GESTION</span>HOTEL</div>
+    <div class="hotel-info">
+      <div class="name">${hotelNom}</div>
+      <div class="details">
+        ${hotelAdr ? hotelAdr + '<br>' : ''}
+        ${hotelTel ? hotelTel + '<br>' : ''}
+        ${hotelMail ? hotelMail : ''}
+      </div>
+    </div>
     <div class="invoice-meta">
       <h2>Reçu de réservation</h2>
       <p>N° ${res.numeroReservation}</p>
@@ -375,22 +354,17 @@ export class Planning implements OnInit {
     </div>
   </div>
 
-  ${res.notes ? `<div style="margin-top:32px; padding:16px; background:#f9f9f9; border-left:3px solid #b8860b; font-size:13px"><strong>Notes :</strong> ${res.notes}</div>` : ''}
+  ${res.notes ? `<div style="margin-top:32px;padding:16px;background:#f9f9f9;border-left:3px solid #1a1a2e;font-size:13px"><strong>Notes :</strong> ${res.notes}</div>` : ''}
 
   <div class="footer">
-    <span>MaGestionHotel – Système de gestion hôtelière</span>
+    <span>${hotelNom}${hotelAdr ? ' – ' + hotelAdr : ''}</span>
     <span>Document généré le ${now}</span>
   </div>
 </body>
 </html>`;
 
     const win = window.open('', '_blank');
-    if (win) {
-      win.document.write(html);
-      win.document.close();
-      win.focus();
-      setTimeout(() => win.print(), 500);
-    }
+    if (win) { win.document.write(html); win.document.close(); win.focus(); setTimeout(() => win.print(), 500); }
   }
 
   navigateDays(delta: number): void {
@@ -431,6 +405,6 @@ export class Planning implements OnInit {
     return Array.from(months).join(' – ');
   }
 
-  trackDate(_i: number, d: Date): string { return d.toISOString(); }
+  trackDate(_i: number, d: Date): string    { return d.toISOString(); }
   trackChambre(_i: number, c: Chambre): number { return c.id!; }
 }
