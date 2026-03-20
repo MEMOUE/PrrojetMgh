@@ -2,9 +2,15 @@ package com.mghbackend.service.impl;
 
 import com.mghbackend.dto.StatistiquesFinanceDto;
 import com.mghbackend.dto.TransactionDto;
+import com.mghbackend.entity.CommandeRestaurant;
+import com.mghbackend.entity.Reservation;
 import com.mghbackend.entity.Transaction;
+import com.mghbackend.enums.StatutCommandeRestaurant;
+import com.mghbackend.enums.StatutPaiement;
 import com.mghbackend.enums.StatutTransaction;
 import com.mghbackend.enums.TypeTransaction;
+import com.mghbackend.repository.CommandeRestaurantRepository;
+import com.mghbackend.repository.ReservationRepository;
 import com.mghbackend.repository.TransactionRepository;
 import com.mghbackend.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +32,8 @@ import java.util.stream.Collectors;
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
+    private final ReservationRepository reservationRepository;
+    private final CommandeRestaurantRepository commandeRestaurantRepository;
 
     // ─── CRUD ──────────────────────────────────────────────────────────────────
 
@@ -145,9 +153,14 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionDto annulerTransaction(Long id, String motif) {
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transaction introuvable : " + id));
+
         if (transaction.getStatut() == StatutTransaction.ANNULEE) {
             throw new RuntimeException("La transaction est déjà annulée");
         }
+
+        // On mémorise l'ancien statut AVANT de modifier
+        StatutTransaction ancienStatut = transaction.getStatut();
+
         transaction.setStatut(StatutTransaction.ANNULEE);
         if (motif != null && !motif.isBlank()) {
             String notes = transaction.getNotes() != null
@@ -156,7 +169,88 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setNotes(notes);
         }
         transaction.setUpdatedAt(LocalDateTime.now());
-        return toDto(transactionRepository.save(transaction));
+        Transaction saved = transactionRepository.save(transaction);
+
+        // Propagation en cascade uniquement si la transaction était VALIDEE et de type REVENU.
+        // Une transaction EN_ATTENTE n'a jamais affecté les montants des entités liées.
+        if (ancienStatut == StatutTransaction.VALIDEE
+                && TypeTransaction.REVENU == transaction.getType()) {
+            propaguerAnnulation(transaction);
+        }
+
+        return toDto(saved);
+    }
+
+    /**
+     * Répercute l'annulation d'une transaction VALIDEE sur l'entité liée
+     * (réservation ou commande restaurant).
+     * Appelée uniquement pour les transactions de type REVENU précédemment VALIDEES.
+     */
+    private void propaguerAnnulation(Transaction transaction) {
+        BigDecimal montant = transaction.getMontant();
+
+        // ── Réservation ──────────────────────────────────────────────────────
+        if (transaction.getReservationId() != null) {
+            reservationRepository.findById(transaction.getReservationId()).ifPresent(reservation -> {
+
+                // Soustrait le montant annulé — sans passer en négatif
+                BigDecimal nouveauMontantPaye = reservation.getMontantPaye()
+                        .subtract(montant)
+                        .max(BigDecimal.ZERO);
+
+                BigDecimal nouveauMontantRestant = reservation.getMontantTotal()
+                        .subtract(nouveauMontantPaye);
+
+                reservation.setMontantPaye(nouveauMontantPaye);
+                reservation.setMontantRestant(nouveauMontantRestant);
+
+                // Recalcul du statut de paiement
+                if (nouveauMontantPaye.compareTo(BigDecimal.ZERO) == 0) {
+                    reservation.setStatutPaiement(StatutPaiement.NON_PAYE);
+                } else if (nouveauMontantRestant.compareTo(BigDecimal.ZERO) > 0) {
+                    reservation.setStatutPaiement(StatutPaiement.ACOMPTE);
+                } else {
+                    reservation.setStatutPaiement(StatutPaiement.PAYE);
+                }
+
+                reservationRepository.save(reservation);
+
+                log.info("✅ Réservation {} mise à jour après annulation transaction {} : " +
+                                "montantPaye={}, montantRestant={}",
+                        reservation.getNumeroReservation(),
+                        transaction.getReference(),
+                        nouveauMontantPaye,
+                        nouveauMontantRestant);
+            });
+        }
+
+        // ── Commande restaurant ──────────────────────────────────────────────
+        if (transaction.getCommandeRestaurantId() != null) {
+            commandeRestaurantRepository.findById(transaction.getCommandeRestaurantId())
+                    .ifPresent(commande -> {
+
+                        BigDecimal nouveauMontantPaye = commande.getMontantPaye()
+                                .subtract(montant)
+                                .max(BigDecimal.ZERO);
+
+                        commande.setMontantPaye(nouveauMontantPaye);
+
+                        // Si la commande était PAYEE mais que le montant payé
+                        // repasse sous le total, on la repasse à SERVIE
+                        if (commande.getStatut() == StatutCommandeRestaurant.PAYEE
+                                && nouveauMontantPaye.compareTo(commande.getMontantTotal()) < 0) {
+                            commande.setStatut(StatutCommandeRestaurant.SERVIE);
+                        }
+
+                        commandeRestaurantRepository.save(commande);
+
+                        log.info("✅ Commande {} mise à jour après annulation transaction {} : " +
+                                        "montantPaye={}",
+                                commande.getNumeroCommande(),
+                                transaction.getReference(),
+                                nouveauMontantPaye);
+                    });
+        }
     }
 
     // ─── STATISTIQUES ──────────────────────────────────────────────────────────
@@ -170,12 +264,12 @@ public class TransactionServiceImpl implements TransactionService {
         LocalDateTime debutJour = now.toLocalDate().atStartOfDay();
         LocalDateTime debutMois = now.toLocalDate().withDayOfMonth(1).atStartOfDay();
 
-        BigDecimal totalRevenus = sumByType(all, TypeTransaction.REVENU, StatutTransaction.VALIDEE);
+        BigDecimal totalRevenus  = sumByType(all, TypeTransaction.REVENU,  StatutTransaction.VALIDEE);
         BigDecimal totalDepenses = sumByType(all, TypeTransaction.DEPENSE, StatutTransaction.VALIDEE);
-        BigDecimal revenusMois = sumByTypeAndPeriod(all, TypeTransaction.REVENU, StatutTransaction.VALIDEE, debutMois, now);
-        BigDecimal depensesMois = sumByTypeAndPeriod(all, TypeTransaction.DEPENSE, StatutTransaction.VALIDEE, debutMois, now);
-        BigDecimal revenusJour = sumByTypeAndPeriod(all, TypeTransaction.REVENU, StatutTransaction.VALIDEE, debutJour, now);
-        BigDecimal depensesJour = sumByTypeAndPeriod(all, TypeTransaction.DEPENSE, StatutTransaction.VALIDEE, debutJour, now);
+        BigDecimal revenusMois   = sumByTypeAndPeriod(all, TypeTransaction.REVENU,  StatutTransaction.VALIDEE, debutMois, now);
+        BigDecimal depensesMois  = sumByTypeAndPeriod(all, TypeTransaction.DEPENSE, StatutTransaction.VALIDEE, debutMois, now);
+        BigDecimal revenusJour   = sumByTypeAndPeriod(all, TypeTransaction.REVENU,  StatutTransaction.VALIDEE, debutJour, now);
+        BigDecimal depensesJour  = sumByTypeAndPeriod(all, TypeTransaction.DEPENSE, StatutTransaction.VALIDEE, debutJour, now);
 
         List<Transaction> enAttente = all.stream()
                 .filter(t -> t.getStatut() == StatutTransaction.EN_ATTENTE)
@@ -186,7 +280,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Top catégories (dépenses validées du mois)
+        // Top catégories (transactions validées du mois)
         Map<String, BigDecimal> catMap = all.stream()
                 .filter(t -> t.getStatut() == StatutTransaction.VALIDEE
                         && t.getDateTransaction() != null
@@ -205,14 +299,14 @@ public class TransactionServiceImpl implements TransactionService {
                     return tc;
                 }).collect(Collectors.toList());
 
-        // Évolution 6 derniers mois
+        // Évolution des 6 derniers mois
         List<StatistiquesFinanceDto.EvolutionMensuelle> evolution = new ArrayList<>();
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM/yyyy");
         for (int i = 5; i >= 0; i--) {
-            YearMonth ym = YearMonth.now().minusMonths(i);
+            YearMonth ym    = YearMonth.now().minusMonths(i);
             LocalDateTime debut = ym.atDay(1).atStartOfDay();
-            LocalDateTime fin = ym.atEndOfMonth().atTime(23, 59, 59);
-            BigDecimal rev = sumByTypeAndPeriod(all, TypeTransaction.REVENU, StatutTransaction.VALIDEE, debut, fin);
+            LocalDateTime fin   = ym.atEndOfMonth().atTime(23, 59, 59);
+            BigDecimal rev = sumByTypeAndPeriod(all, TypeTransaction.REVENU,  StatutTransaction.VALIDEE, debut, fin);
             BigDecimal dep = sumByTypeAndPeriod(all, TypeTransaction.DEPENSE, StatutTransaction.VALIDEE, debut, fin);
             StatistiquesFinanceDto.EvolutionMensuelle em = new StatistiquesFinanceDto.EvolutionMensuelle();
             em.setMois(ym.format(fmt));
@@ -244,8 +338,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public byte[] exportTransactions(Long hotelId, String format, String dateDebut, String dateFin) {
-        // Implémentation basique : retourner un CSV encodé en bytes
-        // À remplacer par une vraie génération PDF/Excel (JasperReports, Apache POI, etc.)
         List<TransactionDto> transactions = getTransactionsByHotel(hotelId);
         StringBuilder sb = new StringBuilder();
         sb.append("Référence;Type;Catégorie;Montant;Date;Statut;Description\n");
@@ -256,7 +348,7 @@ public class TransactionServiceImpl implements TransactionService {
         return sb.toString().getBytes();
     }
 
-    // ─── HELPERS ───────────────────────────────────────────────────────────────
+    // ─── HELPERS PRIVÉS ────────────────────────────────────────────────────────
 
     private String generateReference(Long hotelId) {
         long count = transactionRepository.countByHotelId(hotelId) + 1;
@@ -272,7 +364,8 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private BigDecimal sumByTypeAndPeriod(List<Transaction> list, TypeTransaction type,
-                                          StatutTransaction statut, LocalDateTime debut, LocalDateTime fin) {
+                                          StatutTransaction statut,
+                                          LocalDateTime debut, LocalDateTime fin) {
         return list.stream()
                 .filter(t -> type == t.getType() && statut == t.getStatut()
                         && t.getDateTransaction() != null
