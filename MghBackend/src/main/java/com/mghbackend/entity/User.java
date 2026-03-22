@@ -6,6 +6,7 @@ import com.mghbackend.entity.Role;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +14,8 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"roles", "hotel"})
+@ToString(exclude = {"roles", "hotel"})
 public class User extends BaseEntity {
 
 	@Column(nullable = false, unique = true, length = 50)

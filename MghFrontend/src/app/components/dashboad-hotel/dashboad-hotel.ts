@@ -12,6 +12,7 @@ interface DashboardModule {
   route: string;
   gradient: string;
   permissions: Permission[];
+  hotelOnly?: boolean;
 }
 
 @Component({
@@ -88,7 +89,8 @@ export class DashboadHotel implements OnInit {
       icon: 'pi-cog',
       route: '/profile',
       gradient: 'from-teal-500 to-sky-900',
-      permissions: [Permission.VOIR_CONFIGURATION, Permission.MODIFIER_CONFIGURATION]
+      permissions: [Permission.MODIFIER_CONFIGURATION],
+      hotelOnly: true
     },
     {
       title: 'Planning',

@@ -3,6 +3,7 @@ package com.mghbackend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,7 +12,8 @@ import java.util.List;
 @Entity
 @Table(name = "hotels")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"users"})
+@ToString(exclude = {"users"})
 public class Hotel extends BaseEntity {
 
 	@Column(nullable = false, length = 100)
