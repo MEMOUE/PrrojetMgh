@@ -1,13 +1,14 @@
 import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from "@angular/router";
+import { RouterLink, Router, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { PermissionService, Permission } from '../../services/permission.service';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
@@ -16,7 +17,7 @@ export class Header implements OnInit, OnDestroy {
   protected readonly isScrolled = signal(false);
   showMobileMenu = false;
   showProfileMenu = false;
-  
+
   // État d'authentification
   isAuthenticated = false;
   currentUser: any = null;
@@ -24,16 +25,15 @@ export class Header implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    public permissionService: PermissionService  // ✅ public pour le template
   ) {
-    // Initialiser le thème
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
     this.isDarkMode.set(isDark);
     this.applyTheme(isDark);
 
-    // Détecter le scroll
     if (typeof window !== 'undefined') {
       window.addEventListener('scroll', () => {
         this.isScrolled.set(window.scrollY > 10);
@@ -42,7 +42,6 @@ export class Header implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // S'abonner aux changements d'authentification
     this.authSubscription = this.authService.currentUser.subscribe(user => {
       this.currentUser = user;
       this.isAuthenticated = !!user;
@@ -54,6 +53,80 @@ export class Header implements OnInit, OnDestroy {
       this.authSubscription.unsubscribe();
     }
   }
+
+  // ─── Vérifications de visibilité par module (desktop + mobile) ────────────
+
+  get canSeeReservations(): boolean {
+    return this.permissionService.isHotelAccount ||
+      this.permissionService.hasAnyPermission(
+        Permission.VOIR_RESERVATIONS, Permission.CREER_RESERVATION
+      );
+  }
+
+  get canSeeRestaurant(): boolean {
+    return this.permissionService.isHotelAccount ||
+      this.permissionService.hasAnyPermission(
+        Permission.VOIR_COMMANDES, Permission.CREER_COMMANDE
+      );
+  }
+
+  get canSeeFinances(): boolean {
+    return this.permissionService.isHotelAccount ||
+      this.permissionService.hasAnyPermission(
+        Permission.VOIR_COMPTABILITE, Permission.MODIFIER_COMPTABILITE
+      );
+  }
+
+  get canSeeStocks(): boolean {
+    return this.permissionService.isHotelAccount ||
+      this.permissionService.hasAnyPermission(
+        Permission.VOIR_STOCK, Permission.MODIFIER_STOCK
+      );
+  }
+
+  get canSeeChambres(): boolean {
+    return this.permissionService.isHotelAccount ||
+      this.permissionService.hasAnyPermission(
+        Permission.VOIR_RESERVATIONS, Permission.VOIR_CONFIGURATION
+      );
+  }
+
+  get canSeePlanning(): boolean {
+    return this.permissionService.isHotelAccount ||
+      this.permissionService.hasPermission(Permission.VOIR_RESERVATIONS);
+  }
+
+  get canSeeEmployes(): boolean {
+    return this.permissionService.isHotelAccount ||
+      this.permissionService.hasAnyPermission(
+        Permission.VOIR_EMPLOYES, Permission.GERER_EMPLOYES
+      );
+  }
+
+  get canSeeClients(): boolean {
+    return this.permissionService.isHotelAccount ||
+      this.permissionService.hasAnyPermission(
+        Permission.VOIR_RESERVATIONS, Permission.CREER_RESERVATION
+      );
+  }
+
+  get canSeeProfile(): boolean {
+    // Le profil hôtel n'est visible que pour le compte HOTEL
+    // Un employé voit son propre profil
+    return true;
+  }
+
+  // ─── Rôle affiché dans le header ──────────────────────────────────────────
+
+  get userRoleLabel(): string {
+    if (this.permissionService.isHotelAccount) return 'Administrateur';
+    const roles = this.currentUser?.roles;
+    if (!roles || roles.length === 0) return 'Employé';
+    // Afficher le premier rôle en majuscule
+    return roles[0].charAt(0).toUpperCase() + roles[0].slice(1).toLowerCase();
+  }
+
+  // ─── Actions existantes ───────────────────────────────────────────────────
 
   toggleTheme(): void {
     const newValue = !this.isDarkMode();
@@ -74,15 +147,9 @@ export class Header implements OnInit, OnDestroy {
 
   toggleMobileMenu(): void {
     this.showMobileMenu = !this.showMobileMenu;
-    this.showProfileMenu = false; // Fermer le menu profil
-
-    // Empêcher le scroll du body quand le menu est ouvert
+    this.showProfileMenu = false;
     if (typeof document !== 'undefined') {
-      if (this.showMobileMenu) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = '';
-      }
+      document.body.style.overflow = this.showMobileMenu ? 'hidden' : '';
     }
   }
 
@@ -110,28 +177,28 @@ export class Header implements OnInit, OnDestroy {
 
   getUserInitials(): string {
     if (!this.currentUser) return '';
-    
+
     if (this.currentUser.firstName && this.currentUser.lastName) {
       return `${this.currentUser.firstName[0]}${this.currentUser.lastName[0]}`.toUpperCase();
     }
-    
+
     if (this.currentUser.name) {
       const parts = this.currentUser.name.split(' ');
-      return parts.length > 1 
+      return parts.length > 1
         ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
         : parts[0].substring(0, 2).toUpperCase();
     }
-    
+
     return this.currentUser.email ? this.currentUser.email[0].toUpperCase() : 'U';
   }
 
   getUserDisplayName(): string {
     if (!this.currentUser) return '';
-    
+
     if (this.currentUser.firstName && this.currentUser.lastName) {
       return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
     }
-    
+
     return this.currentUser.name || this.currentUser.email || 'Utilisateur';
   }
 }

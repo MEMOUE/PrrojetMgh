@@ -24,25 +24,30 @@
         <a href="#contact" class="nav-link">Contact</a>
       </nav>
 
-      <!-- Navigation Desktop - Connecté -->
+      <!-- ✅ Navigation Desktop - Connecté (filtrée par permissions) -->
       <nav class="header-nav" *ngIf="isAuthenticated">
-        <a [routerLink]="['/planning']" routerLinkActive="active" class="nav-link">
+        <a *ngIf="canSeePlanning"
+           [routerLink]="['/planning']" routerLinkActive="active" class="nav-link">
           <i class="pi pi-building"></i>
           <span>Planning</span>
         </a>
-        <a [routerLink]="['/reservation']" routerLinkActive="active" class="nav-link">
+        <a *ngIf="canSeeReservations"
+           [routerLink]="['/reservation']" routerLinkActive="active" class="nav-link">
           <i class="pi pi-calendar"></i>
           <span>Réservations</span>
         </a>
-        <a [routerLink]="['/restauration']" routerLinkActive="active" class="nav-link">
+        <a *ngIf="canSeeRestaurant"
+           [routerLink]="['/restauration']" routerLinkActive="active" class="nav-link">
           <i class="pi pi-shopping-cart"></i>
           <span>Restauration</span>
         </a>
-        <a [routerLink]="['/finances']" routerLinkActive="active" class="nav-link">
+        <a *ngIf="canSeeFinances"
+           [routerLink]="['/finances']" routerLinkActive="active" class="nav-link">
           <i class="pi pi-wallet"></i>
           <span>Finances</span>
         </a>
-        <a [routerLink]="['/stocks']" routerLinkActive="active" class="nav-link">
+        <a *ngIf="canSeeStocks"
+           [routerLink]="['/stocks']" routerLinkActive="active" class="nav-link">
           <i class="pi pi-box"></i>
           <span>Stocks</span>
         </a>
@@ -94,6 +99,11 @@
                   <i class="pi pi-building"></i>
                   {{ currentUser?.hotelName }}
                 </div>
+                <!-- ✅ Affichage du rôle -->
+                <div class="dropdown-hotel" style="color: #a78bfa;">
+                  <i class="pi pi-shield"></i>
+                  {{ userRoleLabel }}
+                </div>
               </div>
             </div>
 
@@ -103,11 +113,6 @@
               <i class="pi pi-home"></i>
               <span>Dashboard</span>
             </a>
-
-            <!-- <a [routerLink]="['/employes']" class="dropdown-item" (click)="closeProfileMenu()">
-              <i class="pi pi-users"></i>
-              <span>Employés</span>
-            </a> -->
 
             <a [routerLink]="['/profile']" class="dropdown-item" (click)="closeProfileMenu()">
               <i class="pi pi-user"></i>
@@ -164,7 +169,7 @@
     </nav>
   </div>
 
-  <!-- Mobile Navigation - Connecté -->
+  <!-- ✅ Mobile Navigation - Connecté (filtrée par permissions) -->
   <div class="mobile-nav" [class.show]="showMobileMenu" *ngIf="isAuthenticated">
     <nav class="mobile-nav-content">
       <!-- Profil utilisateur -->
@@ -175,6 +180,10 @@
         <div class="mobile-profile-info">
           <div class="mobile-profile-name">{{ getUserDisplayName() }}</div>
           <div class="mobile-profile-email">{{ currentUser?.email }}</div>
+          <!-- ✅ Rôle affiché -->
+          <div class="mobile-profile-email" style="color: #a78bfa; font-weight: 600;">
+            {{ userRoleLabel }}
+          </div>
         </div>
       </div>
 
@@ -184,34 +193,41 @@
         <i class="pi pi-home"></i>
         <span>Dashboard</span>
       </a>
-      <a [routerLink]="['/chambres']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+      <a *ngIf="canSeeChambres"
+         [routerLink]="['/chambres']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
         <i class="pi pi-building"></i>
         <span>Chambres</span>
       </a>
-      <a [routerLink]="['/reservation']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+      <a *ngIf="canSeeReservations"
+         [routerLink]="['/reservation']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
         <i class="pi pi-calendar"></i>
         <span>Réservations</span>
       </a>
-      <a [routerLink]="['/restauration']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+      <a *ngIf="canSeeRestaurant"
+         [routerLink]="['/restauration']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
         <i class="pi pi-shopping-cart"></i>
         <span>Restauration</span>
       </a>
-      <a [routerLink]="['/finances']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+      <a *ngIf="canSeeFinances"
+         [routerLink]="['/finances']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
         <i class="pi pi-wallet"></i>
         <span>Finances</span>
       </a>
-      <a [routerLink]="['/stocks']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+      <a *ngIf="canSeeStocks"
+         [routerLink]="['/stocks']" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
         <i class="pi pi-box"></i>
         <span>Stocks</span>
       </a>
 
       <div class="mobile-nav-divider"></div>
 
-      <a [routerLink]="['/employes']" class="mobile-nav-link" (click)="closeMobileMenu()">
+      <a *ngIf="canSeeEmployes"
+         [routerLink]="['/employes']" class="mobile-nav-link" (click)="closeMobileMenu()">
         <i class="pi pi-users"></i>
         <span>Employés</span>
       </a>
-      <a [routerLink]="['/clients']" class="mobile-nav-link" (click)="closeMobileMenu()">
+      <a *ngIf="canSeeClients"
+         [routerLink]="['/clients']" class="mobile-nav-link" (click)="closeMobileMenu()">
         <i class="pi pi-user"></i>
         <span>Clients</span>
       </a>

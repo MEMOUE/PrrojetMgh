@@ -30,7 +30,7 @@ export interface LoginResponse {
   hotelId: number;
   hotelName: string;
   roles?: string[];
-  permissions?: string[];
+  permissions?: string[];  // ✅ Ajouté : les permissions du backend (TypePermission[])
 }
 
 export interface ApiResponse<T> {
@@ -89,7 +89,6 @@ export class AuthService {
   }
 
   logout(): void {
-    // Supprimer les données de session
     localStorage.removeItem('currentUser');
     localStorage.removeItem('token');
     this.currentUserSubject.next(null);

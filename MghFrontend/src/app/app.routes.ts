@@ -3,7 +3,9 @@ import { Login } from './components/auth/login/login';
 import { Register } from './components/auth/register/register';
 import { Accueil } from './components/accueil/accueil';
 import { AuthGuard } from './guard/auth-guard';
+import { PermissionGuard } from './guard/permission-guard';
 import { DashboadHotel } from './components/dashboad-hotel/dashboad-hotel';
+import { Permission } from './services/permission.service';
 
 export const routes: Routes = [
   {
@@ -26,11 +28,18 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboadHotel,
-    // canActivate: [AuthGuard]
+    canActivate: [AuthGuard]
   },
   {
     path: 'chambres',
-    // canActivate: [AuthGuard],
+    canActivate: [PermissionGuard],
+    data: {
+      permissions: [
+        Permission.VOIR_RESERVATIONS,
+        Permission.VOIR_CONFIGURATION
+      ]
+      // requireAll: false (par défaut) → au moins une permission suffit
+    },
     children: [
       {
         path: '',
@@ -57,7 +66,14 @@ export const routes: Routes = [
   },
   {
     path: 'reservation',
-     canActivate: [AuthGuard],
+    canActivate: [PermissionGuard],
+    data: {
+      permissions: [
+        Permission.VOIR_RESERVATIONS,
+        Permission.CREER_RESERVATION,
+        Permission.MODIFIER_RESERVATION
+      ]
+    },
     children: [
       {
         path: '',
@@ -84,7 +100,13 @@ export const routes: Routes = [
   },
   {
     path: 'employes',
-     canActivate: [AuthGuard],
+    canActivate: [PermissionGuard],
+    data: {
+      permissions: [
+        Permission.VOIR_EMPLOYES,
+        Permission.GERER_EMPLOYES
+      ]
+    },
     children: [
       {
         path: '',
@@ -111,7 +133,13 @@ export const routes: Routes = [
   },
   {
     path: 'clients',
-     canActivate: [AuthGuard],
+    canActivate: [PermissionGuard],
+    data: {
+      permissions: [
+        Permission.VOIR_RESERVATIONS,
+        Permission.CREER_RESERVATION
+      ]
+    },
     children: [
       {
         path: '',
@@ -138,7 +166,14 @@ export const routes: Routes = [
   },
   {
     path: 'restauration',
-    canActivate: [AuthGuard],
+    canActivate: [PermissionGuard],
+    data: {
+      permissions: [
+        Permission.VOIR_COMMANDES,
+        Permission.CREER_COMMANDE,
+        Permission.MODIFIER_COMMANDE
+      ]
+    },
     children: [
       {
         path: '',
@@ -164,7 +199,13 @@ export const routes: Routes = [
   },
   {
     path: 'stocks',
-     canActivate: [AuthGuard],
+    canActivate: [PermissionGuard],
+    data: {
+      permissions: [
+        Permission.VOIR_STOCK,
+        Permission.MODIFIER_STOCK
+      ]
+    },
     children: [
       {
         path: '',
@@ -196,7 +237,13 @@ export const routes: Routes = [
   },
   {
     path: 'finances',
-     canActivate: [AuthGuard],
+    canActivate: [PermissionGuard],
+    data: {
+      permissions: [
+        Permission.VOIR_COMPTABILITE,
+        Permission.MODIFIER_COMPTABILITE
+      ]
+    },
     children: [
       {
         path: '',
@@ -209,7 +256,7 @@ export const routes: Routes = [
         loadComponent: () => import('./components/finances/creatfinance/creatfinance')
           .then(m => m.Creatfinance)
       },
-       {
+      {
         path: ':id/edit',
         loadComponent: () => import('./components/finances/creatfinance/creatfinance')
           .then(m => m.Creatfinance)
@@ -223,7 +270,7 @@ export const routes: Routes = [
   },
   {
     path: 'profile',
-     canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
     children: [
       {
         path: '',
@@ -231,7 +278,7 @@ export const routes: Routes = [
         loadComponent: () => import('./components/profile/detailprofile/detailprofile')
           .then(m => m.Detailprofile)
       },
-       {
+      {
         path: 'edit',
         loadComponent: () => import('./components/profile/edite-profile/edite-profile')
           .then(m => m.EditeProfile)
@@ -252,8 +299,11 @@ export const routes: Routes = [
     path: 'planning',
     loadComponent: () =>
       import('./components/planning/planning').then(m => m.Planning),
-    canActivate: [AuthGuard],
-    data: { title: 'Planning' }
+    canActivate: [PermissionGuard],
+    data: {
+      title: 'Planning',
+      permissions: [Permission.VOIR_RESERVATIONS]
+    }
   },
   {
     path: '**',
