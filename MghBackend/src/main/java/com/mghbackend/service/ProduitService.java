@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ public class ProduitService {
     private final HotelRepository hotelRepository;
     private final MouvementStockRepository mouvementStockRepository;
     private final UserRepository userRepository;
+    private final LigneCommandeRepository ligneCommandeRepository;
 
     // ─────────────────────────────────────────────────────────────
     // CRUD
@@ -254,5 +256,28 @@ public class ProduitService {
         }
         dto.setCreatedAt(m.getCreatedAt());
         return dto;
+    }
+
+
+    public void deleteProduit(Long produitId) {
+        Produit produit = produitRepository.findById(produitId)
+                .orElseThrow(() -> new RuntimeException("Produit non trouvé"));
+
+        // 1. Vérifier s'il y a des lignes de commande liées
+        List<LigneCommande> lignes = ligneCommandeRepository.findByProduit(produit);
+        if (!lignes.isEmpty()) {
+            throw new RuntimeException(
+                    "Impossible de supprimer ce produit : il est utilisé dans "
+                            + lignes.size() + " commande(s) restaurant.");
+        }
+
+        // 2. Supprimer les mouvements de stock liés
+        List<MouvementStock> mouvements = mouvementStockRepository.findByProduit(produit);
+        if (!mouvements.isEmpty()) {
+            mouvementStockRepository.deleteAll(mouvements);
+        }
+
+        // 3. Supprimer le produit
+        produitRepository.delete(produit);
     }
 }

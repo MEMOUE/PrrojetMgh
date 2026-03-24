@@ -130,4 +130,16 @@ public class ProduitController {
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
+
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_MODIFIER_STOCK')")
+    public ResponseEntity<ApiResponse<Void>> deleteProduit(@PathVariable Long id) {
+        try {
+            produitService.deleteProduit(id);
+            return ResponseEntity.ok(ApiResponse.success("Produit supprimé avec succès", null));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
+    }
 }

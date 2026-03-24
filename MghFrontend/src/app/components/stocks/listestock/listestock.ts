@@ -197,7 +197,9 @@ export class Listestock implements OnInit {
             }
           },
           error: (error) => {
-            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: error.message || 'Erreur suppression' });
+            // ✅ FIX : extraire le message du backend
+            const msg = error.error?.message || error.message || 'Erreur suppression';
+            this.messageService.add({ severity: 'error', summary: 'Erreur', detail: msg });
           }
         });
       }

@@ -2,6 +2,7 @@ package com.mghbackend.repository;
 
 import com.mghbackend.entity.CommandeRestaurant;
 import com.mghbackend.entity.LigneCommande;
+import com.mghbackend.entity.Produit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +12,5 @@ import java.util.List;
 public interface LigneCommandeRepository extends JpaRepository<LigneCommande, Long> {
 
     List<LigneCommande> findByCommande(CommandeRestaurant commande);
+    List<LigneCommande> findByProduit(Produit produit);
 }
