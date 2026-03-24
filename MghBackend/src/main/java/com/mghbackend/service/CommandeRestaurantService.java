@@ -120,6 +120,16 @@ public class CommandeRestaurantService {
         commande.setStatut(StatutCommandeRestaurant.EN_ATTENTE);
 
         CommandeRestaurant saved = commandeRepository.save(commande);
+
+        // ✅ Consolidation : ajouter le montant au total de la réservation liée
+        if (commande.getReservation() != null) {
+            majReservationMontant(commande.getReservation(), montantTotal);
+            log.info("🔗 Commande {} rattachée à réservation {} — +{} FCFA ajoutés au total",
+                    saved.getNumeroCommande(),
+                    commande.getReservation().getNumeroReservation(),
+                    montantTotal);
+        }
+
         return convertToDto(saved);
     }
 
@@ -162,6 +172,16 @@ public class CommandeRestaurantService {
                 );
                 log.info("♻️  Stock restitué suite annulation : produit={}",
                         ligne.getProduit().getNom());
+            }
+
+            // ✅ Retirer le montant de la réservation liée
+            if (commande.getReservation() != null) {
+                majReservationMontant(commande.getReservation(),
+                        commande.getMontantTotal().negate());
+                log.info("🔗 Annulation commande {} — -{} FCFA retirés de réservation {}",
+                        commande.getNumeroCommande(),
+                        commande.getMontantTotal(),
+                        commande.getReservation().getNumeroReservation());
             }
         }
 
@@ -274,5 +294,48 @@ public class CommandeRestaurantService {
         CommandeRestaurant commandeRestaurant = commandeRepository.findById(id)
                 .orElseThrow(()->new RuntimeException("Commande introuvable avec id: " + id));
         return convertToDto(commandeRestaurant);
+    }
+
+    /**
+     * Met à jour le montantTotal et montantRestant de la réservation
+     * lorsqu'une commande restaurant y est rattachée (ou annulée).
+     *
+     * @param reservation la réservation liée
+     * @param montant     montant positif → ajout (nouvelle commande),
+     *                    montant négatif → retrait (annulation commande)
+     */
+    private void majReservationMontant(Reservation reservation, BigDecimal montant) {
+        BigDecimal nouveauTotal = reservation.getMontantTotal().add(montant);
+        if (nouveauTotal.compareTo(BigDecimal.ZERO) < 0) {
+            nouveauTotal = BigDecimal.ZERO;
+        }
+
+        reservation.setMontantTotal(nouveauTotal);
+
+        BigDecimal nouveauRestant = nouveauTotal.subtract(
+                reservation.getMontantPaye() != null ? reservation.getMontantPaye() : BigDecimal.ZERO);
+        if (nouveauRestant.compareTo(BigDecimal.ZERO) < 0) {
+            nouveauRestant = BigDecimal.ZERO;
+        }
+        reservation.setMontantRestant(nouveauRestant);
+
+        // Recalcul du statut de paiement
+        BigDecimal montantPaye = reservation.getMontantPaye() != null
+                ? reservation.getMontantPaye() : BigDecimal.ZERO;
+
+        if (nouveauRestant.compareTo(BigDecimal.ZERO) <= 0) {
+            reservation.setStatutPaiement(com.mghbackend.enums.StatutPaiement.PAYE);
+        } else if (montantPaye.compareTo(BigDecimal.ZERO) > 0) {
+            reservation.setStatutPaiement(com.mghbackend.enums.StatutPaiement.ACOMPTE);
+        } else {
+            reservation.setStatutPaiement(com.mghbackend.enums.StatutPaiement.NON_PAYE);
+        }
+
+        reservationRepository.save(reservation);
+
+        log.info("💰 Réservation {} mise à jour : total={}, restant={}, statut={}",
+                reservation.getNumeroReservation(),
+                nouveauTotal, nouveauRestant,
+                reservation.getStatutPaiement());
     }
 }
