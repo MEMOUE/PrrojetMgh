@@ -74,9 +74,11 @@
           [ngStyle]="getCellStyle(getRes(chambre.id!, d))"
           (click)="onCellClick(chambre.id!, d)"
         >
-            <span
-              *ngIf="isStartDate(chambre.id!, d) && getRes(chambre.id!, d) as res"
-              class="client-name">
+<!--            <span-->
+<!--              *ngIf="isStartDate(chambre.id!, d) && getRes(chambre.id!, d) as res"-->
+<!--              class="client-name">-->
+          <span *ngIf="getRes(chambre.id!, d) as res"
+                class="client-name">
               {{ res.clientPrenom }} {{ res.clientNom }}
             </span>
         </td>

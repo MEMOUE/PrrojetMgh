@@ -7,6 +7,7 @@ import com.mghbackend.entity.Reservation;
 import com.mghbackend.enums.StatutCommandeRestaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import com.mghbackend.entity.LigneCommande;
 
 import java.util.List;
 import java.util.Optional;

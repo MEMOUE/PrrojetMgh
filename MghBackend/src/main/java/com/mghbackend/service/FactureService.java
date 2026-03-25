@@ -6,6 +6,7 @@ import com.mghbackend.entity.*;
 import com.mghbackend.enums.StatutFacture;
 import com.mghbackend.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -183,5 +185,148 @@ public class FactureService {
         dto.setCreatedAt(facture.getCreatedAt());
         dto.setUpdatedAt(facture.getUpdatedAt());
         return dto;
+    }
+
+
+    /**
+     * Génère automatiquement une facture consolidée pour une réservation :
+     *  - Section HÉBERGEMENT  : X nuits × prix/nuit
+     *  - Section RESTAURANT   : détail de chaque produit consommé
+     *  - Sous-total par section, puis total général avec TVA
+     */
+    public FactureDto genererFactureReservation(Long hotelId, Long reservationId, BigDecimal tauxTVA) {
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new RuntimeException("Hôtel non trouvé"));
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Réservation non trouvée"));
+
+        if (!reservation.getHotel().getId().equals(hotelId)) {
+            throw new RuntimeException("Cette réservation n'appartient pas à cet hôtel");
+        }
+
+        // Vérifier qu'il n'y a pas déjà une facture pour cette réservation
+        List<Facture> facturesExistantes = factureRepository.findByReservation(reservation);
+        if (!facturesExistantes.isEmpty()) {
+            throw new RuntimeException("Une facture existe déjà pour cette réservation : "
+                    + facturesExistantes.get(0).getNumeroFacture());
+        }
+
+        Facture facture = new Facture();
+        facture.setHotel(hotel);
+        facture.setNumeroFacture(generateNumeroFacture());
+        facture.setDateEmission(java.time.LocalDate.now());
+        facture.setDateEcheance(java.time.LocalDate.now().plusDays(30));
+        facture.setReservation(reservation);
+        facture.setClient(reservation.getClient());
+
+        BigDecimal montantHTTotal = BigDecimal.ZERO;
+
+        // ═══════════════════════════════════════════════════════════
+        // SECTION 1 : HÉBERGEMENT
+        // ═══════════════════════════════════════════════════════════
+
+        BigDecimal prixNuit = reservation.getPrixParNuit();
+        int nombreNuits = reservation.getNombreNuits();
+        BigDecimal montantHebergement = prixNuit.multiply(BigDecimal.valueOf(nombreNuits));
+
+        LigneFacture ligneHebergement = new LigneFacture();
+        ligneHebergement.setFacture(facture);
+        ligneHebergement.setDesignation("Hébergement — Chambre " + reservation.getChambre().getNumero());
+        ligneHebergement.setDescription(nombreNuits + " nuit(s) du "
+                + reservation.getDateArrivee() + " au " + reservation.getDateDepart());
+        ligneHebergement.setQuantite(nombreNuits);
+        ligneHebergement.setPrixUnitaire(prixNuit);
+        ligneHebergement.setMontantHT(montantHebergement);
+        facture.getLignes().add(ligneHebergement);
+        montantHTTotal = montantHTTotal.add(montantHebergement);
+
+        // ═══════════════════════════════════════════════════════════
+        // SECTION 2 : CONSOMMATION RESTAURANT
+        // ═══════════════════════════════════════════════════════════
+
+        List<CommandeRestaurant> commandesRestaurant = commandeRestaurantRepository
+                .findByReservation(reservation).stream()
+                .filter(c -> c.getStatut() != com.mghbackend.enums.StatutCommandeRestaurant.ANNULEE)
+                .collect(java.util.stream.Collectors.toList());
+
+        if (!commandesRestaurant.isEmpty()) {
+
+            // Ligne séparateur / titre de section
+            LigneFacture ligneSeparateur = new LigneFacture();
+            ligneSeparateur.setFacture(facture);
+            ligneSeparateur.setDesignation("══ Consommation Restaurant ══");
+            ligneSeparateur.setDescription("Détail des commandes liées à la réservation");
+            ligneSeparateur.setQuantite(1);
+            ligneSeparateur.setPrixUnitaire(BigDecimal.ZERO);
+            ligneSeparateur.setMontantHT(BigDecimal.ZERO);
+            facture.getLignes().add(ligneSeparateur);
+
+            BigDecimal sousotalRestaurant = BigDecimal.ZERO;
+
+            for (CommandeRestaurant commande : commandesRestaurant) {
+                for (LigneCommande ligneCmd : commande.getLignes()) {
+                    BigDecimal montantLigne = ligneCmd.getPrixUnitaire()
+                            .multiply(BigDecimal.valueOf(ligneCmd.getQuantite()));
+
+                    LigneFacture ligneRestaurant = new LigneFacture();
+                    ligneRestaurant.setFacture(facture);
+                    ligneRestaurant.setDesignation(ligneCmd.getProduit().getNom());
+                    ligneRestaurant.setDescription("Commande " + commande.getNumeroCommande()
+                            + (ligneCmd.getNotes() != null ? " — " + ligneCmd.getNotes() : ""));
+                    ligneRestaurant.setQuantite(ligneCmd.getQuantite());
+                    ligneRestaurant.setPrixUnitaire(ligneCmd.getPrixUnitaire());
+                    ligneRestaurant.setMontantHT(montantLigne);
+                    facture.getLignes().add(ligneRestaurant);
+
+                    sousotalRestaurant = sousotalRestaurant.add(montantLigne);
+                }
+            }
+
+            // Ligne sous-total restaurant
+            LigneFacture ligneSousTotalResto = new LigneFacture();
+            ligneSousTotalResto.setFacture(facture);
+            ligneSousTotalResto.setDesignation("Sous-total Restaurant");
+            ligneSousTotalResto.setDescription(commandesRestaurant.size() + " commande(s)");
+            ligneSousTotalResto.setQuantite(1);
+            ligneSousTotalResto.setPrixUnitaire(sousotalRestaurant);
+            ligneSousTotalResto.setMontantHT(sousotalRestaurant);
+            facture.getLignes().add(ligneSousTotalResto);
+
+            montantHTTotal = montantHTTotal.add(sousotalRestaurant);
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // CALCULS FINAUX : TVA + TTC
+        // ═══════════════════════════════════════════════════════════
+
+        facture.setMontantHT(montantHTTotal);
+        facture.setTauxTVA(tauxTVA != null ? tauxTVA : BigDecimal.ZERO);
+
+        BigDecimal montantTVA = montantHTTotal.multiply(facture.getTauxTVA())
+                .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+        facture.setMontantTVA(montantTVA);
+
+        BigDecimal montantTTC = montantHTTotal.add(montantTVA);
+        facture.setMontantTTC(montantTTC);
+
+        // Montant déjà payé = ce qui a été payé sur la réservation
+        BigDecimal dejaPaye = reservation.getMontantPaye() != null
+                ? reservation.getMontantPaye() : BigDecimal.ZERO;
+        facture.setMontantPaye(dejaPaye);
+        facture.setMontantRestant(montantTTC.subtract(dejaPaye).max(BigDecimal.ZERO));
+
+        facture.setStatut(com.mghbackend.enums.StatutFacture.EMISE);
+        facture.setNotes("Facture générée automatiquement — Réservation "
+                + reservation.getNumeroReservation());
+
+        Facture saved = factureRepository.save(facture);
+
+        log.info("📄 Facture {} générée pour réservation {} — HT={}, TVA={}, TTC={}, Payé={}, Restant={}",
+                saved.getNumeroFacture(),
+                reservation.getNumeroReservation(),
+                montantHTTotal, montantTVA, montantTTC, dejaPaye, facture.getMontantRestant());
+
+        return convertToDto(saved);
     }
 }

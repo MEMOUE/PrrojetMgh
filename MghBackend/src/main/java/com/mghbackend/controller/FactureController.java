@@ -76,4 +76,28 @@ public class FactureController {
                     .body(ApiResponse.error(e.getMessage()));
         }
     }
+
+
+    /**
+     * Génère automatiquement une facture consolidée pour une réservation.
+     * Inclut : hébergement + détail de toutes les commandes restaurant.
+     *
+     * POST /api/factures/reservation/{reservationId}?tauxTVA=18
+     */
+    @PostMapping("/reservation/{reservationId}")
+    @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_MODIFIER_COMPTABILITE')")
+    public ResponseEntity<ApiResponse<FactureDto>> genererFactureReservation(
+            @PathVariable Long reservationId,
+            @RequestParam(defaultValue = "0") BigDecimal tauxTVA,
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
+        try {
+            FactureDto facture = factureService.genererFactureReservation(
+                    principal.getHotelId(), reservationId, tauxTVA);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("Facture consolidée générée avec succès", facture));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
 }

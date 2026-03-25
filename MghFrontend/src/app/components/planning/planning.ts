@@ -7,6 +7,8 @@ import { ChambreService, Chambre } from '../../services/chambre.service';
 import { HotelProfileService, HotelProfile } from '../../services/hotel-profile.service';
 import { AuthService } from '../../services/auth.service';
 import { Reservation, StatutReservation } from '../../models/reservation.model';
+import {RestaurantService} from '../../services/restaurant.service';
+import {CommandeRestaurant} from '../../models/restaurant.model';
 
 @Component({
   selector: 'app-planning',
@@ -96,7 +98,8 @@ export class Planning implements OnInit {
     private reservationService: ReservationService,
     private chambreService: ChambreService,
     private hotelProfileService: HotelProfileService,
-    private authService: AuthService
+    private authService: AuthService,
+    private restaurantService: RestaurantService
   ) {
     this.startDate = new Date();
     this.startDate.setDate(this.startDate.getDate() - 3);
@@ -280,131 +283,150 @@ export class Planning implements OnInit {
 
   printFacture(): void {
     const res = this.selectedReservation;
-    if (!res) return;
+    if (!res || !res.id) return;
 
+    this.restaurantService.getCommandesByReservation(res.id).subscribe({
+      next: (response) => {
+        const commandes = response.success ? response.data : [];
+        this.imprimerFactureConsolidee(res, commandes);
+      },
+      error: () => this.imprimerFactureConsolidee(res, [])
+    });
+  }
+
+  private imprimerFactureConsolidee(res: Reservation, commandes: CommandeRestaurant[]): void {
     const hotel     = this.hotelProfile;
     const hotelNom  = hotel?.name    || 'Hôtel';
     const hotelTel  = hotel?.phone   ? `Tél : ${hotel.phone}`   : '';
-    const hotelAdr  = hotel?.address ? hotel.address              : '';
-    const hotelMail = hotel?.email   ? `Email : ${hotel.email}`   : '';
+    const hotelAdr  = hotel?.address || '';
+    const hotelMail = hotel?.email   ? `Email : ${hotel.email}`  : '';
 
-    const cfg     = this.getStatutCfg(res.statut);
     const dateArr = res.dateArrivee ? new Date(res.dateArrivee).toLocaleDateString('fr-FR') : '-';
     const dateDep = res.dateDepart  ? new Date(res.dateDepart).toLocaleDateString('fr-FR')  : '-';
     const now     = new Date().toLocaleDateString('fr-FR');
+    const cfg     = this.getStatutCfg(res.statut);
 
-    const html = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Facture – ${res.numeroReservation}</title>
-  <style>
-    * { margin:0;padding:0;box-sizing:border-box }
-    body { font-family:'Georgia',serif;color:#1a1a2e;background:#fff;padding:40px }
-    .header { display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1a1a2e;padding-bottom:24px;margin-bottom:32px }
-    .hotel-info .name { font-size:26px;font-weight:900;letter-spacing:1px;text-transform:uppercase }
-    .hotel-info .details { font-size:12px;color:#555;margin-top:6px;line-height:1.8 }
-    .invoice-meta { text-align:right }
-    .invoice-meta h2 { font-size:18px;text-transform:uppercase;letter-spacing:3px }
-    .invoice-meta p  { color:#555;font-size:13px;margin-top:4px }
-    .parties { display:flex;gap:40px;margin-bottom:32px }
-    .party { flex:1 }
-    .party h3 { font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#888;border-bottom:1px solid #ddd;padding-bottom:6px;margin-bottom:12px }
-    .party p  { font-size:14px;line-height:1.8 }
-    table { width:100%;border-collapse:collapse;margin-bottom:24px }
-    th { background:#1a1a2e;color:#fff;padding:10px 14px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:1px }
-    td { padding:12px 14px;border-bottom:1px solid #eee;font-size:14px }
-    tr:nth-child(even) td { background:#f9f9f9 }
-    .totals { display:flex;justify-content:flex-end }
-    .totals-box { width:300px;border:1px solid #ddd }
-    .totals-row { display:flex;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #eee;font-size:14px }
-    .totals-row.total { background:#1a1a2e;color:#fff;font-weight:bold;font-size:16px }
-    .totals-row.paye  { background:#d1fae5;color:#065f46;font-weight:bold }
-    .totals-row.reste { background:#fee2e2;color:#991b1b;font-weight:bold }
-    .statut-badge { display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:bold;background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border} }
-    .footer { margin-top:48px;padding-top:20px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:12px;color:#888 }
-    @media print { body { padding:20px } @page { margin:10mm } }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="hotel-info">
-      <div class="name">${hotelNom}</div>
-      <div class="details">
-        ${hotelAdr ? hotelAdr + '<br>' : ''}
-        ${hotelTel ? hotelTel + '<br>' : ''}
-        ${hotelMail ? hotelMail : ''}
-      </div>
-    </div>
-    <div class="invoice-meta">
-      <h2>Reçu de réservation</h2>
-      <p>N° ${res.numeroReservation}</p>
-      <p>Émis le ${now}</p>
-      <p style="margin-top:8px"><span class="statut-badge">${cfg.label}</span></p>
-    </div>
+    const montantHebergement = (res.prixParNuit || 0) * (res.nombreNuits || 0);
+
+    let lignesHTML = `
+    <tr class="section-header"><td colspan="4"><strong>HÉBERGEMENT</strong></td></tr>
+    <tr>
+      <td>Chambre ${res.chambreNumero || res.chambreId}</td>
+      <td class="center">${res.nombreNuits || 0}</td>
+      <td class="right">${(res.prixParNuit || 0).toLocaleString('fr-FR')} F CFA</td>
+      <td class="right">${montantHebergement.toLocaleString('fr-FR')} F CFA</td>
+    </tr>
+    <tr class="subtotal-row">
+      <td colspan="3" class="right"><strong>Sous-total Hébergement</strong></td>
+      <td class="right"><strong>${montantHebergement.toLocaleString('fr-FR')} F CFA</strong></td>
+    </tr>`;
+
+    let montantRestaurant = 0;
+    if (commandes.length > 0) {
+      lignesHTML += `<tr class="section-header"><td colspan="4"><strong>CONSOMMATION RESTAURANT</strong></td></tr>`;
+      for (const cmd of commandes) {
+        for (const ligne of (cmd.lignes || [])) {
+          const st = ligne.sousTotal ?? (ligne.quantite * ligne.prixUnitaire);
+          montantRestaurant += st;
+          lignesHTML += `
+          <tr>
+            <td>${ligne.produitNom || 'Produit'} <small style="color:#888">(${cmd.numeroCommande})</small></td>
+            <td class="center">${ligne.quantite}</td>
+            <td class="right">${ligne.prixUnitaire.toLocaleString('fr-FR')} F CFA</td>
+            <td class="right">${st.toLocaleString('fr-FR')} F CFA</td>
+          </tr>`;
+        }
+      }
+      lignesHTML += `
+      <tr class="subtotal-row">
+        <td colspan="3" class="right"><strong>Sous-total Restaurant (${commandes.length} cmd)</strong></td>
+        <td class="right"><strong>${montantRestaurant.toLocaleString('fr-FR')} F CFA</strong></td>
+      </tr>`;
+    }
+
+    const totalGeneral   = montantHebergement + montantRestaurant;
+    const montantPaye    = res.montantPaye    || 0;
+    const montantRestant = Math.max(0, totalGeneral - montantPaye);
+
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>Facture – ${res.numeroReservation}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Georgia',serif;color:#1a1a2e;background:#fff;padding:40px}
+.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1a1a2e;padding-bottom:20px;margin-bottom:28px}
+.hotel-info .name{font-size:24px;font-weight:900;letter-spacing:1px;text-transform:uppercase}
+.hotel-info .details{font-size:12px;color:#555;margin-top:6px;line-height:1.8}
+.invoice-meta{text-align:right}
+.invoice-meta h2{font-size:16px;text-transform:uppercase;letter-spacing:3px}
+.invoice-meta p{color:#555;font-size:12px;margin-top:4px}
+.parties{display:flex;gap:40px;margin-bottom:28px}
+.party{flex:1}
+.party h3{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#888;border-bottom:1px solid #ddd;padding-bottom:6px;margin-bottom:10px}
+.party p{font-size:13px;line-height:1.8}
+table{width:100%;border-collapse:collapse;margin-bottom:20px}
+th{background:#1a1a2e;color:#fff;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+td{padding:8px 12px;border-bottom:1px solid #eee;font-size:12px}
+.center{text-align:center}.right{text-align:right}
+.section-header td{background:#f0f0f0;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#1a1a2e;padding:10px 12px;border-top:2px solid #ddd}
+.subtotal-row td{background:#f8f8f8;border-top:1px solid #ccc}
+.totals{display:flex;justify-content:flex-end;margin-top:8px}
+.totals-box{width:320px;border:1px solid #ddd}
+.totals-row{display:flex;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #eee;font-size:13px}
+.totals-row.grand-total{background:#1a1a2e;color:#fff;font-weight:bold;font-size:15px}
+.totals-row.paye{background:#d1fae5;color:#065f46;font-weight:bold}
+.totals-row.reste{background:#fee2e2;color:#991b1b;font-weight:bold}
+.totals-row.ok{background:#d1fae5;color:#065f46;font-weight:bold}
+.statut-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:bold;background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border}}
+.footer{margin-top:40px;padding-top:16px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:11px;color:#888}
+@media print{body{padding:20px}@page{margin:10mm}}
+</style></head><body>
+<div class="header">
+  <div class="hotel-info">
+    <div class="name">${hotelNom}</div>
+    <div class="details">${hotelAdr ? hotelAdr+'<br>' : ''}${hotelTel ? hotelTel+'<br>' : ''}${hotelMail}</div>
   </div>
-
-  <div class="parties">
-    <div class="party">
-      <h3>Client</h3>
-      <p><strong>${res.clientPrenom || ''} ${res.clientNom || ''}</strong></p>
-      ${res.clientTelephone ? `<p>Tél : ${res.clientTelephone}</p>` : ''}
-    </div>
-    <div class="party">
-      <h3>Séjour</h3>
-      <p>Chambre : <strong>${res.chambreNumero || res.chambreId}</strong></p>
-      <p>Arrivée : <strong>${dateArr}</strong></p>
-      <p>Départ : <strong>${dateDep}</strong></p>
-      <p>Durée : <strong>${res.nombreNuits || '-'} nuit(s)</strong></p>
-      <p>Adultes / Enfants : ${res.nombreAdultes || 1} / ${res.nombreEnfants || 0}</p>
-    </div>
+  <div class="invoice-meta">
+    <h2>Facture</h2>
+    <p>N° ${res.numeroReservation}</p>
+    <p>Émise le ${now}</p>
+    <p style="margin-top:8px"><span class="statut-badge">${cfg.label}</span></p>
   </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Désignation</th>
-        <th>Détail</th>
-        <th style="text-align:right">Montant</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Hébergement – Chambre ${res.chambreNumero || res.chambreId}</td>
-        <td>${res.nombreNuits || '-'} nuit(s) × ${(res.prixParNuit || 0).toLocaleString('fr-FR')} F CFA</td>
-        <td style="text-align:right">${(res.montantTotal || 0).toLocaleString('fr-FR')} F CFA</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="totals">
-    <div class="totals-box">
-      <div class="totals-row total">
-        <span>Total</span>
-        <span>${(res.montantTotal || 0).toLocaleString('fr-FR')} F CFA</span>
-      </div>
-      <div class="totals-row paye">
-        <span>Montant payé</span>
-        <span>${(res.montantPaye || 0).toLocaleString('fr-FR')} F CFA</span>
-      </div>
-      <div class="totals-row reste">
-        <span>Reste à payer</span>
-        <span>${(res.montantRestant || 0).toLocaleString('fr-FR')} F CFA</span>
-      </div>
-    </div>
+</div>
+<div class="parties">
+  <div class="party">
+    <h3>Client</h3>
+    <p><strong>${res.clientPrenom || ''} ${res.clientNom || ''}</strong></p>
+    ${res.clientTelephone ? `<p>Tél : ${res.clientTelephone}</p>` : ''}
   </div>
-
-  ${res.notes ? `<div style="margin-top:32px;padding:16px;background:#f9f9f9;border-left:3px solid #1a1a2e;font-size:13px"><strong>Notes :</strong> ${res.notes}</div>` : ''}
-
-  <div class="footer">
-    <span>${hotelNom}${hotelAdr ? ' – ' + hotelAdr : ''}</span>
-    <span>Document généré le ${now}</span>
+  <div class="party">
+    <h3>Séjour</h3>
+    <p>Chambre <strong>${res.chambreNumero || res.chambreId}</strong></p>
+    <p>Du <strong>${dateArr}</strong> au <strong>${dateDep}</strong> — ${res.nombreNuits || 0} nuit(s)</p>
+    <p>${res.nombreAdultes || 1} adulte(s), ${res.nombreEnfants || 0} enfant(s)</p>
   </div>
-</body>
-</html>`;
+</div>
+<table>
+  <thead><tr><th>Désignation</th><th class="center">Qté</th><th class="right">P.U.</th><th class="right">Montant</th></tr></thead>
+  <tbody>${lignesHTML}</tbody>
+</table>
+<div class="totals"><div class="totals-box">
+  ${commandes.length > 0 ? `
+  <div class="totals-row"><span>Hébergement</span><span>${montantHebergement.toLocaleString('fr-FR')} F CFA</span></div>
+  <div class="totals-row"><span>Restaurant</span><span>${montantRestaurant.toLocaleString('fr-FR')} F CFA</span></div>` : ''}
+  <div class="totals-row grand-total"><span>TOTAL GÉNÉRAL</span><span>${totalGeneral.toLocaleString('fr-FR')} F CFA</span></div>
+  <div class="totals-row paye"><span>Montant payé</span><span>${montantPaye.toLocaleString('fr-FR')} F CFA</span></div>
+  <div class="totals-row ${montantRestant > 0 ? 'reste' : 'ok'}">
+    <span>${montantRestant > 0 ? 'Reste à payer' : 'Entièrement payé'}</span>
+    <span>${montantRestant > 0 ? montantRestant.toLocaleString('fr-FR')+' F CFA' : '✓'}</span>
+  </div>
+</div></div>
+${res.notes ? `<div style="margin-top:24px;padding:12px;background:#f9f9f9;border-left:3px solid #1a1a2e;font-size:12px"><strong>Notes :</strong> ${res.notes}</div>` : ''}
+<div class="footer"><span>${hotelNom}${hotelAdr ? ' — '+hotelAdr : ''}</span><span>Généré le ${now}</span></div>
+<script>window.onload=function(){window.print();setTimeout(function(){window.close()},1000)}</script>
+</body></html>`;
 
     const win = window.open('', '_blank');
-    if (win) { win.document.write(html); win.document.close(); win.focus(); setTimeout(() => win.print(), 500); }
+    if (win) { win.document.write(html); win.document.close(); win.focus(); }
   }
 
   navigateDays(delta: number): void {

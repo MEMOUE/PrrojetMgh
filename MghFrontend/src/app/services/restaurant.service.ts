@@ -72,4 +72,11 @@ export class RestaurantService {
   getMenuParType(type: TypeProduit): Observable<ApiResponse<ProduitMenu[]>> {
     return this.http.get<ApiResponse<ProduitMenu[]>>(`${this.produitsUrl}/menu/${type}`);
   }
+
+  /** Obtenir les commandes liées à une réservation */
+  getCommandesByReservation(reservationId: number): Observable<ApiResponse<CommandeRestaurant[]>> {
+    return this.http.get<ApiResponse<CommandeRestaurant[]>>(
+      `${this.apiUrl}/reservation/${reservationId}`
+    );
+  }
 }

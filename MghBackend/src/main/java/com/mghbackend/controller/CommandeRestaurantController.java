@@ -96,4 +96,16 @@ public class CommandeRestaurantController {
                     .body(ApiResponse.error(e.getMessage()));
         }
     }
+
+    @GetMapping("/reservation/{reservationId}")
+    @PreAuthorize("hasRole('HOTEL') or hasAuthority('PERMISSION_VOIR_COMMANDES')")
+    public ResponseEntity<ApiResponse<List<CommandeRestaurantDto>>> getCommandesByReservation(
+            @PathVariable Long reservationId) {
+        try {
+            List<CommandeRestaurantDto> commandes = commandeService.getCommandesByReservation(reservationId);
+            return ResponseEntity.ok(ApiResponse.success(commandes));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
+    }
 }

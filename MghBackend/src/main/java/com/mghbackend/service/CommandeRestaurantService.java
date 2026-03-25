@@ -338,4 +338,14 @@ public class CommandeRestaurantService {
                 nouveauTotal, nouveauRestant,
                 reservation.getStatutPaiement());
     }
+
+    @Transactional(readOnly = true)
+    public List<CommandeRestaurantDto> getCommandesByReservation(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Réservation non trouvée"));
+        return commandeRepository.findByReservation(reservation).stream()
+                .filter(c -> c.getStatut() != StatutCommandeRestaurant.ANNULEE)
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
 }
