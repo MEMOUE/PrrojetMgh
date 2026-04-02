@@ -302,7 +302,8 @@ export const routes: Routes = [
     canActivate: [PermissionGuard],
     data: {
       title: 'Planning',
-      permissions: [Permission.VOIR_RESERVATIONS]
+      permissions: [Permission.VOIR_RESERVATIONS],
+      hideFooter: true
     }
   },
   {
