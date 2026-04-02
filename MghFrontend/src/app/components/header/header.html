@@ -19,8 +19,8 @@
       <!-- Navigation Desktop - Non connecté -->
       <nav class="header-nav" *ngIf="!isAuthenticated">
         <a [routerLink]="['/accueil']" class="nav-link" fragment="accueil">Accueil</a>
-        <a [routerLink]="['/accueil']" class="nav-link" fragment="fonctionnalites">Fonctionnalités</a>
-        <a [routerLink]="['/accueil']" class="nav-link" fragment="tarifs">Tarifs</a>
+        <a href="#fonctionnalites" class="nav-link">Fonctionnalités</a>
+        <a href="#tarifs" class="nav-link" >Tarifs</a>
         <a href="#contact" class="nav-link">Contact</a>
       </nav>
 
